@@ -1,1 +1,6 @@
-<Solution />
+<Solution>
+  <Project Path="NutriTrack.API/NutriTrack.API.csproj" Id="629bc872-b7ce-486f-9cd7-3d5b715ad368" />
+  <Project Path="NutriTrack.Core/NutriTrack.Core.csproj" Id="05cc16f8-62de-4c72-a81f-7b2a2d9feff6" />
+  <Project Path="NutriTrack.Infraestructure/NutriTrack.Infraestructure.csproj" Id="e0a34e1f-e86d-489b-afcf-0ece889f0455" />
+  <Project Path="NutriTrack.MAUI/NutriTrack.MAUI.csproj" Id="6877b43c-652f-4c77-8452-d2170e1bc7ba" />
+</Solution>
