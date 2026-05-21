@@ -482,5 +482,5 @@ $RECYCLE.BIN/
 *.swp
 
 # User secrets and connection strings
-**/appsettings.json
-appsettings.*.json
+appsettings.json
+appsettings.Development.json
