@@ -1,5 +1,4 @@
 # NutriTrack
-
 Sistema de gestión ganadera desarrollado como proyecto final de la Tecnicatura Superior en Desarrollo de Software — Instituto Tecnológico El Molino, 2026.
 
 ## Tecnologías
@@ -13,23 +12,27 @@ Sistema de gestión ganadera desarrollado como proyecto final de la Tecnicatura 
 - Visual Studio 2022 con los workloads:
   - ASP.NET and web development
   - .NET MAUI
-- PostgreSQL instalado localmente
+- Docker Desktop
 
 ## Cómo correr el proyecto
-
 1. Clonar el repositorio
-
 git clone https://github.com/tomasstauber/NutriTrack.git
 
-2.  Abrir `NutriTrack.sln` en Visual Studio
+2. Copiar `.env.example` → `.env` y completar con los valores reales
 
-3. Visual Studio restaura las dependencias automáticamente. Si no lo hace, correr en la terminal:
+3. Copiar `appsettings.example.json` → `appsettings.json` y completar con los valores reales
 
+4. Levantar la base de datos:
+docker compose up
+
+5. Abrir DBeaver, conectarse a la base de datos y ejecutar `db/scripts/NutriTrack-DLL.sql`
+
+6. Abrir `NutriTrack.sln` en Visual Studio
+
+7. Restaurar dependencias si Visual Studio no lo hace automáticamente:
 dotnet restore
 
-4. Copiar `appsettings.example.json` → `appsettings.json` y completar con los datos de tu base de datos local
-
-5. Establecer `NutriTrack.API` como proyecto de inicio y presionar F5
+8. Establecer `NutriTrack.API` como proyecto de inicio y presionar F5
 
 ## Equipo
 Lamerata Daniela · Stauber Tomás · Tapia Gala
