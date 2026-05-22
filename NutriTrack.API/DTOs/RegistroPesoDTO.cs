@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NutriTrack.Core.Entities
+﻿namespace NutriTrack.API.DTOs
 {
-    public class RegistroPeso
+    public class RegistroPesoDTO
     {
-        public int Id { get; set; }
         public DateTime FechaPesaje { get; set; }
         public decimal PesoKg { get; set; }
         public string? Observaciones { get; set; }

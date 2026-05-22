@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".env" />
+    <File Path=".env.example" />
+    <File Path="docker-compose.yml" />
+  </Folder>
   <Project Path="NutriTrack.API/NutriTrack.API.csproj" Id="629bc872-b7ce-486f-9cd7-3d5b715ad368" />
   <Project Path="NutriTrack.Core/NutriTrack.Core.csproj" Id="05cc16f8-62de-4c72-a81f-7b2a2d9feff6" />
   <Project Path="NutriTrack.Infraestructure/NutriTrack.Infraestructure.csproj" Id="e0a34e1f-e86d-489b-afcf-0ece889f0455" />
