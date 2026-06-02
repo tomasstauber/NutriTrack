@@ -22,10 +22,10 @@ CREATE TABLE ingrediente (
     id_ingrediente SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    minerales DECIMAL,
-    energia_metabolizada DECIMAL,
-    proteina_bruta DECIMAL,
-    fibra_det_neutro DECIMAL,
+    minerales FLOAT,
+    energia_metabolizada FLOAT,
+    proteina_bruta FLOAT,
+    fibra_det_neutro FLOAT,
     unidad_medida VARCHAR(50),
     aditivos TEXT
 );
@@ -41,7 +41,7 @@ CREATE TABLE animal (
     caravana_cuig VARCHAR(5) NOT NULL,
     caravana_nro_manejo VARCHAR(5) NOT NULL,
     fecha_nacimiento DATE,
-    peso_al_nacer DECIMAL,
+    peso_al_nacer FLOAT,
     id_madre INTEGER REFERENCES animal(id_animal),
     id_padre INTEGER REFERENCES animal(id_animal),
     raza VARCHAR(100),
@@ -66,7 +66,7 @@ CREATE TABLE evento_sanitario (
 CREATE TABLE control_de_peso (
     id_control_de_peso SERIAL PRIMARY KEY,
     fecha_pesaje DATE,
-    peso_kg DECIMAL,
+    peso_kg FLOAT,
     observaciones TEXT,
     id_usuario INTEGER REFERENCES usuario(id_usuario),
     id_animal INTEGER REFERENCES animal(id_animal)
@@ -77,12 +77,10 @@ CREATE TABLE plan_alimenticio (
     nombre_plan VARCHAR(100) NOT NULL UNIQUE,
     fecha_plan DATE,
     categoria categoria_animal,
-    peso_vivo_inicial DECIMAL,
-    peso_objetivo DECIMAL,
-    ganancia_peso_esperada DECIMAL,
-    tipo_alimentacion VARCHAR(50) NOT NULL,
-    tiempo_alimentacion VARCHAR(100),
-    kg_ms_diaria_por_animal DECIMAL NOT NULL,
+    peso_vivo_inicial FLOAT,
+    peso_objetivo FLOAT,
+    vigencia_desde DATE,
+    vigencia_hasta DATE,
     cantidad_animales INTEGER,
     observaciones TEXT,
     id_rodeo INTEGER REFERENCES rodeo(id_rodeo)
@@ -90,8 +88,8 @@ CREATE TABLE plan_alimenticio (
 
 CREATE TABLE plan_alimenticio_detalle (
     id_plan_alimenticio_detalle SERIAL PRIMARY KEY,
-    porcentaje_inclusion_ms DECIMAL,
-    cantidad_diaria_kg_ms DECIMAL,
+    porcentaje_inclusion_ms FLOAT,
+    cantidad_diaria_kg_ms FLOAT,
     observaciones TEXT,
     id_plan_alimenticio INTEGER REFERENCES plan_alimenticio(id_plan_alimenticio),
     id_ingrediente INTEGER REFERENCES ingrediente(id_ingrediente)
@@ -99,7 +97,7 @@ CREATE TABLE plan_alimenticio_detalle (
 
 CREATE TABLE detalle_medicamento (
     id_detalle_medicamento SERIAL PRIMARY KEY,
-    dosis DECIMAL,
+    dosis FLOAT,
     unidad unidad_dosis,
     id_evento_sanitario INTEGER REFERENCES evento_sanitario(id_evento_sanitario),
     id_medicamento INTEGER REFERENCES medicamento(id_medicamento)
