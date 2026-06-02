@@ -74,6 +74,7 @@ CREATE TABLE control_de_peso (
 
 CREATE TABLE plan_alimenticio (
     id_plan_alimenticio SERIAL PRIMARY KEY,
+    nombre_plan VARCHAR(100) NOT NULL UNIQUE,
     fecha_plan DATE,
     categoria categoria_animal,
     peso_vivo_inicial FLOAT,

@@ -54,10 +54,10 @@ INSERT INTO control_de_peso (fecha_pesaje, peso_kg, observaciones, id_usuario, i
 ('2024-04-05', 180.0, 'Ternera en desarrollo normal', 3, 5);
 
 -- plan_alimenticio
-INSERT INTO plan_alimenticio (fecha_plan, categoria, peso_vivo_inicial, peso_objetivo, vigencia_desde, vigencia_hasta, cantidad_animales, observaciones, id_rodeo) VALUES
-('2024-01-01', 'novillo', 350.0, 480.0, '2024-01-01', '2024-06-30', 15, 'Plan engorde primer semestre', 1),
-('2024-01-01', 'vaca', 420.0, 450.0, '2024-01-01', '2024-12-31', 20, 'Plan mantenimiento vacas', 2),
-('2024-03-01', 'ternero', 80.0, 180.0, '2024-03-01', '2024-09-30', 10, 'Plan destete y desarrollo', 3);
+INSERT INTO plan_alimenticio (nombre_plan, fecha_plan, categoria, peso_vivo_inicial, peso_objetivo, vigencia_desde, vigencia_hasta, cantidad_animales, observaciones, id_rodeo) VALUES
+('Plan engorde novillos Q1', '2024-01-01', 'novillo', 350.0, 480.0, '2024-01-01', '2024-06-30', 15, 'Plan engorde primer semestre', 1),
+('Plan mantenimiento vacas', '2024-01-01', 'vaca', 420.0, 450.0, '2024-01-01', '2024-12-31', 20, 'Plan mantenimiento vacas', 2),
+('Plan destete terneros', '2024-03-01', 'ternero', 80.0, 180.0, '2024-03-01', '2024-09-30', 10, 'Plan destete y desarrollo', 3);
 
 -- plan_alimenticio_detalle
 INSERT INTO plan_alimenticio_detalle (porcentaje_inclusion_ms, cantidad_diaria_kg_ms, observaciones, id_plan_alimenticio, id_ingrediente) VALUES
