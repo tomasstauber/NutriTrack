@@ -9,6 +9,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<RegistroPesoRepository>();
+builder.Services.AddScoped<PlanAlimenticioRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
