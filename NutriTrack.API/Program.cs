@@ -9,6 +9,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<RegistroPesoRepository>();
+builder.Services.AddScoped<CrearRodeoRepository>();
+builder.Services.AddScoped<AnimalRepository>();
 builder.Services.AddScoped<PlanAlimenticioRepository>();
 
 builder.Services.AddControllers();
