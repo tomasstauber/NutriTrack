@@ -11,6 +11,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<RegistroPesoRepository>();
 builder.Services.AddScoped<CrearRodeoRepository>();
 builder.Services.AddScoped<AnimalRepository>();
+builder.Services.AddScoped<PlanAlimenticioRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

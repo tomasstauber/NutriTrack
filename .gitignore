@@ -484,3 +484,4 @@ $RECYCLE.BIN/
 # User secrets and connection strings
 appsettings.json
 appsettings.Development.json
+/db/scripts/NutriTrack-DLL.sql
