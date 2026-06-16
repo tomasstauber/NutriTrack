@@ -100,12 +100,41 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.Id).HasColumnName("id_animal").ValueGeneratedOnAdd();
                 entity.Property(e => e.CaravanaCuig).HasColumnName("caravana_cuig");
                 entity.Property(e => e.CaravanaNroManejo).HasColumnName("caravana_nro_manejo");
+                entity.Property(e => e.FechaNacimiento).HasColumnName("fecha_nacimiento");
+                entity.Property(e => e.PesoAlNacer).HasColumnName("peso_al_nacer");
+                entity.Property(e => e.Raza).HasColumnName("raza");
+                entity.Property(e => e.MadreId).HasColumnName("id_madre");
+                entity.Property(e => e.PadreId).HasColumnName("id_padre");
+
+                entity.Property(e => e.Sexo)
+                    .HasColumnName("sexo")
+                    .HasColumnType("sexo_animal")
+                    .HasConversion(
+                        v => v.ToString().ToLower(),
+                        v => Enum.Parse<Sexo>(v, ignoreCase: true)
+                     );
+                    
+
+                entity.Property(e => e.ColorPelaje).HasColumnName("color_pelaje");
+                entity.Property(e => e.FechaAlta).HasColumnName("fecha_alta");
                 entity.Property(e => e.Estado).HasColumnName("estado");
                 entity.Property(e => e.RodeoId).HasColumnName("id_rodeo");
+                
                 entity.HasOne(a => a.Rodeo)
-                      .WithMany(r => r.Animales)
-                      .HasForeignKey(a => a.RodeoId)
-                      .OnDelete(DeleteBehavior.SetNull);
+                    .WithMany(r => r.Animales)
+                    .HasForeignKey(a => a.RodeoId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                
+                entity.HasOne(a => a.Madre)
+                    .WithMany()
+                    .HasForeignKey(a => a.MadreId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                
+                entity.HasOne(a => a.Padre)
+                    .WithMany()
+                    .HasForeignKey(a => a.PadreId)
+                    .OnDelete(DeleteBehavior.SetNull);
+                
             }
             );
         }
