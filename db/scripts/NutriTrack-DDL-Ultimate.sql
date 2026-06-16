@@ -1,5 +1,4 @@
 CREATE TYPE rol_usuario AS ENUM ('administrador', 'asesor técnico', 'encargado de campo');
-CREATE TYPE sexo_animal AS ENUM ('macho', 'hembra');
 CREATE TYPE tipo_evento AS ENUM ('vacunacion', 'desparasitacion', 'antibiotico', 'cirugia', 'otro');
 CREATE TYPE unidad_dosis AS ENUM ('ml', 'l', 'mg', 'g', 'UI', 'cm3');
 
@@ -26,7 +25,7 @@ CREATE TABLE Animal (
     id_madre INTEGER REFERENCES Animal(id_animal),
     id_padre INTEGER REFERENCES Animal(id_animal),
     raza VARCHAR(100),
-    sexo sexo_animal,
+    sexo VARCHAR(10),
     color_pelaje VARCHAR(100),
     fecha_alta DATE,
     estado BOOLEAN,
