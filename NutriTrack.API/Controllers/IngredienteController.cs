@@ -131,14 +131,16 @@ namespace NutriTrack.API.Controllers
             }
 
             var planesQueLoUsan = await _repository.ObtenerPlanesQueUsan(id);
+
+            await _repository.DesactivarAsync(ingrediente);
+            
             if (planesQueLoUsan.Any())
             {
                 var nombres = string.Join(", ", planesQueLoUsan.Select(p => p.NombrePlan));
-                return BadRequest($"No se puede eliminar el ingrediente porque está siendo usado en los siguientes planes: {nombres}");
+                return Ok($"Ingrediente desactivado. Atención: está siendo usado en los siguientes planes: {nombres}");
             }
 
-            await _repository.EliminarAsync(ingrediente);
-            return Ok("Ingrediente eliminado exitosamente!");
+            return Ok("Ingrediente desactivado exitosamente!");
         }
     }
 }

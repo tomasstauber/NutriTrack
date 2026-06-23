@@ -24,7 +24,9 @@ namespace NutriTrack.Infraestructure.Repositories
 
         public async Task<List<Ingrediente>> ObtenerTodosAsync()
         {
-            return await _context.Ingredientes.ToListAsync();
+            return await _context.Ingredientes
+                .Where(i => i.Activo)
+                .ToListAsync();
         }
 
         public async Task<Ingrediente?> BuscarPorId(int IdIngrediente)
@@ -37,13 +39,14 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             return await _context.Ingredientes
                 .Where(i => i.NombreIngrediente.ToLower().Contains(NombreIngrdiente.ToLower()))
+                .Where(i => i.Activo)
                 .ToListAsync();
         }
 
         public async Task<bool> VerificarNombreUnico(string NombreIngrediente)
         {
             return await _context.Ingredientes
-                .AnyAsync(i => i.NombreIngrediente.ToLower() == NombreIngrediente.ToLower());
+                .AnyAsync(i => i.NombreIngrediente.ToLower() == NombreIngrediente.ToLower() && i.Activo);
         }
 
         public async Task ActualizarAsync(Ingrediente ingrediente)
@@ -52,9 +55,9 @@ namespace NutriTrack.Infraestructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task EliminarAsync(Ingrediente ingrediente)
+        public async Task DesactivarAsync(Ingrediente ingrediente)
         {
-            _context.Ingredientes.Remove(ingrediente);
+            ingrediente.Activo = false;
             await _context.SaveChangesAsync();
         }
 
@@ -66,11 +69,5 @@ namespace NutriTrack.Infraestructure.Repositories
                 .Distinct()
                 .ToListAsync();
         } 
-
-        //public async Task<bool> EstaEnUso(int IdIngrediente)
-        //{
-        //    return await _context.PlanAlimenticioDetalles
-        //        .AnyAsync(d => d.IdIngrediente == IdIngrediente);
-        //}
     }
 }
