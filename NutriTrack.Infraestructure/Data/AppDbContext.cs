@@ -15,6 +15,7 @@ namespace NutriTrack.Infraestructure.Data
         public DbSet<PlanAlimenticio> PlanesAlimenticios { get; set; }
         public DbSet<PlanAlimenticioDetalle> PlanAlimenticioDetalles { get; set; }
         public DbSet<PlanRodeoAsignacion> PlanRodeoAsignacions { get; set; }
+        public DbSet<Ingrediente> Ingredientes { get; set; }
 
         public DbSet<Rodeo> Rodeos { get; set; }
         public DbSet<Animal> Animales { get; set; }
@@ -61,6 +62,9 @@ namespace NutriTrack.Infraestructure.Data
                        .WithMany(p => p.Detalles)
                        .HasForeignKey(d => d.IdPlanAlimenticio)
                        .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(d => d.Ingrediente)
+                       .WithMany()
+                       .HasForeignKey(d => d.IdIngrediente);
             });
 
             modelBuilder.Entity<PlanRodeoAsignacion>(entity =>
@@ -137,6 +141,21 @@ namespace NutriTrack.Infraestructure.Data
                 
             }
             );
+
+            modelBuilder.Entity<Ingrediente>(entity =>
+            {
+                entity.ToTable("ingrediente");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id_ingrediente");
+                entity.Property(e => e.NombreIngrediente).HasColumnName("nombre");
+                entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+                entity.Property(e => e.Minerales).HasColumnName("minerales");
+                entity.Property(e => e.EnergiaMetabolizable).HasColumnName("energia_metabolizable");
+                entity.Property(e => e.ProteinaBruta).HasColumnName("proteina_bruta");
+                entity.Property(e => e.FibraDetergenteNeutro).HasColumnName("fibra_det_neutro");
+                entity.Property(e => e.UnidadMedida).HasColumnName("unidad_medida");
+                entity.Property(e => e.Aditivos).HasColumnName("aditivos");
+            });
         }
     }
 }

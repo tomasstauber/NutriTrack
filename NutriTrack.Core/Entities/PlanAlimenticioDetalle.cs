@@ -10,6 +10,7 @@ namespace NutriTrack.Core.Entities
         public int Id { get; set; }
         public decimal PorcentajeInclusionMs { get; set; }
         public string? Observaciones { get; set; }
+        public Ingrediente? Ingrediente { get; set; }
         public int IdPlanAlimenticio { get; set; }
         public int IdIngrediente { get; set; }
         public PlanAlimenticio? PlanAlimenticio { get; set; }
