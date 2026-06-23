@@ -22,7 +22,8 @@ namespace NutriTrack.Infraestructure.Data
         {
             modelBuilder.Entity<RegistroPeso>(entity =>
             {
-                entity.ToTable("controldepeso");
+                //cambio; avisar
+                entity.ToTable("control_de_peso");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).HasColumnName("id_control_de_peso").ValueGeneratedOnAdd();
                 entity.Property(e => e.FechaPesaje).HasColumnName("fecha_pesaje");

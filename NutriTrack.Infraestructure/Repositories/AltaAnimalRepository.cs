@@ -1,4 +1,5 @@
-﻿using NutriTrack.Core.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Data;
 using System;
 using System.Collections.Generic;
@@ -35,3 +36,4 @@ namespace NutriTrack.Infraestructure.Repositories
 
     }
 }
+
