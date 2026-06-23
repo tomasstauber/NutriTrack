@@ -75,10 +75,11 @@ namespace NutriTrack.API.Controllers
             {
                 Id = d.Id,
                 IdIngrediente = d.IdIngrediente,
+                NombreIngrediente = d.Ingrediente?.NombreIngrediente,   
                 PorcentajeInclusionMs = d.PorcentajeInclusionMs,
                 Observaciones = d.Observaciones
             }).ToList();
-            
+
             return Ok(responseDto);
         }
     }

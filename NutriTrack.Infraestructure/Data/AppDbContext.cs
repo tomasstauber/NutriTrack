@@ -62,6 +62,9 @@ namespace NutriTrack.Infraestructure.Data
                        .WithMany(p => p.Detalles)
                        .HasForeignKey(d => d.IdPlanAlimenticio)
                        .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(d => d.Ingrediente)
+                       .WithMany()
+                       .HasForeignKey(d => d.IdIngrediente);
             });
 
             modelBuilder.Entity<PlanRodeoAsignacion>(entity =>

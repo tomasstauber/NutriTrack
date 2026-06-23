@@ -32,6 +32,7 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             return await _context.PlanesAlimenticios
                 .Include(p => p.Detalles)
+                    .ThenInclude(d => d.Ingrediente)
                 .FirstOrDefaultAsync(p => p.Id == IdPlan);
         }
     }
