@@ -75,7 +75,8 @@ CREATE TABLE Ingrediente (
     proteina_bruta DECIMAL,
     fibra_det_neutro DECIMAL,
     unidad_medida VARCHAR(50),
-    aditivos TEXT
+    aditivos TEXT,
+    activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE PlanAlimenticio (
