@@ -155,6 +155,7 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.FibraDetergenteNeutro).HasColumnName("fibra_det_neutro");
                 entity.Property(e => e.UnidadMedida).HasColumnName("unidad_medida");
                 entity.Property(e => e.Aditivos).HasColumnName("aditivos");
+                entity.Property(e => e.Activo).HasColumnName("activo");
             });
         }
     }

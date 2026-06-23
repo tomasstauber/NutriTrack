@@ -15,5 +15,6 @@ namespace NutriTrack.Core.Entities
         public decimal? FibraDetergenteNeutro { get; set; }
         public string UnidadMedida { get; set; }
         public string? Aditivos { get; set; }
+        public bool Activo { get; set; } = true;
     }
 }
