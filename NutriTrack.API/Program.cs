@@ -13,6 +13,7 @@ builder.Services.AddScoped<CrearRodeoRepository>();
 builder.Services.AddScoped<AnimalRepository>();
 builder.Services.AddScoped<PlanAlimenticioRepository>();
 builder.Services.AddScoped<AltaAnimalRepository>();
+builder.Services.AddScoped<ConsultaFichaIndividualAnimalRepository>();
 builder.Services.AddScoped<IngredienteRepository>();
 
 builder.Services.AddControllers();
