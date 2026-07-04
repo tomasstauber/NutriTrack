@@ -14,6 +14,6 @@ namespace NutriTrack.Core.Entities
         public int IdPlanAlimenticio { get; set; }
         public int IdRodeo { get; set; }
         public PlanAlimenticio? PlanAlimenticio { get; set; }
-        //public Rodeo? Rodeo { get; set; }
+        public Rodeo? Rodeo { get; set; }
     }
 }

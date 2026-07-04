@@ -23,7 +23,6 @@ namespace NutriTrack.Infraestructure.Data
         {
             modelBuilder.Entity<RegistroPeso>(entity =>
             {
-                //cambio; avisar
                 entity.ToTable("control_de_peso");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).HasColumnName("id_control_de_peso").ValueGeneratedOnAdd();
@@ -83,7 +82,9 @@ namespace NutriTrack.Infraestructure.Data
                     .WithMany()
                     .HasForeignKey(d => d.IdPlanAlimenticio);
 
-                //falta relacion con Rodeo.
+                entity.HasOne(d => d.Rodeo)
+                    .WithMany()
+                    .HasForeignKey(d => d.IdRodeo);
             });
           
 
