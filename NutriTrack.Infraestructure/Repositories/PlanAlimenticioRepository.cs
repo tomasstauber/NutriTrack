@@ -35,5 +35,27 @@ namespace NutriTrack.Infraestructure.Repositories
                     .ThenInclude(d => d.Ingrediente)
                 .FirstOrDefaultAsync(p => p.Id == IdPlan);
         }
-    }
+        public async Task<int> ContarAsignacionesVigentes(int IdPlan)
+        {
+            return await _context.PlanRodeoAsignacions
+                .CountAsync(a => a.IdPlanAlimenticio == IdPlan && a.Activo);
+        }
+
+        public async Task<bool> VerificarNombreUnicoExcluyendo(string Nombre, int IdPlan)
+        {
+            return await _context.PlanesAlimenticios
+            .AnyAsync(p => p.NombrePlan.ToLower() == Nombre.ToLower() && p.Id != IdPlan);
+        }
+
+        public async Task<bool> ExisteIngrediente(int idIngrediente)
+        {
+            return await _context.Ingredientes
+                .AnyAsync(i => i.Id == idIngrediente && i.Activo);
+        }
+
+        public async Task ActualizarAsync(PlanAlimenticio plan)
+        {
+            await _context.SaveChangesAsync();
+        }
+    }   
 }
