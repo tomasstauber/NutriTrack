@@ -23,7 +23,7 @@ namespace NutriTrack.Infraestructure.Data
         {
             modelBuilder.Entity<RegistroPeso>(entity =>
             {
-                //cambio; avisar
+               
                 entity.ToTable("control_de_peso");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).HasColumnName("id_control_de_peso").ValueGeneratedOnAdd();
