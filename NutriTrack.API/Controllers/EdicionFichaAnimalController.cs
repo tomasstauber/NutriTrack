@@ -9,11 +9,11 @@ namespace NutriTrack.API.Controllers
     [Route("api/[controller]")]
     public class EdicionFichaAnimalController : ControllerBase
     {
-        private readonly EdicionFichaAnimalRepository animalRepository;
+        private readonly EdicionFichaAnimalRepository _repository;
 
-        public EdicionFichaAnimalController(EdicionFichaAnimalRepository animalRepository)
+        public EdicionFichaAnimalController(EdicionFichaAnimalRepository repository)
         {
-            this.animalRepository = animalRepository;
+            _repository = repository;
         }
 
         [HttpPut]
@@ -36,16 +36,64 @@ namespace NutriTrack.API.Controllers
             if (dto.FechaNacimiento > DateTime.Now)
                 return BadRequest("La fecha de nacimiento no puede ser posterior a hoy");
             //validar sexo
-            if (dto.Sexo )
-                return BadRequest("")
+            if (!Enum.TryParse<Sexo>(dto.Sexo, ignoreCase: true, out var sexo))
+                return BadRequest("El sexo debe ser 'Macho' o 'Hembra'.");
+            // Validar y resolver madre
+            Animal? madre = null;
+            if (!string.IsNullOrEmpty(dto.CaravanaCuigMadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoMadre))
+            {
+                madre = await _repository.BuscarPorCaravana(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre);
+                if (madre == null)
+                    return BadRequest("No se encontró un animal con la caravana de la madre indicada.");
+                if (madre.Id == animal.Id)
+                    return BadRequest("El animal no puede ser su propia madre.");
+            }
 
-            
+            // Validar y resolver padre
+            Animal? padre = null;
+            if (!string.IsNullOrEmpty(dto.CaravanaCuigPadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoPadre))
+            {
+                padre = await _repository.BuscarPorCaravana(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre);
+                if (padre == null)
+                    return BadRequest("No se encontró un animal con la caravana del padre indicada.");
+                if (padre.Id == animal.Id)
+                    return BadRequest("El animal no puede ser su propio padre.");
+            }
+
+            // Actualizar campos editables
+            animal.FechaNacimiento = dto.FechaNacimiento;
+            animal.PesoAlNacer = dto.PesoAlNacer;
+            animal.Sexo = sexo;
+            animal.Raza = dto.Raza;
+            animal.ColorPelaje = dto.ColorPelaje;
+            animal.MadreId = madre?.Id;
+            animal.PadreId = padre?.Id;
+
+            await _repository.Actualizar(animal);
+
+            return Ok(new
+            {
+                animal.Id,
+                animal.CaravanaCuig,
+                animal.CaravanaNroManejo,
+                animal.FechaNacimiento,
+                animal.PesoAlNacer,
+                Sexo = animal.Sexo.ToString(),
+                animal.Raza,
+                animal.ColorPelaje,
+                animal.FechaAlta,
+                animal.Estado,
+                Madre = madre != null ? $"{madre.CaravanaCuig}-{madre.CaravanaNroManejo}" : null,
+                Padre = padre != null ? $"{padre.CaravanaCuig}-{padre.CaravanaNroManejo}" : null
+            });
 
 
 
 
 
 
-    }
+
+
+        }
     }
 }

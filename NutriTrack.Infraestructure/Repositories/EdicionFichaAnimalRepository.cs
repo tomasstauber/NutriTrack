@@ -31,7 +31,7 @@ namespace NutriTrack.Infraestructure.Repositories
 
         public async Task<Animal> Actualizar(Animal animal)
         {
-            _context.Animales.Update(animal);
+            _context.Entry(animal).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return animal;
         }
