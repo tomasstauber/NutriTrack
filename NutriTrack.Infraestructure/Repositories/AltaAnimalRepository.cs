@@ -16,21 +16,21 @@ namespace NutriTrack.Infraestructure.Repositories
             _context = context;
         }
 
-        public bool ExisteCaravana(string cuig, string nroManejo)
+        public async Task<bool> ExisteCaravana(string cuig, string nroManejo)
         {
-            return _context.Animales
-                .Any(a => a.CaravanaCuig == cuig && a.CaravanaNroManejo == nroManejo);
+            return await _context.Animales
+                .AnyAsync(a => a.CaravanaCuig == cuig && a.CaravanaNroManejo == nroManejo);
         }
 
-        public Animal? BuscarPorCaravana (string cuig, string nroManejo)
-        {  return _context.Animales
-                .FirstOrDefault(a => a.CaravanaCuig == cuig && a.CaravanaNroManejo == nroManejo);
+        public async Task<Animal?> BuscarPorCaravana (string cuig, string nroManejo)
+        {  return await _context.Animales
+                .FirstOrDefaultAsync(a => a.CaravanaCuig == cuig && a.CaravanaNroManejo == nroManejo);
         }
    
-        public Animal Crear(Animal animal)
+        public async Task<Animal> Crear(Animal animal)
         {
             _context.Animales.Add(animal);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return animal;
         }
 
