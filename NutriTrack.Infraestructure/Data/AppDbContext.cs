@@ -19,6 +19,7 @@ namespace NutriTrack.Infraestructure.Data
 
         public DbSet<Rodeo> Rodeos { get; set; }
         public DbSet<Animal> Animales { get; set; }
+        public DbSet<Medicamento> Medicamentos { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RegistroPeso>(entity =>
