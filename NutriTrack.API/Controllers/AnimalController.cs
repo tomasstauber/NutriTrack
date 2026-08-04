@@ -10,11 +10,15 @@ namespace NutriTrack.API.Controllers
     public class AnimalController : ControllerBase
     {
         private readonly AltaAnimalRepository _animalRepo;
+        private readonly DesactivacionReactivacionAnimalRepository _desactivacionRepo;
 
-        public AnimalController(AltaAnimalRepository animalRepo)
+
+        public AnimalController(AltaAnimalRepository animalRepo, DesactivacionReactivacionAnimalRepository desactivacionRepo)
         {
             _animalRepo = animalRepo;
+            _desactivacionRepo = desactivacionRepo;
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearAnimalDTO dto)
@@ -23,15 +27,15 @@ namespace NutriTrack.API.Controllers
             if (await _animalRepo.ExisteCaravana(dto.CaravanaCuig, dto.CaravanaNroManejo))
                 return Conflict("Ya existe un animal con esa caravana.");
 
-            
+
             if (dto.PesoAlNacer <= 0 || dto.PesoAlNacer > 100)
                 return BadRequest("El peso al nacer debe ser mayor a 0 y menor o igual a 100 kg.");
 
-            
+
             if (dto.FechaNacimiento > DateTime.Now)
                 return BadRequest("La fecha de nacimiento no puede ser posterior a hoy.");
 
-            
+
             Animal? madre = null;
             if (!string.IsNullOrEmpty(dto.CaravanaCuigMadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoMadre))
             {
@@ -40,7 +44,7 @@ namespace NutriTrack.API.Controllers
                     return BadRequest("No se encontró un animal con la caravana de la madre indicada.");
             }
 
-            
+
             Animal? padre = null;
             if (!string.IsNullOrEmpty(dto.CaravanaCuigPadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoPadre))
             {
@@ -53,7 +57,7 @@ namespace NutriTrack.API.Controllers
             if (!Enum.TryParse<Sexo>(dto.Sexo, ignoreCase: true, out var sexo))
                 return BadRequest("El sexo debe ser 'Macho' o 'Hembra'.");
 
-           
+
             var animal = new Animal
             {
                 CaravanaCuig = dto.CaravanaCuig,
@@ -87,6 +91,41 @@ namespace NutriTrack.API.Controllers
                 Madre = madre != null ? $"{madre.CaravanaCuig}-{madre.CaravanaNroManejo}" : null,
                 Padre = padre != null ? $"{padre.CaravanaCuig}-{padre.CaravanaNroManejo}" : null
             });
+        }
+
+        //Desactivacion y reactivacion de animal
+        [HttpPatch ("desactivar")]
+        public async Task<IActionResult> Desactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
+        {
+                if (string.IsNullOrEmpty(cuig) || string.IsNullOrEmpty(nroManejo))
+                    return BadRequest("La caravana es obligatoria");
+
+                var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
+                if (animal == null)
+                    return NotFound("No se encontró un animal con esa caravana");
+
+            if (!animal.Estado)
+                return BadRequest("El animal ya está inactivo.");
+            animal.Estado = false;
+            await _desactivacionRepo.Actualizar(animal);
+            return Ok("Animal desactivado correctamente.");
+        }
+
+        [HttpPatch("reactivar")]
+        public async Task <IActionResult> Activar([FromQuery] string cuig, [FromQuery] string nroManejo)
+        {
+            if (string.IsNullOrEmpty(cuig) || string.IsNullOrEmpty(nroManejo))
+                return BadRequest("La caravana es obligatoria");
+
+            var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
+            if (animal == null)
+                return NotFound("No se encontró un animal con esa caravana");
+
+            if (animal.Estado)
+                return BadRequest("El animal ya esta activo.");
+            animal.Estado = true;
+            await _desactivacionRepo.Actualizar(animal);
+            return Ok("Animal activado correctamente.");
         }
     }
 }
