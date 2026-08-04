@@ -15,6 +15,7 @@ builder.Services.AddScoped<PlanAlimenticioRepository>();
 builder.Services.AddScoped<AltaAnimalRepository>();
 builder.Services.AddScoped<ConsultaFichaIndividualAnimalRepository>();
 builder.Services.AddScoped<IngredienteRepository>();
+builder.Services.AddScoped<DesactivacionReactivacionAnimalRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
