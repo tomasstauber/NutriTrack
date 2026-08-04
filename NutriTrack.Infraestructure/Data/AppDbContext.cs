@@ -115,12 +115,11 @@ namespace NutriTrack.Infraestructure.Data
 
                 entity.Property(e => e.Sexo)
                     .HasColumnName("sexo")
-                    .HasColumnType("sexo_animal")
                     .HasConversion(
                         v => v.ToString().ToLower(),
                         v => Enum.Parse<Sexo>(v, ignoreCase: true)
-                     );
-                    
+                    );
+
 
                 entity.Property(e => e.ColorPelaje).HasColumnName("color_pelaje");
                 entity.Property(e => e.FechaAlta).HasColumnName("fecha_alta");
