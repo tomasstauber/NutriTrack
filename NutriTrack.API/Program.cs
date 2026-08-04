@@ -9,12 +9,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<RegistroPesoRepository>();
-builder.Services.AddScoped<CrearRodeoRepository>();
+builder.Services.AddScoped<RodeoRepository>();
 builder.Services.AddScoped<AnimalRepository>();
 builder.Services.AddScoped<PlanAlimenticioRepository>();
 builder.Services.AddScoped<AltaAnimalRepository>();
 builder.Services.AddScoped<ConsultaFichaIndividualAnimalRepository>();
 builder.Services.AddScoped<IngredienteRepository>();
+builder.Services.AddScoped<PlanRodeoAsignacionRepository>();
 builder.Services.AddScoped<EdicionFichaAnimalRepository>();
 
 builder.Services.AddControllers();

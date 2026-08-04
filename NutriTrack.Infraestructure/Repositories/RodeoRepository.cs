@@ -4,14 +4,15 @@ using System.Text;
 using System.Linq;
 using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace NutriTrack.Infraestructure.Repositories
 {
-    public class CrearRodeoRepository
+    public class RodeoRepository
     {
         private readonly AppDbContext _context;
 
-        public CrearRodeoRepository(AppDbContext context)
+        public RodeoRepository(AppDbContext context)
         {
             _context = context;
         }
@@ -26,6 +27,11 @@ namespace NutriTrack.Infraestructure.Repositories
             _context.Rodeos.Add(rodeo);
             _context.SaveChanges();
             return rodeo;
+        }
+
+        public async Task<Rodeo?> BuscarPorId(int idRodeo)
+        {
+            return await _context.Rodeos.FirstOrDefaultAsync(r => r.Id == idRodeo);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace NutriTrack.Infraestructure.Repositories
 {
@@ -27,6 +28,12 @@ namespace NutriTrack.Infraestructure.Repositories
                     a.CaravanaNroManejo.Contains(caravana));
 
             return query.ToList();
+        }
+
+        public async Task<int> ContarActivosPorRodeo(int IdRodeo)
+        {
+            return await _context.Animales
+                .CountAsync(a => a.RodeoId == IdRodeo && a.Estado);
         }
 
         public List<Animal> ObtenerPorIds(List<int> ids)
