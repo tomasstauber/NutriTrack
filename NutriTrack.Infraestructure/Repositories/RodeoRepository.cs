@@ -17,15 +17,15 @@ namespace NutriTrack.Infraestructure.Repositories
             _context = context;
         }
 
-        public bool ExisteNombre(string nombre)
+        public async Task<bool> ExisteNombre(string nombre)
         {
-            return _context.Rodeos.Any(r => r.Nombre == nombre);
+            return await _context.Rodeos.AnyAsync(r => r.Nombre == nombre);
         }
 
-        public Rodeo Crear(Rodeo rodeo)
+        public async Task<Rodeo> Crear(Rodeo rodeo)
         {
             _context.Rodeos.Add(rodeo);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return rodeo;
         }
 

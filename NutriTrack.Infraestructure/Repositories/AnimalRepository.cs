@@ -17,7 +17,7 @@ namespace NutriTrack.Infraestructure.Repositories
             _context = context;
         }
 
-        public List<Animal> ObtenerActivosSinRodeo(string? caravana = null)
+        public async Task <List<Animal>> ObtenerActivosSinRodeo(string? caravana = null)
         {
             var query = _context.Animales
                 .Where(a => a.Estado && a.RodeoId == null);
@@ -27,7 +27,7 @@ namespace NutriTrack.Infraestructure.Repositories
                     a.CaravanaCuig.Contains(caravana) ||
                     a.CaravanaNroManejo.Contains(caravana));
 
-            return query.ToList();
+            return await query.ToListAsync();
         }
 
         public async Task<int> ContarActivosPorRodeo(int IdRodeo)
@@ -36,11 +36,11 @@ namespace NutriTrack.Infraestructure.Repositories
                 .CountAsync(a => a.RodeoId == IdRodeo && a.Estado);
         }
 
-        public List<Animal> ObtenerPorIds(List<int> ids)
+        public async Task<List<Animal>> ObtenerPorIds(List<int> ids)
         {
-            return _context.Animales
+            return await _context.Animales
                 .Where(a => ids.Contains(a.Id) && a.Estado && a.RodeoId == null)
-                .ToList();
+                .ToListAsync();
         }
     }
 }
