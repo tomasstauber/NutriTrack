@@ -8,7 +8,7 @@ namespace NutriTrack.Core.Entities
     {
         public int Id { get; set; }
         public DateOnly VigenciaDesde { get; set; }
-        public DateOnly VigenciaHasta { get; set; }
+        public DateOnly? VigenciaHasta { get; set; }
         public bool Activo { get; set; }
 
         public int IdPlanAlimenticio { get; set; }

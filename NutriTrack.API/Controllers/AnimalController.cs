@@ -21,10 +21,10 @@ namespace NutriTrack.API.Controllers
 
 
         [HttpPost]
-        public IActionResult Crear([FromBody] CrearAnimalDTO dto)
+        public async Task<IActionResult> Crear([FromBody] CrearAnimalDTO dto)
         {
-
-            if (_animalRepo.ExisteCaravana(dto.CaravanaCuig, dto.CaravanaNroManejo))
+            
+            if (await _animalRepo.ExisteCaravana(dto.CaravanaCuig, dto.CaravanaNroManejo))
                 return Conflict("Ya existe un animal con esa caravana.");
 
 
@@ -39,7 +39,7 @@ namespace NutriTrack.API.Controllers
             Animal? madre = null;
             if (!string.IsNullOrEmpty(dto.CaravanaCuigMadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoMadre))
             {
-                madre = _animalRepo.BuscarPorCaravana(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre);
+                madre = await _animalRepo.BuscarPorCaravana(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre);
                 if (madre == null)
                     return BadRequest("No se encontró un animal con la caravana de la madre indicada.");
             }
@@ -48,7 +48,7 @@ namespace NutriTrack.API.Controllers
             Animal? padre = null;
             if (!string.IsNullOrEmpty(dto.CaravanaCuigPadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoPadre))
             {
-                padre = _animalRepo.BuscarPorCaravana(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre);
+                padre = await _animalRepo.BuscarPorCaravana(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre);
                 if (padre == null)
                     return BadRequest("No se encontró un animal con la caravana del padre indicada.");
             }
@@ -74,7 +74,7 @@ namespace NutriTrack.API.Controllers
                 RodeoId = null            // sin rodeo al dar de alta
             };
 
-            _animalRepo.Crear(animal);
+            await _animalRepo.Crear(animal);
 
             return Ok(new
             {

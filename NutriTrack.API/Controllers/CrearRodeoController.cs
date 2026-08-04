@@ -9,10 +9,10 @@ namespace NutriTrack.API.Controllers
     [Route("api/[controller]")]
     public class RodeoController : ControllerBase
     {
-        private readonly CrearRodeoRepository _rodeoRepo;
+        private readonly RodeoRepository _rodeoRepo;
         private readonly AnimalRepository _animalRepo;
 
-        public RodeoController(CrearRodeoRepository rodeoRepo, AnimalRepository animalRepo)
+        public RodeoController(RodeoRepository rodeoRepo, AnimalRepository animalRepo)
         {
             _rodeoRepo = rodeoRepo;
             _animalRepo = animalRepo;
