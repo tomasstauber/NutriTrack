@@ -159,6 +159,16 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.Aditivos).HasColumnName("aditivos");
                 entity.Property(e => e.Activo).HasColumnName("activo");
             });
+
+            modelBuilder.Entity<Medicamento>(entity =>
+            {
+                entity.ToTable("medicamento");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id_medicamento");
+                entity.Property(e => e.Nombre).HasColumnName("nombre");
+                entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+                entity.Property(e => e.Activo).HasColumnName("activo");
+            });
         }
     }
 }
