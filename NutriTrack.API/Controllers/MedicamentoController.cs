@@ -42,10 +42,12 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObtenerTodosAsync()
+        public async Task<IActionResult> ObtenerTodosAsync([FromQuery] string? nombre = null)
         {
-            var medicamento = await _repository.ObtenerTodosAsync();
-            if (!medicamento.Any())
+            var medicamento = await _repository.ObtenerTodosAsync(nombreMedicamento: nombre);
+            // 404 solo si el catálogo está vacío. Una búsqueda sin coincidencias
+            // no es error: devuelve 200 con lista vacía.
+            if (!medicamento.Any() && string.IsNullOrWhiteSpace(nombre))
             {
                 return NotFound("No hay medicamentos almacenados.");
             }

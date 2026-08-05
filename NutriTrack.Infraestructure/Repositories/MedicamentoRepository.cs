@@ -24,12 +24,15 @@ namespace NutriTrack.Infraestructure.Repositories
             return medicamento;
         }
 
-        public async Task<List<Medicamento>> ObtenerTodosAsync(bool incluirInactivos = false)
+        public async Task<List<Medicamento>> ObtenerTodosAsync(bool incluirInactivos = false, string? nombreMedicamento = null)
         {
             var query = _context.Medicamentos.AsQueryable();
 
             if (!incluirInactivos)
                 query = query.Where(m => m.Activo);
+
+            if (!string.IsNullOrWhiteSpace(nombreMedicamento))
+                query = query.Where(m => m.Nombre.ToLower().Contains(nombreMedicamento.ToLower()));
 
             return await query.ToListAsync();
         }
