@@ -113,6 +113,11 @@ namespace NutriTrack.API.Controllers
                 return NotFound("No existe un medicamento con ese Id.");
             }
 
+            if (!medicamento.Activo)
+            {
+                return Conflict("El medicamento ya está desactivado");
+            }
+
             await _repository.DesactivarAsync(idMedicamento);
             return Ok("Medicamento desactivado correctamente.");
         }
@@ -125,6 +130,12 @@ namespace NutriTrack.API.Controllers
             {
                 return NotFound("No existe un medicamento con ese Id.");
             }
+
+            if (medicamento.Activo)
+            {
+                return Conflict("El medicamento ya está activo.");
+            }
+
             await _repository.ActivarAsync(idMedicamento);
             return Ok("Medicamento activado correctamente.");
         }
