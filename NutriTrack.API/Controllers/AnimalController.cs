@@ -94,15 +94,18 @@ namespace NutriTrack.API.Controllers
         }
 
         //Desactivacion y reactivacion de animal
-        [HttpPatch ("desactivar")]
+        [HttpPatch("desactivar")]
         public async Task<IActionResult> Desactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
-                if (string.IsNullOrEmpty(cuig) || string.IsNullOrEmpty(nroManejo))
-                    return BadRequest("La caravana es obligatoria");
+            if (string.IsNullOrEmpty(cuig))
+                return BadRequest("El CUIG de la caravana es obligatorio");
 
-                var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
-                if (animal == null)
-                    return NotFound("No se encontró un animal con esa caravana");
+            if (string.IsNullOrEmpty(nroManejo))
+                return BadRequest("El numero de manejo de la caravana es obligatorio");
+
+            var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
+            if (animal == null)
+                return NotFound("No se encontró un animal con esa caravana");
 
             if (!animal.Estado)
                 return BadRequest("El animal ya está inactivo.");
@@ -112,10 +115,13 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpPatch("reactivar")]
-        public async Task <IActionResult> Activar([FromQuery] string cuig, [FromQuery] string nroManejo)
+        public async Task<IActionResult> Reactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
-            if (string.IsNullOrEmpty(cuig) || string.IsNullOrEmpty(nroManejo))
-                return BadRequest("La caravana es obligatoria");
+            if (string.IsNullOrEmpty(cuig))
+                return BadRequest("El CUIG de la caravana es obligatorio");
+
+            if (string.IsNullOrEmpty(nroManejo))
+                return BadRequest("El numero de manejo de la caravana es obligatorio");
 
             var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
             if (animal == null)
@@ -125,7 +131,7 @@ namespace NutriTrack.API.Controllers
                 return BadRequest("El animal ya esta activo.");
             animal.Estado = true;
             await _desactivacionRepo.Actualizar(animal);
-            return Ok("Animal activado correctamente.");
+            return Ok("Animal reactivado correctamente.");
         }
     }
 }
