@@ -36,7 +36,8 @@ CREATE TABLE Animal (
 CREATE TABLE Medicamento (
     id_medicamento SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
-    descripcion TEXT
+    descripcion TEXT,
+    activo BOOLEAN NOT NULL DEFAULT true
 );
 
 CREATE TABLE EventoSanitario (
