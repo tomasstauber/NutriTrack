@@ -20,7 +20,6 @@ namespace NutriTrack.API.Controllers
         public async Task<IActionResult> ObtenerUsuarios()
         {
             var usuarios = await _usuarioRepository.ObtenerTodosAsync();
-
             return Ok(usuarios);
         }
 

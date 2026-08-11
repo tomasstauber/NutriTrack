@@ -24,6 +24,27 @@ namespace NutriTrack.Infraestructure.Repositories
             return await _context.Usuarios.ToListAsync();
         }
 
+        public async Task<List<Usuario>> BuscarAsync(string? busqueda, string? rol)
+        {
+            var query = _context.Usuarios.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                busqueda = busqueda.ToLower();
+
+                query = query.Where(u =>
+                    u.Nombre.ToLower().Contains(busqueda) ||
+                    u.Correo.ToLower().Contains(busqueda));
+            }
+
+            if (!string.IsNullOrWhiteSpace(rol))
+            {
+                query = query.Where(u => u.Rol == rol);
+            }
+
+            return await query.ToListAsync();
+        }
+
         public async Task<bool> ExisteCorreoAsync(string correo)
         {
             return await _context.Usuarios
