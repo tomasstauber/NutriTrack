@@ -1,84 +1,141 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using NutriTrack.Core.Entities;
 
 namespace NutriTrack.Infraestructure.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        public AppDbContext(DbContextOptions options) : base(options)
         {
         }
+
         public DbSet<RegistroPeso> RegistrosPeso { get; set; }
         public DbSet<PlanAlimenticio> PlanesAlimenticios { get; set; }
         public DbSet<PlanAlimenticioDetalle> PlanAlimenticioDetalles { get; set; }
         public DbSet<PlanRodeoAsignacion> PlanRodeoAsignacions { get; set; }
         public DbSet<Ingrediente> Ingredientes { get; set; }
-
         public DbSet<Rodeo> Rodeos { get; set; }
         public DbSet<Animal> Animales { get; set; }
-        public DbSet<Usuario> Usuarios {get;set;}
-    
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Medicamento> Medicamentos { get; set; }
+        public DbSet<EventoSanitario> EventosSanitarios { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RegistroPeso>(entity =>
             {
                 entity.ToTable("control_de_peso");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_control_de_peso").ValueGeneratedOnAdd();
-                entity.Property(e => e.FechaPesaje).HasColumnName("fecha_pesaje");
-                entity.Property(e => e.PesoKg).HasColumnName("peso_kg");
-                entity.Property(e => e.Observaciones).HasColumnName("observaciones");
-                entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
-                entity.Property(e => e.IdAnimal).HasColumnName("id_animal");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_control_de_peso")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.FechaPesaje)
+                    .HasColumnName("fecha_pesaje");
+
+                entity.Property(e => e.PesoKg)
+                    .HasColumnName("peso_kg");
+
+                entity.Property(e => e.Observaciones)
+                    .HasColumnName("observaciones");
+
+                entity.Property(e => e.IdUsuario)
+                    .HasColumnName("id_usuario");
+
+                entity.Property(e => e.IdAnimal)
+                    .HasColumnName("id_animal");
             });
-            
+
             modelBuilder.Entity<PlanAlimenticio>(entity =>
             {
                 entity.ToTable("planalimenticio");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_plan_alimenticio").ValueGeneratedOnAdd();
-                entity.Property(e => e.NombrePlan).HasColumnName("nombre_plan");
-                entity.Property(e => e.Categoria).HasColumnName("categoria");
-                entity.Property(e => e.PesoVivoInicialPromedio).HasColumnName("peso_vivo_inicial_promedio");
-                entity.Property(e => e.PesoObjetivo).HasColumnName("peso_objetivo");
-                entity.Property(e => e.GananciaPesoEsperada).HasColumnName("ganancia_peso_esperada");
-                entity.Property(e => e.TipoAlimentacion).HasColumnName("tipo_alimentacion");
-                entity.Property(e => e.TiempoAlimentacion).HasColumnName("tiempo_alimentacion");
-                entity.Property(e => e.KgMsDiariaPorAnimal).HasColumnName("kg_ms_diaria_por_animal");
-                entity.Property(e => e.Observaciones).HasColumnName("observaciones");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_plan_alimenticio")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.NombrePlan)
+                    .HasColumnName("nombre_plan");
+
+                entity.Property(e => e.Categoria)
+                    .HasColumnName("categoria");
+
+                entity.Property(e => e.PesoVivoInicialPromedio)
+                    .HasColumnName("peso_vivo_inicial_promedio");
+
+                entity.Property(e => e.PesoObjetivo)
+                    .HasColumnName("peso_objetivo");
+
+                entity.Property(e => e.GananciaPesoEsperada)
+                    .HasColumnName("ganancia_peso_esperada");
+
+                entity.Property(e => e.TipoAlimentacion)
+                    .HasColumnName("tipo_alimentacion");
+
+                entity.Property(e => e.TiempoAlimentacion)
+                    .HasColumnName("tiempo_alimentacion");
+
+                entity.Property(e => e.KgMsDiariaPorAnimal)
+                    .HasColumnName("kg_ms_diaria_por_animal");
+
+                entity.Property(e => e.Observaciones)
+                    .HasColumnName("observaciones");
             });
 
             modelBuilder.Entity<PlanAlimenticioDetalle>(entity =>
             {
                 entity.ToTable("planalimenticiodetalle");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_plan_alimenticio_detalle");
-                entity.Property(e => e.PorcentajeInclusionMs).HasColumnName("porcentaje_inclusion_ms");
-                entity.Property(e => e.Observaciones).HasColumnName("observaciones");
-                entity.Property(e => e.IdPlanAlimenticio).HasColumnName("id_plan_alimenticio");
-                entity.Property(e => e.IdIngrediente).HasColumnName("id_ingrediente");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_plan_alimenticio_detalle");
+
+                entity.Property(e => e.PorcentajeInclusionMs)
+                    .HasColumnName("porcentaje_inclusion_ms");
+
+                entity.Property(e => e.Observaciones)
+                    .HasColumnName("observaciones");
+
+                entity.Property(e => e.IdPlanAlimenticio)
+                    .HasColumnName("id_plan_alimenticio");
+
+                entity.Property(e => e.IdIngrediente)
+                    .HasColumnName("id_ingrediente");
+
                 entity.HasOne(d => d.PlanAlimenticio)
-                       .WithMany(p => p.Detalles)
-                       .HasForeignKey(d => d.IdPlanAlimenticio)
-                       .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany(p => p.Detalles)
+                    .HasForeignKey(d => d.IdPlanAlimenticio)
+                    .OnDelete(DeleteBehavior.Cascade);
+
                 entity.HasOne(d => d.Ingrediente)
-                       .WithMany()
-                       .HasForeignKey(d => d.IdIngrediente);
+                    .WithMany()
+                    .HasForeignKey(d => d.IdIngrediente);
             });
 
             modelBuilder.Entity<PlanRodeoAsignacion>(entity =>
             {
                 entity.ToTable("planrodeoasignacion");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_asignacion_rodeo");
-                entity.Property(e => e.VigenciaDesde).HasColumnName("vigencia_desde");
-                entity.Property(e => e.VigenciaHasta).HasColumnName("vigencia_hasta");
-                entity.Property(e => e.Activo).HasColumnName("activo");
-                entity.Property(e => e.IdPlanAlimenticio).HasColumnName("id_plan_alimenticio");
-                entity.Property(e => e.IdRodeo).HasColumnName("id_rodeo");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_asignacion_rodeo");
+
+                entity.Property(e => e.VigenciaDesde)
+                    .HasColumnName("vigencia_desde");
+
+                entity.Property(e => e.VigenciaHasta)
+                    .HasColumnName("vigencia_hasta");
+
+                entity.Property(e => e.Activo)
+                    .HasColumnName("activo");
+
+                entity.Property(e => e.IdPlanAlimenticio)
+                    .HasColumnName("id_plan_alimenticio");
+
+                entity.Property(e => e.IdRodeo)
+                    .HasColumnName("id_rodeo");
 
                 entity.HasOne(d => d.PlanAlimenticio)
                     .WithMany()
@@ -88,93 +145,199 @@ namespace NutriTrack.Infraestructure.Data
                     .WithMany()
                     .HasForeignKey(d => d.IdRodeo);
             });
-          
 
             modelBuilder.Entity<Rodeo>(entity =>
             {
                 entity.ToTable("rodeo");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_rodeo").ValueGeneratedOnAdd();
-                entity.Property(e => e.Nombre).HasColumnName("nombre");
-                entity.Property(e => e.Descripcion).HasColumnName("descripcion");
-                entity.HasIndex(e => e.Nombre).IsUnique();
-            });
 
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_rodeo")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Nombre)
+                    .HasColumnName("nombre");
+
+                entity.Property(e => e.Descripcion)
+                    .HasColumnName("descripcion");
+
+                entity.HasIndex(e => e.Nombre)
+                    .IsUnique();
+            });
 
             modelBuilder.Entity<Animal>(entity =>
             {
                 entity.ToTable("animal");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_animal").ValueGeneratedOnAdd();
-                entity.Property(e => e.CaravanaCuig).HasColumnName("caravana_cuig");
-                entity.Property(e => e.CaravanaNroManejo).HasColumnName("caravana_nro_manejo");
-                entity.Property(e => e.FechaNacimiento).HasColumnName("fecha_nacimiento");
-                entity.Property(e => e.PesoAlNacer).HasColumnName("peso_al_nacer");
-                entity.Property(e => e.Raza).HasColumnName("raza");
-                entity.Property(e => e.MadreId).HasColumnName("id_madre");
-                entity.Property(e => e.PadreId).HasColumnName("id_padre");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_animal")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.CaravanaCuig)
+                    .HasColumnName("caravana_cuig");
+
+                entity.Property(e => e.CaravanaNroManejo)
+                    .HasColumnName("caravana_nro_manejo");
+
+                entity.Property(e => e.FechaNacimiento)
+                    .HasColumnName("fecha_nacimiento");
+
+                entity.Property(e => e.PesoAlNacer)
+                    .HasColumnName("peso_al_nacer");
+
+                entity.Property(e => e.Raza)
+                    .HasColumnName("raza");
+
+                entity.Property(e => e.MadreId)
+                    .HasColumnName("id_madre");
+
+                entity.Property(e => e.PadreId)
+                    .HasColumnName("id_padre");
 
                 entity.Property(e => e.Sexo)
                     .HasColumnName("sexo")
                     .HasConversion(
                         v => v.ToString().ToLower(),
-                        v => Enum.Parse<Sexo>(v, ignoreCase: true)
+                        v => Enum.Parse<Sexo>(v, true)
                     );
 
+                entity.Property(e => e.ColorPelaje)
+                    .HasColumnName("color_pelaje");
 
-                entity.Property(e => e.ColorPelaje).HasColumnName("color_pelaje");
-                entity.Property(e => e.FechaAlta).HasColumnName("fecha_alta");
-                entity.Property(e => e.Estado).HasColumnName("estado");
-                entity.Property(e => e.RodeoId).HasColumnName("id_rodeo");
-                
+                entity.Property(e => e.FechaAlta)
+                    .HasColumnName("fecha_alta");
+
+                entity.Property(e => e.Estado)
+                    .HasColumnName("estado");
+
+                entity.Property(e => e.RodeoId)
+                    .HasColumnName("id_rodeo");
+
                 entity.HasOne(a => a.Rodeo)
                     .WithMany(r => r.Animales)
                     .HasForeignKey(a => a.RodeoId)
                     .OnDelete(DeleteBehavior.SetNull);
-                
+
                 entity.HasOne(a => a.Madre)
                     .WithMany()
                     .HasForeignKey(a => a.MadreId)
                     .OnDelete(DeleteBehavior.SetNull);
-                
+
                 entity.HasOne(a => a.Padre)
                     .WithMany()
                     .HasForeignKey(a => a.PadreId)
                     .OnDelete(DeleteBehavior.SetNull);
-                
-            }
-            );
+            });
 
             modelBuilder.Entity<Ingrediente>(entity =>
             {
                 entity.ToTable("ingrediente");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_ingrediente");
-                entity.Property(e => e.NombreIngrediente).HasColumnName("nombre");
-                entity.Property(e => e.Descripcion).HasColumnName("descripcion");
-                entity.Property(e => e.Minerales).HasColumnName("minerales");
-                entity.Property(e => e.EnergiaMetabolizable).HasColumnName("energia_metabolizable");
-                entity.Property(e => e.ProteinaBruta).HasColumnName("proteina_bruta");
-                entity.Property(e => e.FibraDetergenteNeutro).HasColumnName("fibra_det_neutro");
-                entity.Property(e => e.UnidadMedida).HasColumnName("unidad_medida");
-                entity.Property(e => e.Aditivos).HasColumnName("aditivos");
-                entity.Property(e => e.Activo).HasColumnName("activo");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_ingrediente");
+
+                entity.Property(e => e.NombreIngrediente)
+                    .HasColumnName("nombre");
+
+                entity.Property(e => e.Descripcion)
+                    .HasColumnName("descripcion");
+
+                entity.Property(e => e.Minerales)
+                    .HasColumnName("minerales");
+
+                entity.Property(e => e.EnergiaMetabolizable)
+                    .HasColumnName("energia_metabolizable");
+
+                entity.Property(e => e.ProteinaBruta)
+                    .HasColumnName("proteina_bruta");
+
+                entity.Property(e => e.FibraDetergenteNeutro)
+                    .HasColumnName("fibra_det_neutro");
+
+                entity.Property(e => e.UnidadMedida)
+                    .HasColumnName("unidad_medida");
+
+                entity.Property(e => e.Aditivos)
+                    .HasColumnName("aditivos");
+
+                entity.Property(e => e.Activo)
+                    .HasColumnName("activo");
             });
+
             modelBuilder.Entity<Usuario>(entity =>
             {
                 entity.ToTable("usuario");
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_usuario").ValueGeneratedOnAdd();
-                entity.Property(e => e.Nombre).HasColumnName("nombre");
-                entity.Property(e => e.NombreUsuario).HasColumnName("nombre_usuario");
-                entity.Property(e => e.Correo).HasColumnName("correo");
-                entity.Property(e => e.Rol).HasColumnName("rol");
-                entity.Property(e => e.Contrasenia).HasColumnName("contrasenia");
-        });
-           
 
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_usuario")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Nombre)
+                    .HasColumnName("nombre");
+
+                entity.Property(e => e.NombreUsuario)
+                    .HasColumnName("nombre_usuario");
+
+                entity.Property(e => e.Correo)
+                    .HasColumnName("correo");
+
+                entity.Property(e => e.Rol)
+                    .HasColumnName("rol");
+
+                entity.Property(e => e.Contrasenia)
+                    .HasColumnName("contrasenia");
+            });
+
+            modelBuilder.Entity<Medicamento>(entity =>
+            {
+                entity.ToTable("medicamento");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_medicamento")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Nombre)
+                    .HasColumnName("nombre");
+
+                entity.Property(e => e.Descripcion)
+                    .HasColumnName("descripcion");
+            });
+
+            modelBuilder.Entity<EventoSanitario>(entity =>
+            {
+                entity.ToTable("evento_sanitario");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id_evento_sanitario")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.TipoDeEvento)
+                    .HasColumnName("tipo_de_evento");
+
+                entity.Property(e => e.VigenciaHasta)
+                    .HasColumnName("vigencia_hasta");
+
+                entity.Property(e => e.FechaEvento)
+                    .HasColumnName("fecha_evento");
+
+                entity.Property(e => e.FechaProximaAplicacion)
+                    .HasColumnName("fecha_proxima_aplicacion");
+
+                entity.Property(e => e.IdUsuario)
+                    .HasColumnName("id_usuario");
+
+                entity.Property(e => e.IdAnimal)
+                    .HasColumnName("id_animal");
+            });
         }
     }
 }
+
+
 
 

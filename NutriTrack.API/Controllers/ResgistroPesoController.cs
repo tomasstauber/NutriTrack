@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Repositories;
 using NutriTrack.API.DTOs;
@@ -35,6 +35,7 @@ namespace NutriTrack.API.Controllers
             };
 
             await _repository.AgregarAsync(registro);
+
             return Ok("Peso registrado exitosamente.");
         }
 
@@ -42,6 +43,7 @@ namespace NutriTrack.API.Controllers
         public async Task<IActionResult> ObtenerPorAnimal(int idAnimal)
         {
             var registros = await _repository.ObtenerPorAnimalAsync(idAnimal);
+
             return Ok(registros);
         }
     }

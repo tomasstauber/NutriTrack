@@ -1,12 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using NutriTrack.Infraestructure.Data;
 using NutriTrack.Infraestructure.Repositories;
+using NutriTrack.Infraestructure.Services;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<RegistroPesoRepository>();
 builder.Services.AddScoped<RodeoRepository>();
@@ -19,11 +21,20 @@ builder.Services.AddScoped<UsuarioRepository>();
 builder.Services.AddScoped<PlanRodeoAsignacionRepository>();
 builder.Services.AddScoped<EdicionFichaAnimalRepository>();
 
+builder.Services.AddScoped<AlertaPesoService>();
+builder.Services.AddScoped<EventoSanitarioRepository>();
+builder.Services.AddScoped<AlertaSanitariaService>();
+builder.Services.AddHostedService<AlertaSanitariaWorker>();
+builder.Services.AddScoped<EmailService>();
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-// Esto le dice a Npgsql que acepte fechas locales como antes
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+// Permite trabajar con fechas locales con Npgsql.
+AppContext.SetSwitch(
+    "Npgsql.EnableLegacyTimestampBehavior",
+    true);
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
