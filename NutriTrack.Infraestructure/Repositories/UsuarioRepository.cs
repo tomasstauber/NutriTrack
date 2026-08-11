@@ -24,37 +24,42 @@ namespace NutriTrack.Infraestructure.Repositories
             return await _context.Usuarios.ToListAsync();
         }
 
-        public async Task<List<Usuario>> BuscarAsync(string? busqueda, string? rol)
+        public async Task<Usuario?> ObtenerPorIdAsync(int id)
         {
-            var query = _context.Usuarios.AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(busqueda))
-            {
-                busqueda = busqueda.ToLower();
-
-                query = query.Where(u =>
-                    u.Nombre.ToLower().Contains(busqueda) ||
-                    u.Correo.ToLower().Contains(busqueda));
-            }
-
-            if (!string.IsNullOrWhiteSpace(rol))
-            {
-                query = query.Where(u => u.Rol == rol);
-            }
-
-            return await query.ToListAsync();
+            return await _context.Usuarios.FindAsync(id);
         }
 
-        public async Task<bool> ExisteCorreoAsync(string correo)
+        public async Task<bool> ExisteCorreoAsync(string correo, int? idExcluir = null)
         {
             return await _context.Usuarios
-                .AnyAsync(u => u.Correo.ToLower() == correo.ToLower());
+                .AnyAsync(u =>
+                    u.Correo.ToLower() == correo.ToLower() &&
+                    (!idExcluir.HasValue || u.Id != idExcluir.Value));
         }
 
-        public async Task<bool> ExisteNombreUsuarioAsync(string nombreUsuario)
+        public async Task<bool> ExisteNombreUsuarioAsync(string nombreUsuario, int? idExcluir = null)
         {
             return await _context.Usuarios
-                .AnyAsync(u => u.NombreUsuario.ToLower() == nombreUsuario.ToLower());
+                .AnyAsync(u =>
+                    u.NombreUsuario.ToLower() == nombreUsuario.ToLower() &&
+                    (!idExcluir.HasValue || u.Id != idExcluir.Value));
+        }
+
+        public async Task<bool> ActualizarAsync(Usuario usuario)
+        {
+            var existente = await _context.Usuarios.FindAsync(usuario.Id);
+
+            if (existente == null)
+                return false;
+
+            existente.Nombre = usuario.Nombre;
+            existente.Correo = usuario.Correo;
+            existente.NombreUsuario = usuario.NombreUsuario;
+            existente.Rol = usuario.Rol;
+
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

@@ -20,6 +20,7 @@ namespace NutriTrack.API.Controllers
         public async Task<IActionResult> ObtenerUsuarios()
         {
             var usuarios = await _usuarioRepository.ObtenerTodosAsync();
+
             return Ok(usuarios);
         }
 
@@ -67,6 +68,51 @@ namespace NutriTrack.API.Controllers
             };
 
             await _usuarioRepository.CrearAsync(usuario);
+
+            return Ok(usuario);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditarUsuario(
+            int id,
+            [FromBody] EditarUsuarioDTO dto)
+        {
+            var usuario = await _usuarioRepository.ObtenerPorIdAsync(id);
+
+            if (usuario == null)
+                return NotFound("El usuario no existe.");
+
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+                return BadRequest("El nombre completo es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(dto.Correo))
+                return BadRequest("El correo electrónico es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(dto.NombreUsuario))
+                return BadRequest("El nombre de usuario es obligatorio.");
+
+            var rolesValidos = new[]
+            {
+                "Administrador",
+                "Encargado de campo",
+                "Asesor técnico"
+            };
+
+            if (!rolesValidos.Contains(dto.Rol))
+                return BadRequest("El rol seleccionado no es válido.");
+
+            if (await _usuarioRepository.ExisteCorreoAsync(dto.Correo, id))
+                return BadRequest("El correo electrónico ya está registrado.");
+
+            if (await _usuarioRepository.ExisteNombreUsuarioAsync(dto.NombreUsuario, id))
+                return BadRequest("El nombre de usuario ya está registrado.");
+
+            usuario.Nombre = dto.Nombre;
+            usuario.Correo = dto.Correo;
+            usuario.NombreUsuario = dto.NombreUsuario;
+            usuario.Rol = dto.Rol;
+
+            await _usuarioRepository.ActualizarAsync(usuario);
 
             return Ok(usuario);
         }
