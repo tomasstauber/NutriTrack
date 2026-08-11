@@ -14,6 +14,7 @@ CREATE TABLE usuario (
     id_usuario SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(150) UNIQUE NOT NULL,
+    nombre_usuario VARCHAR(50) UNIQUE NOT NULL,
     rol rol_usuario NOT NULL,
     contrasenia VARCHAR(255) NOT NULL
 );

@@ -8,3 +8,4 @@
   <Project Path="NutriTrack.Infraestructure/NutriTrack.Infraestructure.csproj" Id="e0a34e1f-e86d-489b-afcf-0ece889f0455" />
   <Project Path="NutriTrack.MAUI/NutriTrack.MAUI.csproj" Id="6877b43c-652f-4c77-8452-d2170e1bc7ba" />
 </Solution>
+

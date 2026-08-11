@@ -19,6 +19,8 @@ namespace NutriTrack.Infraestructure.Data
 
         public DbSet<Rodeo> Rodeos { get; set; }
         public DbSet<Animal> Animales { get; set; }
+        public DbSet<Usuario> Usuarios {get;set;}
+    
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RegistroPeso>(entity =>
@@ -158,6 +160,19 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.Aditivos).HasColumnName("aditivos");
                 entity.Property(e => e.Activo).HasColumnName("activo");
             });
+            modelBuilder.Entity<Usuario>(entity =>
+            {
+                entity.ToTable("usuario");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id_usuario").ValueGeneratedOnAdd();
+                entity.Property(e => e.Nombre).HasColumnName("nombre");
+                entity.Property(e => e.NombreUsuario).HasColumnName("nombre_usuario");
+                entity.Property(e => e.Correo).HasColumnName("correo");
+                entity.Property(e => e.Rol).HasColumnName("rol");
+                entity.Property(e => e.Contrasenia).HasColumnName("contrasenia");
+        });
+           
+
         }
     }
 }
