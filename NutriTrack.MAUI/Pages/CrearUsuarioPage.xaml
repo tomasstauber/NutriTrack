@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NutriTrack.MAUI.Pages.CrearUsuarioPage"
+             Title="Crear usuario">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="15">
+
+            <Label Text="Crear usuario"
+                   FontSize="28"
+                   FontAttributes="Bold" />
+
+            <Entry x:Name="NombreEntry"
+                   Placeholder="Nombre completo" />
+
+            <Entry x:Name="CorreoEntry"
+                   Placeholder="Correo electrónico"
+                   Keyboard="Email" />
+
+            <Entry x:Name="NombreUsuarioEntry"
+                   Placeholder="Nombre de usuario" />
+
+            <Entry x:Name="ContraseniaEntry"
+                   Placeholder="Contraseña"
+                   IsPassword="True" />
+
+            <Picker x:Name="RolPicker"
+                    Title="Seleccionar rol">
+                <Picker.Items>
+                    <x:String>Administrador</x:String>
+                    <x:String>Encargado de campo</x:String>
+                    <x:String>Asesor técnico</x:String>
+                </Picker.Items>
+            </Picker>
+
+            <Button Text="Crear usuario"
+                    Clicked="CrearUsuario_Clicked" />
+
+            <Label x:Name="MensajeLabel"
+                   TextColor="Red" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
