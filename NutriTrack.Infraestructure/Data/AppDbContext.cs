@@ -24,7 +24,7 @@ namespace NutriTrack.Infraestructure.Data
         {
             modelBuilder.Entity<RegistroPeso>(entity =>
             {
-                entity.ToTable("control_de_peso");
+                entity.ToTable("controldepeso");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).HasColumnName("id_control_de_peso").ValueGeneratedOnAdd();
                 entity.Property(e => e.FechaPesaje).HasColumnName("fecha_pesaje");
@@ -115,10 +115,7 @@ namespace NutriTrack.Infraestructure.Data
 
                 entity.Property(e => e.Sexo)
                     .HasColumnName("sexo")
-                    .HasConversion(
-                        v => v.ToString().ToLower(),
-                        v => Enum.Parse<Sexo>(v, ignoreCase: true)
-                    );
+                    .HasConversion<string>();
 
 
                 entity.Property(e => e.ColorPelaje).HasColumnName("color_pelaje");
@@ -172,5 +169,3 @@ namespace NutriTrack.Infraestructure.Data
         }
     }
 }
-
-

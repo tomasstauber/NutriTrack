@@ -1,4 +1,6 @@
-﻿namespace NutriTrack.API.DTOs
+﻿using NutriTrack.Core.Entities;
+
+namespace NutriTrack.API.DTOs
 {
     public class CrearAnimalDTO
     {
@@ -11,7 +13,7 @@
         public string? CaravanaCuigPadre { get; set;}
         public string? CaravanaNroManejoPadre { get; set;}
         public string Raza {  get; set;}
-        public string Sexo { get; set;}
+        public Sexo Sexo { get; set; }
         public string? ColorPelaje { get; set;}
     }
 }
