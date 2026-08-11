@@ -15,24 +15,53 @@ namespace NutriTrack.Infraestructure.Repositories
 
         public async Task CrearAsync(Usuario usuario)
         {
+            usuario.Activo = true;
+
             await _context.Usuarios.AddAsync(usuario);
             await _context.SaveChangesAsync();
         }
 
         public async Task<List<Usuario>> ObtenerTodosAsync()
         {
-            return await _context.Usuarios.ToListAsync();
+            return await _context.Usuarios
+                .Where(u => u.Activo)
+                .ToListAsync();
+        }
+
+        public async Task<List<Usuario>> BuscarAsync(string? busqueda, string? rol)
+        {
+            var query = _context.Usuarios
+                .Where(u => u.Activo)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                busqueda = busqueda.ToLower();
+
+                query = query.Where(u =>
+                    u.Nombre.ToLower().Contains(busqueda) ||
+                    u.Correo.ToLower().Contains(busqueda));
+            }
+
+            if (!string.IsNullOrWhiteSpace(rol))
+            {
+                query = query.Where(u => u.Rol == rol);
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<Usuario?> ObtenerPorIdAsync(int id)
         {
-            return await _context.Usuarios.FindAsync(id);
+            return await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Id == id && u.Activo);
         }
 
         public async Task<bool> ExisteCorreoAsync(string correo, int? idExcluir = null)
         {
             return await _context.Usuarios
                 .AnyAsync(u =>
+                    u.Activo &&
                     u.Correo.ToLower() == correo.ToLower() &&
                     (!idExcluir.HasValue || u.Id != idExcluir.Value));
         }
@@ -41,6 +70,7 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             return await _context.Usuarios
                 .AnyAsync(u =>
+                    u.Activo &&
                     u.NombreUsuario.ToLower() == nombreUsuario.ToLower() &&
                     (!idExcluir.HasValue || u.Id != idExcluir.Value));
         }
@@ -49,13 +79,33 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             var existente = await _context.Usuarios.FindAsync(usuario.Id);
 
-            if (existente == null)
+            if (existente == null || !existente.Activo)
                 return false;
 
             existente.Nombre = usuario.Nombre;
             existente.Correo = usuario.Correo;
             existente.NombreUsuario = usuario.NombreUsuario;
             existente.Rol = usuario.Rol;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<int> ContarAdministradoresActivosAsync()
+        {
+            return await _context.Usuarios
+                .CountAsync(u => u.Activo && u.Rol == "Administrador");
+        }
+
+        public async Task<bool> EliminarAsync(int id)
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+
+            if (usuario == null || !usuario.Activo)
+                return false;
+
+            usuario.Activo = false;
 
             await _context.SaveChangesAsync();
 

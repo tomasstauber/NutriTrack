@@ -13,5 +13,7 @@ namespace NutriTrack.Core.Entities
         public string Rol { get; set; }
 
         public string Contrasenia { get; set; }
+
+        public bool Activo { get; set; } = true;
     }
 }

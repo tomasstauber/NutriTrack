@@ -116,5 +116,34 @@ namespace NutriTrack.API.Controllers
 
             return Ok(usuario);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarUsuario(
+            int id,
+            [FromQuery] int administradorId)
+        {
+            var usuario = await _usuarioRepository.ObtenerPorIdAsync(id);
+
+            if (usuario == null)
+                return NotFound("El usuario no existe.");
+
+            if (id == administradorId)
+                return BadRequest("Un administrador no puede eliminarse a sí mismo.");
+
+            if (usuario.Rol == "Administrador")
+            {
+                var cantidadAdministradores =
+                    await _usuarioRepository.ContarAdministradoresActivosAsync();
+
+                if (cantidadAdministradores <= 1)
+                    return BadRequest(
+                        "No se puede eliminar al único administrador activo.");
+            }
+
+            await _usuarioRepository.EliminarAsync(id);
+
+            return Ok("Usuario eliminado correctamente.");
+        }
     }
 }
+
