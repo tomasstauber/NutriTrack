@@ -18,8 +18,8 @@ builder.Services.AddScoped<IngredienteRepository>();
 builder.Services.AddScoped<DesactivacionReactivacionAnimalRepository>();
 builder.Services.AddScoped<PlanRodeoAsignacionRepository>();
 builder.Services.AddScoped<EdicionFichaAnimalRepository>();
-builder.Services.AddScoped<PlanRodeoAsignacionRepository>();
 builder.Services.AddScoped<MedicamentoRepository>();
+builder.Services.AddScoped<TransferenciaAnimalesRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
