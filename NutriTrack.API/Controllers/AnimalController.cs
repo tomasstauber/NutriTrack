@@ -53,11 +53,6 @@ namespace NutriTrack.API.Controllers
                     return BadRequest("No se encontró un animal con la caravana del padre indicada.");
             }
 
-            // Convertir sexo de string a enum
-            if (!Enum.TryParse<Sexo>(dto.Sexo, ignoreCase: true, out var sexo))
-                return BadRequest("El sexo debe ser 'Macho' o 'Hembra'.");
-
-
             var animal = new Animal
             {
                 CaravanaCuig = dto.CaravanaCuig,
@@ -67,7 +62,7 @@ namespace NutriTrack.API.Controllers
                 MadreId = madre?.Id,
                 PadreId = padre?.Id,
                 Raza = dto.Raza,
-                Sexo = sexo,
+                Sexo = dto.Sexo,
                 ColorPelaje = dto.ColorPelaje,
                 FechaAlta = DateTime.Now, // Eso lo asigna automaticamente el sistema
                 Estado = true,            // activo por defecto

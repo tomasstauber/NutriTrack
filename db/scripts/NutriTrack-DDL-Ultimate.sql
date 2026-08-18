@@ -1,18 +1,14 @@
-CREATE TYPE rol_usuario AS ENUM ('administrador', 'asesor técnico', 'encargado de campo');
-CREATE TYPE tipo_evento AS ENUM ('vacunacion', 'desparasitacion', 'antibiotico', 'cirugia', 'otro');
-CREATE TYPE unidad_dosis AS ENUM ('ml', 'l', 'mg', 'g', 'UI', 'cm3');
-
 CREATE TABLE Usuario (
     id_usuario SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(150) UNIQUE NOT NULL,
-    rol rol_usuario NOT NULL,
+    rol VARCHAR(50) NOT NULL,
     contrasenia VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE Rodeo (
     id_rodeo SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+    nombre VARCHAR(100) UNIQUE NOT NULL,
     descripcion TEXT
 );
 
@@ -42,7 +38,7 @@ CREATE TABLE Medicamento (
 
 CREATE TABLE EventoSanitario (
     id_evento_sanitario SERIAL PRIMARY KEY,
-    tipo_de_evento tipo_evento,
+    tipo_de_evento VARCHAR(50),
     vigencia_hasta DATE,
     fecha_evento DATE,
     fecha_proxima_aplicacion DATE,
@@ -53,7 +49,7 @@ CREATE TABLE EventoSanitario (
 CREATE TABLE DetalleMedicamento (
     id_detalle_medicamento SERIAL PRIMARY KEY,
     dosis DECIMAL,
-    unidad unidad_dosis,
+    unidad VARCHAR(10),
     id_evento_sanitario INTEGER REFERENCES EventoSanitario(id_evento_sanitario),
     id_medicamento INTEGER REFERENCES Medicamento(id_medicamento)
 );

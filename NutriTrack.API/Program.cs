@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NutriTrack.Infraestructure.Data;
 using NutriTrack.Infraestructure.Repositories;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,11 @@ builder.Services.AddScoped<EdicionFichaAnimalRepository>();
 builder.Services.AddScoped<MedicamentoRepository>();
 builder.Services.AddScoped<TransferenciaAnimalesRepository>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddOpenApi();
 
 // Esto le dice a Npgsql que acepte fechas locales como antes

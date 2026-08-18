@@ -12,15 +12,15 @@ INSERT INTO Rodeo (nombre, descripcion) VALUES
 
 -- Animal (primero sin madre/padre)
 INSERT INTO Animal (caravana_cuig, caravana_nro_manejo, fecha_nacimiento, peso_al_nacer, id_madre, id_padre, raza, sexo, color_pelaje, fecha_alta, estado, id_rodeo) VALUES
-('AR001', '00001', '2019-03-15', 38.0, NULL, NULL, 'Angus', 'hembra', 'negro', '2019-03-15', true, 1),
-('AR001', '00002', '2018-06-20', 42.0, NULL, NULL, 'Hereford', 'macho', 'colorado', '2018-06-20', true, 1),
-('AR002', '00003', '2020-01-10', 36.0, NULL, NULL, 'Angus', 'hembra', 'negro', '2020-01-10', true, 2),
-('AR002', '00004', '2017-09-05', 45.0, NULL, NULL, 'Brahman', 'macho', 'gris', '2017-09-05', true, 2);
+('AR001', '00001', '2019-03-15', 38.0, NULL, NULL, 'Angus', 'Hembra', 'negro', '2019-03-15', true, 1),
+('AR001', '00002', '2018-06-20', 42.0, NULL, NULL, 'Hereford', 'Macho', 'colorado', '2018-06-20', true, 1),
+('AR002', '00003', '2020-01-10', 36.0, NULL, NULL, 'Angus', 'Hembra', 'negro', '2020-01-10', true, 2),
+('AR002', '00004', '2017-09-05', 45.0, NULL, NULL, 'Brahman', 'Macho', 'gris', '2017-09-05', true, 2);
 
 -- Animal (con madre y padre)
 INSERT INTO Animal (caravana_cuig, caravana_nro_manejo, fecha_nacimiento, peso_al_nacer, id_madre, id_padre, raza, sexo, color_pelaje, fecha_alta, estado, id_rodeo) VALUES
-('AR003', '00005', '2022-08-12', 34.0, 1, 2, 'Angus', 'hembra', 'negro', '2022-08-12', true, 3),
-('AR003', '00006', '2023-02-28', 37.0, 3, 4, 'Brahman', 'macho', 'gris', '2023-02-28', true, 3);
+('AR003', '00005', '2022-08-12', 34.0, 1, 2, 'Angus', 'Hembra', 'negro', '2022-08-12', true, 3),
+('AR003', '00006', '2023-02-28', 37.0, 3, 4, 'Brahman', 'Macho', 'gris', '2023-02-28', true, 3);
 
 -- Medicamento
 INSERT INTO Medicamento (nombre, descripcion) VALUES
