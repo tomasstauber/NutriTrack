@@ -2,8 +2,10 @@ CREATE TABLE Usuario (
     id_usuario SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(150) UNIQUE NOT NULL,
+    nombre_usuario VARCHAR(100) UNIQUE NOT NULL,
     rol VARCHAR(50) NOT NULL,
-    contrasenia VARCHAR(255) NOT NULL
+    contrasenia VARCHAR(255) NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE Rodeo (
