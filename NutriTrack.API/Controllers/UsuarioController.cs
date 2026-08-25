@@ -1,0 +1,149 @@
+using Microsoft.AspNetCore.Mvc;
+using NutriTrack.API.DTOs;
+using NutriTrack.Core.Entities;
+using NutriTrack.Infraestructure.Repositories;
+
+namespace NutriTrack.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UsuarioController : ControllerBase
+    {
+        private readonly UsuarioRepository _usuarioRepository;
+
+        public UsuarioController(UsuarioRepository usuarioRepository)
+        {
+            _usuarioRepository = usuarioRepository;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerUsuarios()
+        {
+            var usuarios = await _usuarioRepository.ObtenerTodosAsync();
+
+            return Ok(usuarios);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CrearUsuario(CrearUsuarioDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+                return BadRequest("El nombre completo es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(dto.Correo))
+                return BadRequest("El correo electrónico es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(dto.NombreUsuario))
+                return BadRequest("El nombre de usuario es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(dto.Contrasenia))
+                return BadRequest("La contraseña es obligatoria.");
+
+            if (dto.Contrasenia.Length < 8)
+                return BadRequest("La contraseña debe tener al menos 8 caracteres.");
+
+            var rolesValidos = new[]
+            {
+                "Administrador",
+                "Encargado de campo",
+                "Asesor técnico"
+            };
+
+            if (!rolesValidos.Contains(dto.Rol))
+                return BadRequest("El rol seleccionado no es válido.");
+
+            if (await _usuarioRepository.ExisteCorreoAsync(dto.Correo))
+                return BadRequest("El correo electrónico ya está registrado.");
+
+            if (await _usuarioRepository.ExisteNombreUsuarioAsync(dto.NombreUsuario))
+                return BadRequest("El nombre de usuario ya está registrado.");
+
+            var usuario = new Usuario
+            {
+                Nombre = dto.Nombre,
+                Correo = dto.Correo,
+                NombreUsuario = dto.NombreUsuario,
+                Contrasenia = dto.Contrasenia,
+                Rol = dto.Rol
+            };
+
+            await _usuarioRepository.CrearAsync(usuario);
+
+            return Ok(usuario);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditarUsuario(
+            int id,
+            [FromBody] EditarUsuarioDTO dto)
+        {
+            var usuario = await _usuarioRepository.ObtenerPorIdAsync(id);
+
+            if (usuario == null)
+                return NotFound("El usuario no existe.");
+
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+                return BadRequest("El nombre completo es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(dto.Correo))
+                return BadRequest("El correo electrónico es obligatorio.");
+
+            if (string.IsNullOrWhiteSpace(dto.NombreUsuario))
+                return BadRequest("El nombre de usuario es obligatorio.");
+
+            var rolesValidos = new[]
+            {
+                "Administrador",
+                "Encargado de campo",
+                "Asesor técnico"
+            };
+
+            if (!rolesValidos.Contains(dto.Rol))
+                return BadRequest("El rol seleccionado no es válido.");
+
+            if (await _usuarioRepository.ExisteCorreoAsync(dto.Correo, id))
+                return BadRequest("El correo electrónico ya está registrado.");
+
+            if (await _usuarioRepository.ExisteNombreUsuarioAsync(dto.NombreUsuario, id))
+                return BadRequest("El nombre de usuario ya está registrado.");
+
+            usuario.Nombre = dto.Nombre;
+            usuario.Correo = dto.Correo;
+            usuario.NombreUsuario = dto.NombreUsuario;
+            usuario.Rol = dto.Rol;
+
+            await _usuarioRepository.ActualizarAsync(usuario);
+
+            return Ok(usuario);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarUsuario(
+            int id,
+            [FromQuery] int administradorId)
+        {
+            var usuario = await _usuarioRepository.ObtenerPorIdAsync(id);
+
+            if (usuario == null)
+                return NotFound("El usuario no existe.");
+
+            if (id == administradorId)
+                return BadRequest("Un administrador no puede eliminarse a sí mismo.");
+
+            if (usuario.Rol == "Administrador")
+            {
+                var cantidadAdministradores =
+                    await _usuarioRepository.ContarAdministradoresActivosAsync();
+
+                if (cantidadAdministradores <= 1)
+                    return BadRequest(
+                        "No se puede eliminar al único administrador activo.");
+            }
+
+            await _usuarioRepository.EliminarAsync(id);
+
+            return Ok("Usuario eliminado correctamente.");
+        }
+    }
+}
+
