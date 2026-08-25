@@ -10,7 +10,7 @@ namespace NutriTrack.Core.Entities
 
         public string NombreUsuario { get; set; }
 
-        public string Rol { get; set; }
+        public RolUsuario Rol { get; set; }
 
         public string Contrasenia { get; set; }
 
