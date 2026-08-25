@@ -1,6 +1,7 @@
 using NutriTrack.Infraestructure.Data;
 using NutriTrack.Core.Entities;
 using Microsoft.EntityFrameworkCore;
+using Isopoh.Cryptography.Argon2;
 
 namespace NutriTrack.Infraestructure.Repositories
 {
@@ -16,6 +17,7 @@ namespace NutriTrack.Infraestructure.Repositories
         public async Task CrearAsync(Usuario usuario)
         {
             usuario.Activo = true;
+            usuario.Contrasenia = Argon2.Hash(usuario.Contrasenia);
 
             await _context.Usuarios.AddAsync(usuario);
             await _context.SaveChangesAsync();
@@ -28,7 +30,7 @@ namespace NutriTrack.Infraestructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Usuario>> BuscarAsync(string? busqueda, string? rol)
+        public async Task<List<Usuario>> BuscarAsync(string? busqueda, RolUsuario? rol)
         {
             var query = _context.Usuarios
                 .Where(u => u.Activo)
@@ -43,9 +45,9 @@ namespace NutriTrack.Infraestructure.Repositories
                     u.Correo.ToLower().Contains(busqueda));
             }
 
-            if (!string.IsNullOrWhiteSpace(rol))
+            if (rol.HasValue)
             {
-                query = query.Where(u => u.Rol == rol);
+                query = query.Where(u => u.Rol == rol.Value);
             }
 
             return await query.ToListAsync();
@@ -95,7 +97,7 @@ namespace NutriTrack.Infraestructure.Repositories
         public async Task<int> ContarAdministradoresActivosAsync()
         {
             return await _context.Usuarios
-                .CountAsync(u => u.Activo && u.Rol == "Administrador");
+                .CountAsync(u => u.Activo && u.Rol == RolUsuario.Administrador);
         }
 
         public async Task<bool> EliminarAsync(int id)

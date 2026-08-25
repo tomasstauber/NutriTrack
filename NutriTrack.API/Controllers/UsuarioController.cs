@@ -42,14 +42,7 @@ namespace NutriTrack.API.Controllers
             if (dto.Contrasenia.Length < 8)
                 return BadRequest("La contraseña debe tener al menos 8 caracteres.");
 
-            var rolesValidos = new[]
-            {
-                "Administrador",
-                "Encargado de campo",
-                "Asesor técnico"
-            };
-
-            if (!rolesValidos.Contains(dto.Rol))
+            if (!Enum.IsDefined(typeof(RolUsuario), dto.Rol))
                 return BadRequest("El rol seleccionado no es válido.");
 
             if (await _usuarioRepository.ExisteCorreoAsync(dto.Correo))
@@ -91,14 +84,7 @@ namespace NutriTrack.API.Controllers
             if (string.IsNullOrWhiteSpace(dto.NombreUsuario))
                 return BadRequest("El nombre de usuario es obligatorio.");
 
-            var rolesValidos = new[]
-            {
-                "Administrador",
-                "Encargado de campo",
-                "Asesor técnico"
-            };
-
-            if (!rolesValidos.Contains(dto.Rol))
+            if (!Enum.IsDefined(typeof(RolUsuario), dto.Rol))
                 return BadRequest("El rol seleccionado no es válido.");
 
             if (await _usuarioRepository.ExisteCorreoAsync(dto.Correo, id))
@@ -130,7 +116,7 @@ namespace NutriTrack.API.Controllers
             if (id == administradorId)
                 return BadRequest("Un administrador no puede eliminarse a sí mismo.");
 
-            if (usuario.Rol == "Administrador")
+            if (usuario.Rol == RolUsuario.Administrador)
             {
                 var cantidadAdministradores =
                     await _usuarioRepository.ContarAdministradoresActivosAsync();
@@ -146,4 +132,3 @@ namespace NutriTrack.API.Controllers
         }
     }
 }
-
