@@ -33,9 +33,14 @@ namespace NutriTrack.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearRodeoDTO dto)
         {
+            //validar que no sea null 
+            if (string.IsNullOrEmpty(dto.Nombre))
+                return BadRequest("El nombre del rodeo es obligatorio.");
+
             // Validar mínimo 2 animales
             if (dto.AnimalesIds == null || dto.AnimalesIds.Count < 2)
                 return  BadRequest("Debe seleccionar al menos 2 animales.");
+
             // Validar nombre único
             if (await _rodeoRepo.ExisteNombre(dto.Nombre))
                 return Conflict("Ya existe un rodeo con ese nombre.");
@@ -57,6 +62,7 @@ namespace NutriTrack.API.Controllers
 
             return Ok(new RodeoResponseDTO
             {
+                Mensaje = "Rodeo creado con éxito.",
                 Id = rodeo.Id,
                 NombreRodeo = rodeo.Nombre,
                 CantidadAnimales = rodeo.Animales.Count
