@@ -47,7 +47,7 @@ namespace NutriTrack.API.Controllers
                 Estado = animal.Estado ? "Activo" : "Inactivo",
                 RodeoActual = animal.Rodeo?.Nombre,
                 Madre = animal.Madre != null ? $"{animal.Madre.CaravanaCuig}-{animal.Madre.CaravanaNroManejo}" : null,
-                Padre = animal.Padre != null ? $"{animal.Padre.CaravanaCuig}--{animal.Padre.CaravanaNroManejo}" : null,
+                Padre = animal.Padre != null ? $"{animal.Padre.CaravanaCuig}-{animal.Padre.CaravanaNroManejo}" : null,
                 UltimoPeso = UltimoPeso != null ? new UltimoPesoDTO
                 {
                     FechaPesaje = UltimoPeso.FechaPesaje,
