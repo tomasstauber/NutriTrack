@@ -36,11 +36,18 @@ namespace NutriTrack.API.Controllers
                 return NotFound("No existe un plan con ese Id.");
             }
 
-            // TODO: Validar que el rodeo exista (falta inyectar RodeoRepository con método BuscarPorId)
+            // Validar que el rodeo exista
             var rodeo = await _rodeoRepository.BuscarPorId(dto.IdRodeo);
             if (rodeo is null)
             {
-                 return NotFound("No existe un rodeo con ese Id.");
+                return NotFound("No existe un rodeo con ese Id.");
+            }
+
+            // Validar que el rodeo tenga al menos un animal activo asignado
+            int cantidadAnimales = await _animalRepository.ContarActivosPorRodeo(dto.IdRodeo);
+            if (cantidadAnimales == 0)
+            {
+                return BadRequest("El rodeo seleccionado no tiene animales activos asignados.");
             }
 
             // Validar coherencia de fechas de vigencia
@@ -79,15 +86,14 @@ namespace NutriTrack.API.Controllers
 
             await _repository.AsignarAsync(asignacion);
 
-            // Calcular cantidad de animales activos del rodeo y kg ms diaria total
-            int cantidadAnimales = await _animalRepository.ContarActivosPorRodeo(dto.IdRodeo);
+            // Calcular kg ms diaria total (cantidadAnimales ya se obtuvo en la validación de arriba)
             decimal kgMsDiariaTotal = plan.KgMsDiariaPorAnimal * cantidadAnimales;
 
             // Armar response
             var response = new AsignarPlanResponseDTO
             {
                 NombrePlan = plan.NombrePlan,
-                NombreRodeo = rodeo.Nombre, // TODO: completar cuando esté RodeoRepository.BuscarPorId
+                NombreRodeo = rodeo.Nombre,
                 VigenciaDesde = dto.VigenciaDesde,
                 VigenciaHasta = dto.VigenciaHasta,
                 CantidadAnimales = cantidadAnimales,
