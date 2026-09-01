@@ -19,6 +19,12 @@ namespace NutriTrack.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Registrar([FromBody] PlanAlimenticioDTO dto)
         {
+            // validar nombre_plan no vacío
+            if (string.IsNullOrWhiteSpace(dto.NombrePlan))
+            {
+                return BadRequest("El nombre del plan es obligatorio.");
+            }
+
             // validar nombre unico
             bool exists = await _repository.VerificarNombreUnico(dto.NombrePlan);
             if (exists)
@@ -141,11 +147,29 @@ namespace NutriTrack.API.Controllers
                 return NotFound("No existe un plan con ese Id.");
             }
 
+            // validar nombre_plan no vacío
+            if (string.IsNullOrWhiteSpace(dto.NombrePlan))
+            {
+                return BadRequest("El nombre del plan es obligatorio.");
+            }
+
             // validar nombre unico excluyendo el propio plan
             bool nombreEnUso = await _repository.VerificarNombreUnicoExcluyendo(dto.NombrePlan, idPlanAlimenticio);
             if (nombreEnUso)
             {
                 return BadRequest("Ya existe otro plan con ese nombre");
+            }
+
+            // validar tipo alimentacion no vacío
+            if (string.IsNullOrWhiteSpace(dto.TipoAlimentacion))
+            {
+                return BadRequest("Debe indicar el tipo de alimentación.");
+            }
+
+            // validar kg_ms_diaria_por_animal > 0
+            if (dto.KgMsDiariaPorAnimal <= 0)
+            {
+                return BadRequest("La cantidad de materia seca diaria por animal debe ser mayor a 0.");
             }
 
             // validar que haya al menos un componente.
