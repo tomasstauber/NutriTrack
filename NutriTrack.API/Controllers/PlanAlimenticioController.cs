@@ -19,10 +19,59 @@ namespace NutriTrack.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Registrar([FromBody] PlanAlimenticioDTO dto)
         {
+            // validar nombre unico
             bool exists = await _repository.VerificarNombreUnico(dto.NombrePlan);
             if (exists)
             {
                 return BadRequest("Ya existe un plan con ese nombre.");
+            }
+
+            // validar tipo alimentacion no vacío
+            if (string.IsNullOrWhiteSpace(dto.TipoAlimentacion))
+            {
+                return BadRequest("Debe indicar el tipo de alimentación.");
+            }
+
+            // validar kg_ms_diaria_por_animal > 0
+            if (dto.KgMsDiariaPorAnimal <= 0)
+            {
+                return BadRequest("La cantidad de materia seca diaria por animal debe ser mayor a 0.");
+            }
+
+            // validar que haya al menos un componente
+            if (dto.Detalle is null || !dto.Detalle.Any())
+            {
+                return BadRequest("El plan debe tener al menos un ingrediente.");
+            }
+
+            // validar ingredientes duplicados
+            var idsIngredientes = dto.Detalle.Select(d => d.IdIngrediente).ToList();
+            if (idsIngredientes.Count != idsIngredientes.Distinct().Count())
+            {
+                return BadRequest("No se puede repetir el mismo ingrediente en el plan.");
+            }
+
+            // validar rango de porcentaje por componente
+            if (dto.Detalle.Any(d => d.PorcentajeInclusionMs < 0 || d.PorcentajeInclusionMs > 100))
+            {
+                return BadRequest("El porcentaje de inclusión de cada componente debe estar entre 0 y 100.");
+            }
+
+            // validar suma de porcentajes
+            var sumaPorcentaje = dto.Detalle.Sum(d => d.PorcentajeInclusionMs);
+            if (sumaPorcentaje > 100)
+            {
+                return BadRequest("La suma de porcentajes de inclusión no puede superar 100.");
+            }
+
+            // validar que cada ingrediente exista y esté activo
+            foreach (var detalle in dto.Detalle)
+            {
+                bool existe = await _repository.ExisteIngrediente(detalle.IdIngrediente);
+                if (!existe)
+                {
+                    return BadRequest($"El ingrediente con id {detalle.IdIngrediente} no existe o está desactivado.");
+                }
             }
 
             var plan = new PlanAlimenticio
@@ -112,6 +161,12 @@ namespace NutriTrack.API.Controllers
                 return BadRequest("No se puede repetir el mismo ingrediente en el plan.");
             }
 
+            // validar rango de porcentaje por componente
+            if (dto.Detalle.Any(d => d.PorcentajeInclusionMs < 0 || d.PorcentajeInclusionMs > 100))
+            {
+                return BadRequest("El porcentaje de inclusión de cada componente debe estar entre 0 y 100.");
+            }
+
             // validar suma de porcentajes
             var sumaPorcentaje = dto.Detalle.Sum(d => d.PorcentajeInclusionMs);
             if (sumaPorcentaje > 100)
@@ -161,7 +216,7 @@ namespace NutriTrack.API.Controllers
             {
                 return Ok($"Plan actualizado. Atención los cambios afectan a {asignacionesAfectadas} rodeo(s) con asignación vigente");
             }
-
+                
             return Ok("Plan actualizado exitosamente!");
         }
     }
