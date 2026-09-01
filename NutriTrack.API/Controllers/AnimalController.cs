@@ -23,7 +23,15 @@ namespace NutriTrack.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearAnimalDTO dto)
         {
-            
+            // Validar formato alfanumérico 6-8 caracteres
+            var caravanaCompleta = dto.CaravanaCuig + dto.CaravanaNroManejo;
+            if (caravanaCompleta.Length < 6 || caravanaCompleta.Length > 10 ||
+                !caravanaCompleta.All(char.IsLetterOrDigit))
+                return BadRequest("Formato de caravana inválido (alfanumérico, 6-8 caracteres).");
+
+            if (await _animalRepo.ExisteCaravana(dto.CaravanaCuig, dto.CaravanaNroManejo))
+                return Conflict("Ya existe un animal con esa caravana.");
+
             if (await _animalRepo.ExisteCaravana(dto.CaravanaCuig, dto.CaravanaNroManejo))
                 return Conflict("Ya existe un animal con esa caravana.");
 
@@ -98,6 +106,12 @@ namespace NutriTrack.API.Controllers
             if (string.IsNullOrEmpty(nroManejo))
                 return BadRequest("El numero de manejo de la caravana es obligatorio");
 
+            // Validar formato alfanumérico 6-8 caracteres
+            var caravanaCompleta = cuig + nroManejo;
+            if (caravanaCompleta.Length < 6 || caravanaCompleta.Length > 10 ||
+                !caravanaCompleta.All(char.IsLetterOrDigit))
+                return BadRequest("Formato de caravana inválido (alfanumérico, 6-8 caracteres).");
+
             var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
             if (animal == null)
                 return NotFound("No se encontró un animal con esa caravana");
@@ -117,6 +131,12 @@ namespace NutriTrack.API.Controllers
 
             if (string.IsNullOrEmpty(nroManejo))
                 return BadRequest("El numero de manejo de la caravana es obligatorio");
+
+            // Validar formato alfanumérico 6-8 caracteres
+            var caravanaCompleta = cuig + nroManejo;
+            if (caravanaCompleta.Length < 6 || caravanaCompleta.Length > 10 ||
+                !caravanaCompleta.All(char.IsLetterOrDigit))
+                return BadRequest("Formato de caravana inválido (alfanumérico, 6-8 caracteres).");
 
             var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
             if (animal == null)

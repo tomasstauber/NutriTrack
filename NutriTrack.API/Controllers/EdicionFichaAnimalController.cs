@@ -24,6 +24,13 @@ namespace NutriTrack.API.Controllers
             {
                 return BadRequest("La caravana es obligatoria");
             }
+            
+            // Validar formato alfanumérico 6-8 caracteres
+            var caravanaCompleta = cuig + NroManejo;
+            if (caravanaCompleta.Length < 6 || caravanaCompleta.Length > 10 ||
+                !caravanaCompleta.All(char.IsLetterOrDigit))
+                return BadRequest("Formato de caravana inválido (alfanumérico, 6-8 caracteres).");
+            
             // Buscar el recurso a editar (¿existe el animal?)
             //buscar animal
             var animal = await _repository.BuscarPorCaravana(cuig, NroManejo);
