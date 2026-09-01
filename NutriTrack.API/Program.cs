@@ -25,6 +25,7 @@ builder.Services.AddScoped<EdicionFichaAnimalRepository>();
 builder.Services.AddScoped<MedicamentoRepository>();
 builder.Services.AddScoped<TransferenciaAnimalesRepository>();
 builder.Services.AddScoped<UsuarioRepository>();
+builder.Services.AddScoped<EliminarRodeoRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
