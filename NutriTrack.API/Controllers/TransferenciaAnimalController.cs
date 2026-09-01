@@ -26,6 +26,11 @@ namespace NutriTrack.API.Controllers
             if (rodeoOrigen == null)
                 return NotFound("No existe el rodeo origen.");
 
+            // Rodeo origen debe tener al menos un animal activo
+            var animalesOrigen = await _repository.ObtenerAnimalesPorRodeo(dto.IdRodeoOrigen);
+            if (!animalesOrigen.Any())
+                return BadRequest("El rodeo origen no tiene animales activos.");
+
             // 2. Rodeo destino existe
             var rodeoDestino = await _rodeoRepository.BuscarPorId(dto.IdRodeoDestino);
             if (rodeoDestino == null)
