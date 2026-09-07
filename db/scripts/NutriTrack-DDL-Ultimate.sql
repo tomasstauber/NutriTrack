@@ -38,20 +38,22 @@ CREATE TABLE Medicamento (
 
 CREATE TABLE EventoSanitario (
     id_evento_sanitario SERIAL PRIMARY KEY,
-    tipo_de_evento VARCHAR(50),
-    vigencia_hasta DATE,
+    tipo_evento VARCHAR(50),
     fecha_evento DATE,
+    vigencia_hasta DATE,
     fecha_proxima_aplicacion DATE,
-    id_usuario INTEGER REFERENCES Usuario(id_usuario),
-    id_animal INTEGER REFERENCES Animal(id_animal)
+    observaciones VARCHAR(500),
+    id_usuario INTEGER REFERENCES Usuario(id_usuario) ON DELETE RESTRICT,
+    id_animal INTEGER REFERENCES Animal(id_animal) ON DELETE RESTRICT
 );
 
 CREATE TABLE DetalleMedicamento (
     id_detalle_medicamento SERIAL PRIMARY KEY,
     dosis DECIMAL,
     unidad VARCHAR(10),
-    id_evento_sanitario INTEGER REFERENCES EventoSanitario(id_evento_sanitario),
-    id_medicamento INTEGER REFERENCES Medicamento(id_medicamento)
+    observaciones VARCHAR(500),
+    id_evento_sanitario INTEGER REFERENCES EventoSanitario(id_evento_sanitario) ON DELETE CASCADE,
+    id_medicamento INTEGER REFERENCES Medicamento(id_medicamento) ON DELETE RESTRICT
 );
 
 CREATE TABLE ControlDePeso (
