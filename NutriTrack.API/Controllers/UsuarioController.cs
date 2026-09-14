@@ -45,6 +45,9 @@ namespace NutriTrack.API.Controllers
             if (!Enum.IsDefined(typeof(RolUsuario), dto.Rol))
                 return BadRequest("El rol seleccionado no es válido.");
 
+            if (dto.Rol == RolUsuario.Administrador && !dto.Confirmar)
+                return BadRequest("Debe confirmar la creación del administrador.");
+
             if (await _usuarioRepository.ExisteCorreoAsync(dto.Correo))
                 return BadRequest("El correo electrónico ya está registrado.");
 
@@ -87,6 +90,9 @@ namespace NutriTrack.API.Controllers
             if (!Enum.IsDefined(typeof(RolUsuario), dto.Rol))
                 return BadRequest("El rol seleccionado no es válido.");
 
+            if (dto.Rol == RolUsuario.Administrador && !dto.Confirmar)
+                return BadRequest("Debe confirmar la edición del administrador.");
+
             if (await _usuarioRepository.ExisteCorreoAsync(dto.Correo, id))
                 return BadRequest("El correo electrónico ya está registrado.");
 
@@ -106,7 +112,8 @@ namespace NutriTrack.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarUsuario(
             int id,
-            [FromQuery] int administradorId)
+            [FromQuery] int administradorId,
+            [FromBody] EliminarUsuarioDTO dto)
         {
             var usuario = await _usuarioRepository.ObtenerPorIdAsync(id);
 
@@ -118,6 +125,9 @@ namespace NutriTrack.API.Controllers
 
             if (usuario.Rol == RolUsuario.Administrador)
             {
+                if (!dto.Confirmar)
+                    return BadRequest("Debe confirmar la eliminación del administrador.");
+
                 var cantidadAdministradores =
                     await _usuarioRepository.ContarAdministradoresActivosAsync();
 
