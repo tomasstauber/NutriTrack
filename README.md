@@ -1,38 +1,63 @@
-# NutriTrack
-Sistema de gestión ganadera desarrollado como proyecto final de la Tecnicatura Superior en Desarrollo de Software — Instituto Tecnológico El Molino, 2026.
+# NutriTrack — Entorno de testing con Docker
 
-## Tecnologías
-- .NET 10 · C#
-- ASP.NET Core Web API
-- .NET MAUI
-- Entity Framework Core
-- PostgreSQL
+Este entorno levanta el backend completo de NutriTrack (API + base de datos PostgreSQL) para pruebas cruzadas, con los datos de prueba ya cargados.
 
-## Requisitos previos
-- Visual Studio 2022 con los workloads:
-  - ASP.NET and web development
-  - .NET MAUI
-- Docker Desktop
+## Requisitos
 
-## Cómo correr el proyecto
-1. Clonar el repositorio
-git clone https://github.com/tomasstauber/NutriTrack.git
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y corriendo.
+- No hace falta tener instalado .NET SDK ni PostgreSQL en tu máquina — Docker se encarga de todo.
 
-2. Copiar `.env.example` → `.env` y completar con los valores reales
+## Cómo levantar el entorno
 
-3. Copiar `appsettings.example.json` → `appsettings.json` y completar con los valores reales
+1. Cloná el repositorio (o asegurate de tener la última versión de la rama correspondiente).
+2. Abrí una terminal en la raíz del proyecto (donde están el `Dockerfile`, el `docker-compose.yml` y `backupOk.sql`).
+3. Corré:
 
-4. Levantar la base de datos:
-docker compose up
+   ```
+   docker compose up --build
+   ```
 
-5. Abrir DBeaver, conectarse a la base de datos y ejecutar `db/scripts/NutriTrack-DLL.sql`
+4. Esperá a que en la terminal aparezca:
 
-6. Abrir `NutriTrack.sln` en Visual Studio
+   ```
+   nutritrack-api  | Now listening on: http://[::]:8080
+   nutritrack-db   | database system is ready to accept connections
+   ```
 
-7. Restaurar dependencias si Visual Studio no lo hace automáticamente:
-dotnet restore
+   La primera vez puede tardar unos minutos porque descarga las imágenes base y compila el proyecto. Las siguientes veces es mucho más rápido.
 
-8. Establecer `NutriTrack.API` como proyecto de inicio y presionar F5
+## Cómo probar los endpoints
 
-## Equipo
-Lamerata Daniela · Stauber Tomás · Tapia Gala
+Con el entorno arriba, abrí en el navegador:
+
+```
+http://localhost:8080/scalar/
+```
+
+Ahí vas a ver la documentación interactiva de la API (Scalar). Elegí el endpoint, presioná **"Test Request"**, pegá el JSON correspondiente de la columna "Datos de Prueba" del documento de casos de prueba, y presioná **Send**.
+
+## Datos de prueba ya cargados
+
+La base arranca automáticamente con los datos definidos en `backupOk.sql` — no hace falta cargar nada a mano. Incluye animales, rodeos, planes alimenticios, ingredientes, usuarios y eventos sanitarios de ejemplo, con los mismos IDs que se usan en el documento de casos de prueba.
+
+## Cómo apagar el entorno
+
+Para detener los contenedores sin perder los datos cargados:
+
+```
+docker compose down
+```
+
+Para reiniciar completamente desde cero (borra los datos y vuelve a cargar el seed original la próxima vez que levantes):
+
+```
+docker compose down -v
+docker compose up --build
+```
+
+Usá esta última opción si algo quedó en un estado raro después de correr varios casos de prueba y querés volver al punto de partida.
+
+## Problemas comunes
+
+- **"port is already allocated"**: algún otro proceso o contenedor está usando el puerto 5470 u 8080 en tu máquina. Cerralo o cambiá el puerto en `docker-compose.yml`.
+- **La API no conecta a la base al arrancar**: esperá unos segundos más — Postgres necesita un momento para inicializarse la primera vez. El `docker-compose.yml` ya tiene un healthcheck configurado para que la API espere a que la base esté lista.
