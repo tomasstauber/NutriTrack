@@ -42,5 +42,11 @@ namespace NutriTrack.Infraestructure.Repositories
                 .Where(a => ids.Contains(a.Id) && a.Estado && a.RodeoId == null)
                 .ToListAsync();
         }
+        public async Task<List<Animal>> ObtenerActivosPorRodeo(int idRodeo)
+        {
+            return await _context.Animales
+                .Where(a => a.RodeoId == idRodeo && a.Estado)
+                .ToListAsync();
+        }
     }
 }

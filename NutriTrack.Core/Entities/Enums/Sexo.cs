@@ -1,4 +1,4 @@
-﻿namespace NutriTrack.Core.Entities
+﻿namespace NutriTrack.Core.Entities.Enums
 {
     // Enum porque hay solo dos valores posibles: Macho o Hembra
     public enum Sexo
