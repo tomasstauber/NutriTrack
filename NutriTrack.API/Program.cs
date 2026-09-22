@@ -22,7 +22,7 @@ builder.Services.AddScoped<EdicionFichaAnimalRepository>();
 builder.Services.AddScoped<MedicamentoRepository>();
 builder.Services.AddScoped<TransferenciaAnimalesRepository>();
 builder.Services.AddScoped<EliminarRodeoRepository>();
-
+builder.Services.AddScoped<ReporteInventarioAnimalesRepository>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
