@@ -1,21 +1,35 @@
-version: '3.8'
 services:
   db:
     image: postgres:16
-    ports:
-      - "5433:5432"
+    container_name: nutritrack-db
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: nutritrack_testing
+    ports:
+      - "5470:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - nutritrack_pgdata:/var/lib/postgresql/data
+      - ./backupOk.sql:/docker-entrypoint-initdb.d/backupOk.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 10s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nutritrack-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=nutritrack_testing;Username=postgres;Password=1234"
+    ports:
+      - "8080:8080"
 
 volumes:
-  pgdata:
+  nutritrack_pgdata:

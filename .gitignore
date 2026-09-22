@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 appsettings.json
 appsettings.Development.json
 /db/scripts/NutriTrack-DLL.sql
+bin/
+obj/
+.vs/
