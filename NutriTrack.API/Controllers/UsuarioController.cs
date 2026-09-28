@@ -92,9 +92,6 @@ namespace NutriTrack.API.Controllers
             if (!Enum.IsDefined(typeof(RolUsuario), dto.Rol))
                 return BadRequest("El rol seleccionado no es válido.");
 
-            //if (dto.Rol == RolUsuario.Administrador && !dto.Confirmar)
-            //    return BadRequest("Debe confirmar la edición del administrador.");
-
             if (dto.Rol == RolUsuario.Administrador && usuario.Rol != RolUsuario.Administrador && !dto.Confirmar)
                 return BadRequest("Debe confirmar la edición del administrador.");
 
