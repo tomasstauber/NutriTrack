@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using NutriTrack.Core.Entities;
 
 namespace NutriTrack.Infraestructure.Data
@@ -11,17 +8,18 @@ namespace NutriTrack.Infraestructure.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
+
         public DbSet<RegistroPeso> RegistrosPeso { get; set; }
         public DbSet<PlanAlimenticio> PlanesAlimenticios { get; set; }
         public DbSet<PlanAlimenticioDetalle> PlanAlimenticioDetalles { get; set; }
         public DbSet<PlanRodeoAsignacion> PlanRodeoAsignacions { get; set; }
         public DbSet<Ingrediente> Ingredientes { get; set; }
-
         public DbSet<Rodeo> Rodeos { get; set; }
         public DbSet<Animal> Animales { get; set; }
         public DbSet<Medicamento> Medicamentos { get; set; }
         public DbSet<EventoSanitario> EventosSanitarios { get; set; }
         public DbSet<DetalleMedicamento> DetallesMedicamento { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RegistroPeso>(entity =>
@@ -35,7 +33,7 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
                 entity.Property(e => e.IdAnimal).HasColumnName("id_animal");
             });
-            
+
             modelBuilder.Entity<PlanAlimenticio>(entity =>
             {
                 entity.ToTable("planalimenticio");
@@ -61,13 +59,15 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.Observaciones).HasColumnName("observaciones");
                 entity.Property(e => e.IdPlanAlimenticio).HasColumnName("id_plan_alimenticio");
                 entity.Property(e => e.IdIngrediente).HasColumnName("id_ingrediente");
+
                 entity.HasOne(d => d.PlanAlimenticio)
-                       .WithMany(p => p.Detalles)
-                       .HasForeignKey(d => d.IdPlanAlimenticio)
-                       .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany(p => p.Detalles)
+                    .HasForeignKey(d => d.IdPlanAlimenticio)
+                    .OnDelete(DeleteBehavior.Cascade);
+
                 entity.HasOne(d => d.Ingrediente)
-                       .WithMany()
-                       .HasForeignKey(d => d.IdIngrediente);
+                    .WithMany()
+                    .HasForeignKey(d => d.IdIngrediente);
             });
 
             modelBuilder.Entity<PlanRodeoAsignacion>(entity =>
@@ -89,7 +89,6 @@ namespace NutriTrack.Infraestructure.Data
                     .WithMany()
                     .HasForeignKey(d => d.IdRodeo);
             });
-          
 
             modelBuilder.Entity<Rodeo>(entity =>
             {
@@ -100,7 +99,6 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.Descripcion).HasColumnName("descripcion");
                 entity.HasIndex(e => e.Nombre).IsUnique();
             });
-
 
             modelBuilder.Entity<Animal>(entity =>
             {
@@ -119,29 +117,26 @@ namespace NutriTrack.Infraestructure.Data
                     .HasColumnName("sexo")
                     .HasConversion<string>();
 
-
                 entity.Property(e => e.ColorPelaje).HasColumnName("color_pelaje");
                 entity.Property(e => e.FechaAlta).HasColumnName("fecha_alta");
                 entity.Property(e => e.Estado).HasColumnName("estado");
                 entity.Property(e => e.RodeoId).HasColumnName("id_rodeo");
-                
+
                 entity.HasOne(a => a.Rodeo)
                     .WithMany(r => r.Animales)
                     .HasForeignKey(a => a.RodeoId)
                     .OnDelete(DeleteBehavior.SetNull);
-                
+
                 entity.HasOne(a => a.Madre)
                     .WithMany()
                     .HasForeignKey(a => a.MadreId)
                     .OnDelete(DeleteBehavior.SetNull);
-                
+
                 entity.HasOne(a => a.Padre)
                     .WithMany()
                     .HasForeignKey(a => a.PadreId)
                     .OnDelete(DeleteBehavior.SetNull);
-                
-            }
-            );
+            });
 
             modelBuilder.Entity<Ingrediente>(entity =>
             {
@@ -167,48 +162,6 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.Nombre).HasColumnName("nombre");
                 entity.Property(e => e.Descripcion).HasColumnName("descripcion");
                 entity.Property(e => e.Activo).HasColumnName("activo");
-            });
-
-            modelBuilder.Entity<DetalleMedicamento>(entity =>
-            {
-                entity.ToTable("detallemedicamento");
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_detalle_medicamento").ValueGeneratedOnAdd();
-                entity.Property(e => e.Dosis).HasColumnName("dosis");
-                entity.Property(e => e.Unidad).HasColumnName("unidad");
-                entity.Property(e => e.Observaciones).HasColumnName("observaciones");
-                entity.Property(e => e.IdEventoSanitario).HasColumnName("id_evento_sanitario");
-                entity.Property(e => e.IdMedicamento).HasColumnName("id_medicamento");
-
-
-                entity.HasOne<EventoSanitario>()
-                    .WithMany(e => e.DetallesMedicamento)
-                    .HasForeignKey(d => d.IdEventoSanitario)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne<Medicamento>()
-                    .WithMany()
-                    .HasForeignKey(d => d.IdMedicamento)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
-
-            modelBuilder.Entity<EventoSanitario>(entity =>
-            {
-                entity.ToTable("eventosanitario");
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Id).HasColumnName("id_evento_sanitario").ValueGeneratedOnAdd();
-                entity.Property(e => e.TipoEvento).HasColumnName("tipo_evento");
-                entity.Property(e => e.FechaEvento).HasColumnName("fecha_evento");
-                entity.Property(e => e.VigenciaHasta).HasColumnName("vigencia_hasta");
-                entity.Property(e => e.FechaProximaAplicacion).HasColumnName("fecha_proxima_aplicacion");
-                entity.Property(e => e.Observaciones).HasColumnName("observaciones");
-                entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
-                entity.Property(e => e.IdAnimal).HasColumnName("id_animal");
-
-                entity.HasOne<Animal>()
-                    .WithMany()
-                    .HasForeignKey(e => e.IdAnimal)
-                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
