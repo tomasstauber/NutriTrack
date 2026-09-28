@@ -79,10 +79,10 @@ namespace NutriTrack.API.Controllers
 
                 animalesSeleccionados = animalesActivosDelRodeo;
             }
-            else if (dto.ModoSeleccion == "Selección manual")
+            else if (dto.ModoSeleccion == "Seleccion manual")
             {
                 if (dto.IdRodeo is null)
-                    return BadRequest("idRodeo es obligatorio para el modo 'Selección manual'.");
+                    return BadRequest("idRodeo es obligatorio para el modo 'Seleccion manual'.");
 
                 if (dto.Caravanas is null || dto.Caravanas.Count == 0)
                     return BadRequest("Debe seleccionar al menos un animal.");
@@ -114,7 +114,7 @@ namespace NutriTrack.API.Controllers
                 if (errores.Any())
                     return BadRequest(string.Join(" ", errores));
             }
-            else if (dto.ModoSeleccion == "Selección libre")
+            else if (dto.ModoSeleccion == "Seleccion libre")
             {
                 if (dto.Caravanas is null || dto.Caravanas.Count == 0)
                     return BadRequest("Debe seleccionar al menos un animal.");
@@ -148,7 +148,7 @@ namespace NutriTrack.API.Controllers
             }
             else
             {
-                return BadRequest("modo_seleccion inválido. Opciones: 'Rodeo completo', 'Selección manual' o 'Selección libre'.");
+                return BadRequest("modo_seleccion inválido. Opciones: 'Rodeo completo', 'Seleccion manual' o 'Seleccion libre'.");
             }
 
             int idUsuarioLogueado = 1; // TODO: reemplazar cuando se resuelva el issue de auth/Usuario

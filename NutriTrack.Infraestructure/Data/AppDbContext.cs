@@ -163,6 +163,62 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.Descripcion).HasColumnName("descripcion");
                 entity.Property(e => e.Activo).HasColumnName("activo");
             });
+
+            modelBuilder.Entity<DetalleMedicamento>(entity =>
+            {
+                entity.ToTable("detallemedicamento");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id_detalle_medicamento").ValueGeneratedOnAdd();
+                entity.Property(e => e.Dosis).HasColumnName("dosis");
+                entity.Property(e => e.Unidad).HasColumnName("unidad");
+                entity.Property(e => e.Observaciones).HasColumnName("observaciones");
+                entity.Property(e => e.IdEventoSanitario).HasColumnName("id_evento_sanitario");
+                entity.Property(e => e.IdMedicamento).HasColumnName("id_medicamento");
+
+                entity.HasOne<EventoSanitario>()
+                    .WithMany(e => e.DetallesMedicamento)
+                    .HasForeignKey(d => d.IdEventoSanitario)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne<Medicamento>()
+                    .WithMany()
+                    .HasForeignKey(d => d.IdMedicamento)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<EventoSanitario>(entity =>
+            {
+                entity.ToTable("eventosanitario");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id_evento_sanitario").ValueGeneratedOnAdd();
+                entity.Property(e => e.TipoEvento).HasColumnName("tipo_evento");
+                entity.Property(e => e.FechaEvento).HasColumnName("fecha_evento");
+                entity.Property(e => e.VigenciaHasta).HasColumnName("vigencia_hasta");
+                entity.Property(e => e.FechaProximaAplicacion).HasColumnName("fecha_proxima_aplicacion");
+                entity.Property(e => e.Observaciones).HasColumnName("observaciones");
+                entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
+                entity.Property(e => e.IdAnimal).HasColumnName("id_animal");
+
+                entity.HasOne<Animal>()
+                    .WithMany()
+                    .HasForeignKey(e => e.IdAnimal)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Usuario>(entity =>
+            {
+                entity.ToTable("usuario");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id_usuario");
+                entity.Property(e => e.Nombre).HasColumnName("nombre");
+                entity.Property(e => e.Correo).HasColumnName("correo");
+                entity.Property(e => e.NombreUsuario).HasColumnName("nombre_usuario");
+                entity.Property(e => e.Rol)
+                    .HasColumnName("rol")
+                    .HasConversion<string>();
+                entity.Property(e => e.Contrasenia).HasColumnName("contrasenia");
+                entity.Property(e => e.Activo).HasColumnName("activo");
+            });
         }
     }
 }
