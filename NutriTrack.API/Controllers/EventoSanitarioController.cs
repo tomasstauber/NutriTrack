@@ -27,12 +27,13 @@ namespace NutriTrack.API.Controllers
         [HttpPost("multiple")]
         public async Task<IActionResult> RegistrarMultiple([FromBody] RegistrarEventoSanitarioMultipleDTO dto)
         {
+           
             if (!Enum.TryParse<TipoEvento>(dto.TipoEvento, ignoreCase: true, out var tipoEvento))
-                return BadRequest($"tipo_evento inválido. Opciones: {string.Join(", ", Enum.GetNames<TipoEvento>())}");
+                return BadRequest($"tipo evento invalido. Opciones: {string.Join(", ", Enum.GetNames<TipoEvento>())}");
 
             if (dto.FechaEvento.Date > DateTime.Today)
-                return BadRequest("fecha_evento no puede ser posterior a la fecha actual.");
- 
+                return BadRequest("fecha evento no puede ser posterior a la fecha actual.");
+
             if (dto.VigenciaHasta.HasValue && dto.VigenciaHasta.Value.Date < dto.FechaEvento.Date)
                 return BadRequest("vigencia hasta debe ser igual o posterior a fecha evento.");
 
@@ -65,35 +66,79 @@ namespace NutriTrack.API.Controllers
                 }
             }
 
-            var animalesActivosDelRodeo = await _animalRepo.ObtenerActivosPorRodeo(dto.IdRodeo);
-            if (animalesActivosDelRodeo.Count == 0)
-                return BadRequest("No se encontró el rodeo seleccionado o no tiene animales activos.");
-
             List<Animal> animalesSeleccionados;
 
             if (dto.ModoSeleccion == "Rodeo completo")
             {
+                if (dto.IdRodeo is null)
+                    return BadRequest("idRodeo es obligatorio para el modo 'Rodeo completo'.");
+
+                var animalesActivosDelRodeo = await _animalRepo.ObtenerActivosPorRodeo(dto.IdRodeo.Value);
+                if (animalesActivosDelRodeo.Count == 0)
+                    return BadRequest("No se encontró el rodeo seleccionado o no tiene animales activos.");
+
                 animalesSeleccionados = animalesActivosDelRodeo;
             }
             else if (dto.ModoSeleccion == "Selección manual")
             {
+                if (dto.IdRodeo is null)
+                    return BadRequest("idRodeo es obligatorio para el modo 'Selección manual'.");
+
                 if (dto.Caravanas is null || dto.Caravanas.Count == 0)
                     return BadRequest("Debe seleccionar al menos un animal.");
 
-                var duplicadas = dto.Caravanas.GroupBy(c => c).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+                var duplicadas = dto.Caravanas
+                    .GroupBy(c => (c.CaravanaCuig, c.CaravanaNroManejo))
+                    .Where(g => g.Count() > 1)
+                    .Select(g => $"{g.Key.CaravanaCuig}-{g.Key.CaravanaNroManejo}")
+                    .ToList();
+
                 if (duplicadas.Any())
                     return BadRequest($"Caravanas repetidas en la selección: {string.Join(", ", duplicadas)}");
 
+                var animalesActivosDelRodeo = await _animalRepo.ObtenerActivosPorRodeo(dto.IdRodeo.Value);
                 animalesSeleccionados = new List<Animal>();
                 var errores = new List<string>();
 
-                foreach (var caravana in dto.Caravanas)
+                foreach (var c in dto.Caravanas)
                 {
                     var animal = animalesActivosDelRodeo.FirstOrDefault(a =>
-                        a.CaravanaCuig == caravana || a.CaravanaNroManejo == caravana);
+                        a.CaravanaCuig == c.CaravanaCuig && a.CaravanaNroManejo == c.CaravanaNroManejo);
 
                     if (animal is null)
-                        errores.Add($"'{caravana}' no existe, no está activa o no pertenece al rodeo seleccionado.");
+                        errores.Add($"'{c.CaravanaCuig}-{c.CaravanaNroManejo}' no existe, no está activa o no pertenece al rodeo seleccionado.");
+                    else
+                        animalesSeleccionados.Add(animal);
+                }
+
+                if (errores.Any())
+                    return BadRequest(string.Join(" ", errores));
+            }
+            else if (dto.ModoSeleccion == "Selección libre")
+            {
+                if (dto.Caravanas is null || dto.Caravanas.Count == 0)
+                    return BadRequest("Debe seleccionar al menos un animal.");
+
+                var duplicadas = dto.Caravanas
+                    .GroupBy(c => (c.CaravanaCuig, c.CaravanaNroManejo))
+                    .Where(g => g.Count() > 1)
+                    .Select(g => $"{g.Key.CaravanaCuig}-{g.Key.CaravanaNroManejo}")
+                    .ToList();
+
+                if (duplicadas.Any())
+                    return BadRequest($"Caravanas repetidas en la selección: {string.Join(", ", duplicadas)}");
+
+                var todosActivos = await _animalRepo.ObtenerTodosActivos();
+                animalesSeleccionados = new List<Animal>();
+                var errores = new List<string>();
+
+                foreach (var c in dto.Caravanas)
+                {
+                    var animal = todosActivos.FirstOrDefault(a =>
+                        a.CaravanaCuig == c.CaravanaCuig && a.CaravanaNroManejo == c.CaravanaNroManejo);
+
+                    if (animal is null)
+                        errores.Add($"'{c.CaravanaCuig}-{c.CaravanaNroManejo}' no existe o no está activa.");
                     else
                         animalesSeleccionados.Add(animal);
                 }
@@ -103,10 +148,10 @@ namespace NutriTrack.API.Controllers
             }
             else
             {
-                return BadRequest("modo_seleccion inválido. Opciones: 'Rodeo completo' o 'Selección manual'.");
+                return BadRequest("modo_seleccion inválido. Opciones: 'Rodeo completo', 'Selección manual' o 'Selección libre'.");
             }
 
-            int idUsuarioLogueado = 1; // TODO: reemplazar cuando se resuelva el issue de Usuario
+            int idUsuarioLogueado = 1; // TODO: reemplazar cuando se resuelva el issue de auth/Usuario
 
             foreach (var animal in animalesSeleccionados)
             {
