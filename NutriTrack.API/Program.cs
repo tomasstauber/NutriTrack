@@ -30,6 +30,7 @@ builder.Services.AddScoped<EliminarRodeoRepository>();
 builder.Services.AddScoped<EventoSanitarioRepository>();
 builder.Services.AddScoped<ReporteInventarioAnimalesRepository>();
 builder.Services.AddScoped<IReportePdfService, ReportePdfService>();
+builder.Services.AddScoped <ReporteFechasImportantesRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
