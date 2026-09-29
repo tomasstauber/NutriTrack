@@ -115,9 +115,12 @@ namespace NutriTrack.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarUsuario(
             int id,
-            [FromQuery] int administradorId,
-            [FromBody] EliminarUsuarioDTO dto)
+            [FromQuery] int? administradorId,
+            [FromQuery] bool confirmar)
         {
+            if (administradorId == null)
+                return BadRequest("Debe indicar el administrador que realiza la operación.");
+
             var usuario = await _usuarioRepository.ObtenerPorIdAsync(id);
 
             if (usuario == null)
@@ -126,11 +129,11 @@ namespace NutriTrack.API.Controllers
             if (id == administradorId)
                 return BadRequest("Un administrador no puede eliminarse a sí mismo.");
 
+            if (!confirmar)
+                return BadRequest("Debe confirmar la eliminación del usuario.");
+
             if (usuario.Rol == RolUsuario.Administrador)
             {
-                if (!dto.Confirmar)
-                    return BadRequest("Debe confirmar la eliminación del administrador.");
-
                 var cantidadAdministradores =
                     await _usuarioRepository.ContarAdministradoresActivosAsync();
 
