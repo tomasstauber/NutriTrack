@@ -6,6 +6,7 @@ using NutriTrack.Infraestructure.Repositories;
 using Scalar.AspNetCore;
 using System.Text;
 using System.Text.Json.Serialization;
+using NutriTrack.API.GeneracionReportesPdf;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,8 @@ builder.Services.AddScoped<TransferenciaAnimalesRepository>();
 builder.Services.AddScoped<UsuarioRepository>();
 builder.Services.AddScoped<EliminarRodeoRepository>();
 builder.Services.AddScoped<EventoSanitarioRepository>();
+builder.Services.AddScoped<ReporteInventarioAnimalesRepository>();
+builder.Services.AddScoped<IReportePdfService, ReportePdfService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -53,7 +56,7 @@ builder.Services.AddControllers()
 builder.Services.AddOpenApi();
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
