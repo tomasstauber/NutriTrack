@@ -1,4 +1,5 @@
 using NutriTrack.Core.Entities;
+using NutriTrack.Core.Entities.Enums;
 
 namespace NutriTrack.API.DTOs
 {

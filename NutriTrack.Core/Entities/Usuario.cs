@@ -1,3 +1,5 @@
+using NutriTrack.Core.Entities.Enums;
+
 namespace NutriTrack.Core.Entities
 {
     public class Usuario

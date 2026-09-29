@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NutriTrack.Core.Entities
+
+namespace NutriTrack.Core.Entities.Enums
 {
     public enum RolUsuario {
         AsesorTecnico,

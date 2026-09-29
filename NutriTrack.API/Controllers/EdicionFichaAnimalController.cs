@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NutriTrack.API.DTOs;
 using NutriTrack.Core.Entities;
+using NutriTrack.Core.Entities.Enums;
 using NutriTrack.Infraestructure.Repositories;
 
 namespace NutriTrack.API.Controllers

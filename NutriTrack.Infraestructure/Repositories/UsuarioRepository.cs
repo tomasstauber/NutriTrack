@@ -1,5 +1,6 @@
 using NutriTrack.Infraestructure.Data;
 using NutriTrack.Core.Entities;
+using NutriTrack.Core.Entities.Enums;
 using Microsoft.EntityFrameworkCore;
 using Isopoh.Cryptography.Argon2;
 

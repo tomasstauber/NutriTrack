@@ -26,6 +26,7 @@ builder.Services.AddScoped<MedicamentoRepository>();
 builder.Services.AddScoped<TransferenciaAnimalesRepository>();
 builder.Services.AddScoped<UsuarioRepository>();
 builder.Services.AddScoped<EliminarRodeoRepository>();
+builder.Services.AddScoped<EventoSanitarioRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
