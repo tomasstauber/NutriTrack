@@ -112,5 +112,26 @@ namespace NutriTrack.Infraestructure.Repositories
 
             return true;
         }
+
+        public async Task<Usuario?> ValidarCredencialesAsync(string nombreUsuario, string contrasenia)
+        {
+           var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Activo && 
+                                          u.NombreUsuario.ToLower() == nombreUsuario.ToLower());
+           
+            if (usuario == null)
+            {
+                return null;
+            }
+
+            bool contraseniaVerificada = Argon2.Verify(usuario.Contrasenia, contrasenia);
+
+            if (!contraseniaVerificada)
+            {
+                return null;
+            }
+
+            return usuario;
+        }
     }
 }

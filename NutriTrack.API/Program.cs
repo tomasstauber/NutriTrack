@@ -1,12 +1,13 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NutriTrack.API.GeneracionReportesPdf;
+using NutriTrack.API.Services;
 using NutriTrack.Infraestructure.Data;
 using NutriTrack.Infraestructure.Repositories;
 using Scalar.AspNetCore;
 using System.Text;
 using System.Text.Json.Serialization;
-using NutriTrack.API.GeneracionReportesPdf;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,7 @@ builder.Services.AddScoped<EliminarRodeoRepository>();
 builder.Services.AddScoped<EventoSanitarioRepository>();
 builder.Services.AddScoped<ReporteInventarioAnimalesRepository>();
 builder.Services.AddScoped<IReportePdfService, ReportePdfService>();
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
