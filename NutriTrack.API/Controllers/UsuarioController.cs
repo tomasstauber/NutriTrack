@@ -3,6 +3,7 @@ using NutriTrack.API.DTOs;
 using NutriTrack.Core.Entities;
 using NutriTrack.Core.Entities.Enums;
 using NutriTrack.Infraestructure.Repositories;
+using System.Net.Mail;
 
 namespace NutriTrack.API.Controllers
 {
@@ -36,6 +37,9 @@ namespace NutriTrack.API.Controllers
             if (string.IsNullOrWhiteSpace(dto.Correo))
                 return BadRequest("El correo electrónico es obligatorio.");
 
+            if (!ValidarFormatoCorreo(dto.Correo))
+                return BadRequest("El formato del correo electrónico no es válido.");
+
             if (string.IsNullOrWhiteSpace(dto.NombreUsuario))
                 return BadRequest("El nombre de usuario es obligatorio.");
 
@@ -59,9 +63,9 @@ namespace NutriTrack.API.Controllers
 
             var usuario = new Usuario
             {
-                Nombre = dto.Nombre,
-                Correo = dto.Correo,
-                NombreUsuario = dto.NombreUsuario,
+                Nombre = dto.Nombre.Trim(),
+                Correo = dto.Correo.Trim(),
+                NombreUsuario = dto.NombreUsuario.Trim(),
                 Contrasenia = dto.Contrasenia,
                 Rol = dto.Rol
             };
@@ -87,6 +91,9 @@ namespace NutriTrack.API.Controllers
             if (string.IsNullOrWhiteSpace(dto.Correo))
                 return BadRequest("El correo electrónico es obligatorio.");
 
+            if (!ValidarFormatoCorreo(dto.Correo))
+                return BadRequest("El formato del correo electrónico no es válido.");
+
             if (string.IsNullOrWhiteSpace(dto.NombreUsuario))
                 return BadRequest("El nombre de usuario es obligatorio.");
 
@@ -102,9 +109,9 @@ namespace NutriTrack.API.Controllers
             if (await _usuarioRepository.ExisteNombreUsuarioAsync(dto.NombreUsuario, id))
                 return BadRequest("El nombre de usuario ya está registrado.");
 
-            usuario.Nombre = dto.Nombre;
-            usuario.Correo = dto.Correo;
-            usuario.NombreUsuario = dto.NombreUsuario;
+            usuario.Nombre = dto.Nombre.Trim();
+            usuario.Correo = dto.Correo.Trim();
+            usuario.NombreUsuario = dto.NombreUsuario.Trim();
             usuario.Rol = dto.Rol;
 
             await _usuarioRepository.ActualizarAsync(usuario);
@@ -145,6 +152,14 @@ namespace NutriTrack.API.Controllers
             await _usuarioRepository.EliminarAsync(id);
 
             return Ok("Usuario eliminado correctamente.");
+        }
+
+        private static bool ValidarFormatoCorreo(string correo)
+        {
+            var limpio = correo.Trim();
+
+            return MailAddress.TryCreate(limpio, out var mailAddress)
+                && mailAddress.Address == limpio;
         }
 
         private static UsuarioResponseDTO ConvertirUsuarioResponse(Usuario usuario)
