@@ -22,7 +22,9 @@ namespace NutriTrack.API.Controllers
         {
             var usuarios = await _usuarioRepository.ObtenerTodosAsync();
 
-            return Ok(usuarios);
+            var response = usuarios.Select(ConvertirUsuarioResponse).ToList();
+
+            return Ok(response);
         }
 
         [HttpPost]
@@ -66,7 +68,7 @@ namespace NutriTrack.API.Controllers
 
             await _usuarioRepository.CrearAsync(usuario);
 
-            return Ok(usuario);
+            return Ok(ConvertirUsuarioResponse(usuario));
         }
 
         [HttpPut("{id}")]
@@ -107,7 +109,7 @@ namespace NutriTrack.API.Controllers
 
             await _usuarioRepository.ActualizarAsync(usuario);
 
-            return Ok(usuario);
+            return Ok(ConvertirUsuarioResponse(usuario));
         }
 
         [HttpDelete("{id}")]
@@ -141,5 +143,19 @@ namespace NutriTrack.API.Controllers
 
             return Ok("Usuario eliminado correctamente.");
         }
+
+        private static UsuarioResponseDTO ConvertirUsuarioResponse(Usuario usuario)
+        {
+            var response = new UsuarioResponseDTO
+            {
+                Id = usuario.Id,
+                Nombre = usuario.Nombre,
+                Correo = usuario.Correo,
+                NombreUsuario = usuario.NombreUsuario,
+                Rol = usuario.Rol
+            };
+            return response;
+        }
     }
 }
+    

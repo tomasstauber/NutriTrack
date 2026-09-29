@@ -64,7 +64,6 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             return await _context.Usuarios
                 .AnyAsync(u =>
-                    u.Activo &&
                     u.Correo.ToLower() == correo.ToLower() &&
                     (!idExcluir.HasValue || u.Id != idExcluir.Value));
         }
@@ -73,7 +72,6 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             return await _context.Usuarios
                 .AnyAsync(u =>
-                    u.Activo &&
                     u.NombreUsuario.ToLower() == nombreUsuario.ToLower() &&
                     (!idExcluir.HasValue || u.Id != idExcluir.Value));
         }
