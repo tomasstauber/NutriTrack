@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+ <!-- este archivo es para el android, como se ve -->
 <resources>
     <color name="colorPrimary">#00A63E</color>
     <color name="colorPrimaryDark">#008236</color>
