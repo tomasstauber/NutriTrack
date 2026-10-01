@@ -23,7 +23,9 @@ namespace NutriTrack.MAUI
                 client.BaseAddress = new Uri(ApiConfig.BaseUrl);
                 client.Timeout = TimeSpan.FromSeconds(15);
             });
-
+            // Sesión del usuario: Singleton porque tiene que ser UNA sola
+            // instancia compartida por toda la app.
+            builder.Services.AddSingleton<ISesionService, SesionService>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
