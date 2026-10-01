@@ -10,5 +10,8 @@ namespace NutriTrack.API.GeneracionReportesPdf
 
         public byte[] GenerarFechasImportantes(ReporteFechasImportantesResponseDTO reporte)
             => new FechasImportantesPdfDocument(reporte).GeneratePdf();
+
+        public byte[] GenerarEvolucionPeso(ReporteEvolucionPesoResponseDTO reporte)
+            => new EvolucionPesoPdfDocument(reporte).GeneratePdf();
     }
 }

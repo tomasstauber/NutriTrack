@@ -6,5 +6,6 @@ namespace NutriTrack.API.GeneracionReportesPdf
     {
         byte[] GenerarInventario(ReporteInventarioAnimalesResponseDTO reporte);
         byte[] GenerarFechasImportantes(ReporteFechasImportantesResponseDTO reporte);
+        byte[] GenerarEvolucionPeso(ReporteEvolucionPesoResponseDTO reporte);
     }
 }
