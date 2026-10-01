@@ -1,10 +1,37 @@
-﻿namespace NutriTrack.MAUI
+﻿using NutriTrack.MAUI.Services;
+
+namespace NutriTrack.MAUI
 {
     public partial class AppShell : Shell
     {
-        public AppShell()
+        private readonly ISesionService _sesionService;
+
+        public AppShell(ISesionService sesionService)
         {
             InitializeComponent();
+
+            _sesionService = sesionService;
+            _sesionService.SesionExpirada += OnSesionExpirada;
+
+            Loaded += OnLoaded;
+        }
+
+        // Al abrir la app: si hay una sesión guardada y vigente, ir directo al panel
+        private async void OnLoaded(object? sender, EventArgs e)
+        {
+            if (await _sesionService.RestaurarSesionAsync())
+                await GoToAsync("//panel");
+        }
+
+        // La API rechazó el token (vencido o inválido): avisar y volver al login
+        private void OnSesionExpirada(object? sender, EventArgs e)
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await DisplayAlertAsync("Sesión expirada",
+                    "Tu sesión expiró. Volvé a iniciar sesión.", "Aceptar");
+                await GoToAsync("//login");
+            });
         }
     }
 }

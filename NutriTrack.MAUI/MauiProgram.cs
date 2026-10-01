@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using NutriTrack.MAUI.Services;
+using NutriTrack.MAUI.Views;
 
 namespace NutriTrack.MAUI
 {
@@ -31,6 +32,10 @@ namespace NutriTrack.MAUI
                 client.Timeout = TimeSpan.FromSeconds(15);
             })
             .AddHttpMessageHandler<AuthHeaderHandler>();
+
+            // Navegación y pantallas
+            builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<PanelPrincipalPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
