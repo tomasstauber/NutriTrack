@@ -34,13 +34,14 @@ builder.Services.AddScoped<ReporteInventarioAnimalesRepository>();
 builder.Services.AddScoped<IReportePdfService, ReportePdfService>();
 builder.Services.AddScoped<TokenService>();
 
-//Leer configuración jwt
+//Leer configuraciï¿½n jwt
 var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("Falta Jwt:Key en la configuración.");
+    ?? throw new InvalidOperationException("Falta Jwt:Key en la configuraciï¿½n.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]
-    ?? throw new InvalidOperationException("Falta Jwt:Issuer en la configuración.");
+    ?? throw new InvalidOperationException("Falta Jwt:Issuer en la configuraciï¿½n.");
 var jwtAudience = builder.Configuration["Jwt:Audience"]
-    ?? throw new InvalidOperationException("Falta Jwt:Audience en la configuración.");
+    ?? throw new InvalidOperationException("Falta Jwt:Audience en la configuraciï¿½n.");
+builder.Services.AddScoped <ReporteFechasImportantesRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
