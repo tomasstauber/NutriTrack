@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
 using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Repositories;
@@ -21,6 +23,7 @@ namespace NutriTrack.API.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Crear([FromBody] CrearAnimalDTO dto)
         {
             // Validar formato alfanumérico 6-8 caracteres
@@ -32,17 +35,11 @@ namespace NutriTrack.API.Controllers
             if (await _animalRepo.ExisteCaravana(dto.CaravanaCuig, dto.CaravanaNroManejo))
                 return Conflict("Ya existe un animal con esa caravana.");
 
-            if (await _animalRepo.ExisteCaravana(dto.CaravanaCuig, dto.CaravanaNroManejo))
-                return Conflict("Ya existe un animal con esa caravana.");
-
-
             if (dto.PesoAlNacer <= 0 || dto.PesoAlNacer > 100)
                 return BadRequest("El peso al nacer debe ser mayor a 0 y menor o igual a 100 kg.");
 
-
             if (dto.FechaNacimiento > DateTime.Now)
                 return BadRequest("La fecha de nacimiento no puede ser posterior a hoy.");
-
 
             Animal? madre = null;
             if (!string.IsNullOrEmpty(dto.CaravanaCuigMadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoMadre))
@@ -51,7 +48,6 @@ namespace NutriTrack.API.Controllers
                 if (madre == null)
                     return BadRequest("No se encontró un animal con la caravana de la madre indicada.");
             }
-
 
             Animal? padre = null;
             if (!string.IsNullOrEmpty(dto.CaravanaCuigPadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoPadre))
@@ -98,6 +94,7 @@ namespace NutriTrack.API.Controllers
 
         //Desactivacion y reactivacion de animal
         [HttpPatch("desactivar")]
+        [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Desactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
             if (string.IsNullOrEmpty(cuig))
@@ -124,6 +121,7 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpPatch("reactivar")]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<IActionResult> Reactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
             if (string.IsNullOrEmpty(cuig))

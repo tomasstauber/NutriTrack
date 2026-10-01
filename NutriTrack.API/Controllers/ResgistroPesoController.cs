@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using NutriTrack.API.Constants;
+using NutriTrack.API.DTOs;
 using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Repositories;
-using NutriTrack.API.DTOs;
 
 namespace NutriTrack.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
     public class RegistroPesoController : ControllerBase
     {
         private readonly RegistroPesoRepository _repository;
