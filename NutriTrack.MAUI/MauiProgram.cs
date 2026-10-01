@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using NutriTrack.MAUI.Services;
+using NutriTrack.MAUI.Views;
 
 namespace NutriTrack.MAUI
 {
@@ -15,8 +17,28 @@ namespace NutriTrack.MAUI
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            // Sesión del usuario: Singleton porque tiene que ser UNA sola
+            // instancia compartida por toda la app
+            builder.Services.AddSingleton<ISesionService, SesionService>();
+
+            // Handler que agrega el token a cada pedido
+            builder.Services.AddTransient<AuthHeaderHandler>();
+
+            // Cliente HTTP para hablar con NutriTrack.API
+            // Se configura una sola vez acá y todos los servicios lo reutilizan
+            builder.Services.AddHttpClient("NutriTrackApi", client =>
+            {
+                client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+                client.Timeout = TimeSpan.FromSeconds(15);
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>();
+
+            // Navegación y pantallas
+            builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<PanelPrincipalPage>();
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
