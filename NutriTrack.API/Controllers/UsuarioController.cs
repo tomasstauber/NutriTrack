@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
+using NutriTrack.API.Helpers;
 using NutriTrack.Core.Entities;
 using NutriTrack.Core.Entities.Enums;
 using NutriTrack.Infraestructure.Repositories;
@@ -9,6 +12,7 @@ namespace NutriTrack.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Administrador")]
     public class UsuarioController : ControllerBase
     {
         private readonly UsuarioRepository _usuarioRepository;
@@ -46,8 +50,9 @@ namespace NutriTrack.API.Controllers
             if (string.IsNullOrWhiteSpace(dto.Contrasenia))
                 return BadRequest("La contraseña es obligatoria.");
 
-            if (dto.Contrasenia.Length < 8)
-                return BadRequest("La contraseña debe tener al menos 8 caracteres.");
+            if (dto.Contrasenia.Length < LimitesUsuario.ContraseniaMin || 
+                dto.Contrasenia.Length > LimitesUsuario.ContraseniaMax)
+                return BadRequest("La contraseña debe tener entre 8-100 caracteres.");
 
             if (!Enum.IsDefined(typeof(RolUsuario), dto.Rol))
                 return BadRequest("El rol seleccionado no es válido.");
@@ -80,6 +85,7 @@ namespace NutriTrack.API.Controllers
             int id,
             [FromBody] EditarUsuarioDTO dto)
         {
+            var administradorId = User.ObtenerId();
             var usuario = await _usuarioRepository.ObtenerPorIdAsync(id);
 
             if (usuario == null)
@@ -99,6 +105,9 @@ namespace NutriTrack.API.Controllers
 
             if (!Enum.IsDefined(typeof(RolUsuario), dto.Rol))
                 return BadRequest("El rol seleccionado no es válido.");
+
+            if (id == administradorId && dto.Rol != usuario.Rol)
+                return BadRequest("No puede modificar su propio rol.");
 
             if (dto.Rol == RolUsuario.Administrador && usuario.Rol != RolUsuario.Administrador && !dto.Confirmar)
                 return BadRequest("Debe confirmar la edición del administrador.");
@@ -122,12 +131,10 @@ namespace NutriTrack.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarUsuario(
             int id,
-            [FromQuery] int? administradorId,
             [FromQuery] bool confirmar)
         {
-            if (administradorId == null)
-                return BadRequest("Debe indicar el administrador que realiza la operación.");
 
+            var administradorId = User.ObtenerId();
             var usuario = await _usuarioRepository.ObtenerPorIdAsync(id);
 
             if (usuario == null)
@@ -176,4 +183,3 @@ namespace NutriTrack.API.Controllers
         }
     }
 }
-    
