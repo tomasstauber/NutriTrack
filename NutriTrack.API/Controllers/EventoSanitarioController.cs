@@ -49,6 +49,9 @@ namespace NutriTrack.API.Controllers
                     if (medicamento is null)
                         return BadRequest($"El medicamento con id {d.IdMedicamento} no existe en el catálogo.");
 
+                    if (!medicamento.Activo)
+                        return BadRequest($"El medicamento {d.IdMedicamento} está desactivado");
+
                     if (d.Dosis.HasValue && d.Dosis.Value <= 0)
                         return BadRequest("La dosis debe ser mayor a 0.");
 
