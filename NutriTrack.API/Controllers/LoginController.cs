@@ -23,7 +23,7 @@ namespace NutriTrack.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
-            var usuario = await _usuarioRepository.ValidarCredencialesAsync(dto.NombreUsuario, dto.Contrasenia);
+            var usuario = await _usuarioRepository.ValidarCredencialesAsync(dto.NombreUsuario.Trim(), dto.Contrasenia);
 
             if (usuario == null)
             {
