@@ -1,15 +1,18 @@
-﻿using System;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
 using NutriTrack.API.GeneracionReportesPdf;
 using NutriTrack.Core.Reportes;
 using NutriTrack.Infraestructure.Repositories;
+using System;
+using System.Linq;
 
 namespace NutriTrack.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = RolesUsuario.Administrador)]
     public class ReporteEvolucionPesoController : ControllerBase
     {
         private readonly ReporteEvolucionPesoRepository _repository;

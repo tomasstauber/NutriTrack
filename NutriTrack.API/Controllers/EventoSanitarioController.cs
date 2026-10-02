@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
 using NutriTrack.Core.Entities;
 using NutriTrack.Core.Entities.Enums;
@@ -8,6 +10,7 @@ namespace NutriTrack.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.AsesorTecnico},{RolesUsuario.EncargadoDeCampo}")]
     public class EventoSanitarioController : ControllerBase
     {
         private readonly EventoSanitarioRepository _eventoRepo;
