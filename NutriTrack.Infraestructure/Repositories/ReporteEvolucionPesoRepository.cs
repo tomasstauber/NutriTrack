@@ -20,7 +20,7 @@ namespace NutriTrack.Infraestructure.Repositories
 
         public async Task<bool> ExisteRodeo(int idRodeo)
         {
-            return await _context.Rodeos.AnyAsync(r => r.Id == idRodeo);
+            return await _context.Rodeos.AnyAsync(r => r.Id == idRodeo && r.Activo);
         }
 
         

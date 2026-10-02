@@ -19,7 +19,7 @@ namespace NutriTrack.Core.Entities
         public string Raza { get; set; }
         //se crea una entidad porque solo hay dos datos posibles("macho","hembra"
         public Sexo Sexo { get; set; }
-        public string ColorPelaje { get; set; }
+        public string? ColorPelaje { get; set; }
         public DateTime FechaAlta   { get; set; }
         public bool Estado { get; set; }
         public int? RodeoId { get; set; }
