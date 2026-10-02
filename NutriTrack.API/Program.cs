@@ -34,7 +34,6 @@ builder.Services.AddScoped<ReporteInventarioAnimalesRepository>();
 builder.Services.AddScoped<IReportePdfService, ReportePdfService>();
 builder.Services.AddScoped<TokenService>();
 
-//Leer configuraci�n jwt
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Falta Jwt:Key en la configuraci�n.");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"]
@@ -43,7 +42,7 @@ var jwtAudience = builder.Configuration["Jwt:Audience"]
     ?? throw new InvalidOperationException("Falta Jwt:Audience en la configuraci�n.");
 builder.Services.AddScoped <ReporteFechasImportantesRepository>();
 builder.Services.AddScoped<ReporteEvolucionPesoRepository>();
-
+builder.Services.AddScoped<ReporteFechasImportantesRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -59,8 +58,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(jwtKey))
         };
     });
-
-//Fallback policy funciona con principio de lista negra
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -81,6 +78,7 @@ builder.Services.AddOpenApi(options =>
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -88,8 +86,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi().AllowAnonymous();
     app.MapScalarApiReference().AllowAnonymous();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    // En desarrollo MAUI consume la API por http; redirigir a https
+    // haría que HttpClient pierda el header Authorization.
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

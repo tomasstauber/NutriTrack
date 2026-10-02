@@ -5,6 +5,7 @@ using System.Linq;
 using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace NutriTrack.Infraestructure.Repositories
 {
@@ -17,7 +18,53 @@ namespace NutriTrack.Infraestructure.Repositories
             _context = context;
         }
 
-        public async Task <List<Animal>> ObtenerActivosSinRodeo(string? caravana = null)
+        // Devuelve la página pedida y el total de coincidencias (para que el
+        // front sepa cuántas páginas hay).
+        public async Task<(List<Animal> Items, int Total)> Listar(
+            string? texto,
+            int? idRodeo,
+            bool sinRodeo,
+            bool incluirInactivos,
+            int pagina,
+            int tamanioPagina)
+        {
+     
+            var query = _context.Animales
+                .AsNoTracking()
+                .Include(a => a.Rodeo)
+                .AsQueryable();
+
+            if (!incluirInactivos)
+                query = query.Where(a => a.Estado);
+
+            if (sinRodeo)
+                query = query.Where(a => a.RodeoId == null);
+            else if (idRodeo.HasValue)
+                query = query.Where(a => a.RodeoId == idRodeo.Value);
+
+            if (!string.IsNullOrWhiteSpace(texto))
+            {
+                // ILIKE: coincidencia parcial sin distinguir mayúsculas (PostgreSQL).
+                // Concatenar las dos partes permite buscar por cuig, por número
+                // de manejo o por la caravana completa.
+                var patron = $"%{texto.Trim()}%";
+                query = query.Where(a =>
+                    EF.Functions.ILike(a.CaravanaCuig + a.CaravanaNroManejo, patron) ||
+                    EF.Functions.ILike(a.Raza, patron));
+            }
+
+            var total = await query.CountAsync();
+            var items = await query
+                .OrderBy(a => a.CaravanaCuig)
+                .ThenBy(a => a.CaravanaNroManejo)
+                .Skip((pagina - 1) * tamanioPagina)
+                .Take(tamanioPagina)
+                .ToListAsync();
+
+            return (items, total);
+        }
+
+        public async Task<List<Animal>> ObtenerActivosSinRodeo(string? caravana = null)
         {
             var query = _context.Animales
                 .Where(a => a.Estado && a.RodeoId == null);
@@ -42,6 +89,7 @@ namespace NutriTrack.Infraestructure.Repositories
                 .Where(a => ids.Contains(a.Id) && a.Estado && a.RodeoId == null)
                 .ToListAsync();
         }
+
         public async Task<List<Animal>> ObtenerActivosPorRodeo(int idRodeo)
         {
             return await _context.Animales
@@ -49,7 +97,7 @@ namespace NutriTrack.Infraestructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Animal>> ObtenerTodosActivos() 
+        public async Task<List<Animal>> ObtenerTodosActivos()
         {
             return await _context.Animales
                 .Where(a => a.Estado)
