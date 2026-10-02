@@ -25,17 +25,21 @@ namespace NutriTrack.Infraestructure.Repositories
 
         public async Task EliminarRodeo(int idRodeo)
         {
+            await using var transaccion = await _context.Database.BeginTransactionAsync();
+
             await _context.Animales
                 .Where(a => a.RodeoId == idRodeo)
                 .ExecuteUpdateAsync(a => a.SetProperty(x => x.RodeoId, (int?)null));
 
             await _context.PlanRodeoAsignacions
-                .Where(p => p.IdRodeo == idRodeo)
-                .ExecuteDeleteAsync();
+                .Where(p => p.IdRodeo == idRodeo && p.Activo)
+                .ExecuteUpdateAsync(p => p.SetProperty(x => x.Activo, false));
 
             await _context.Rodeos
                 .Where(r => r.Id == idRodeo)
-                .ExecuteDeleteAsync();
+                .ExecuteUpdateAsync(r => r.SetProperty(x => x.Activo, false));
+
+            await transaccion.CommitAsync();
         }
     }
 }

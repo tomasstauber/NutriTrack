@@ -19,7 +19,8 @@ namespace NutriTrack.Infraestructure.Repositories
 
         public async Task<bool> ExisteNombre(string nombre)
         {
-            return await _context.Rodeos.AnyAsync(r => r.Nombre == nombre);
+            return await _context.Rodeos
+                .AnyAsync(r => r.Activo && r.Nombre.ToLower() == nombre.ToLower());
         }
 
         public async Task<Rodeo> Crear(Rodeo rodeo)
@@ -31,7 +32,7 @@ namespace NutriTrack.Infraestructure.Repositories
 
         public async Task<Rodeo?> BuscarPorId(int idRodeo)
         {
-            return await _context.Rodeos.FirstOrDefaultAsync(r => r.Id == idRodeo);
+            return await _context.Rodeos.FirstOrDefaultAsync(r => r.Id == idRodeo && r.Activo);
         }
     }
 }
