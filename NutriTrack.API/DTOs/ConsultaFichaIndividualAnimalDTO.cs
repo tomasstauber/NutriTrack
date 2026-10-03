@@ -11,7 +11,7 @@
         public DateTime FechaAlta { get; set; }
         public string? ColorPelaje { get; set; }
         public string Estado { get; set; }
-        public String? RodeoActual { get; set; }
+        public string? RodeoActual { get; set; }
         public string? Madre { get; set; }
         public string? Padre { get; set; }
         public UltimoPesoDTO? UltimoPeso {  get; set; }
@@ -21,7 +21,8 @@
     //funcion pq hay dos datos asi lo agrupo en un objeto
     public class UltimoPesoDTO
     {
+        public int Id { get; set; }
         public DateTime FechaPesaje {  get; set; }
-        public float PesoKg { get; set; }
+        public decimal PesoKg { get; set; }
     }
 }

@@ -63,7 +63,7 @@ namespace NutriTrack.Infraestructure.Repositories
                         PesoFinal = ultimo.PesoKg,
                         CantidadRegistros = ordenado.Count,
                         
-                        VariacionKg = ordenado.Count >= 2 ? (float?)(ultimo.PesoKg - primero.PesoKg) : null
+                        VariacionKg = ordenado.Count >= 2 ? (decimal?)(ultimo.PesoKg - primero.PesoKg) : null
                     };
                 })
                 .OrderBy(r => r.Caravana)
@@ -88,16 +88,16 @@ namespace NutriTrack.Infraestructure.Repositories
     {
         public string Caravana { get; set; } = string.Empty;
         public DateTime FechaInicial { get; set; }
-        public float PesoInicial { get; set; }
+        public decimal PesoInicial { get; set; }
         public DateTime FechaFinal { get; set; }
-        public float PesoFinal { get; set; }
-        public float? VariacionKg { get; set; }
+        public decimal PesoFinal { get; set; }
+        public decimal? VariacionKg { get; set; }
         public int CantidadRegistros { get; set; }
     }
 
     public class PesajeDetalleRaw
     {
         public DateTime FechaPesaje { get; set; }
-        public float PesoKg { get; set; }
+        public decimal PesoKg { get; set; }
     }
 }

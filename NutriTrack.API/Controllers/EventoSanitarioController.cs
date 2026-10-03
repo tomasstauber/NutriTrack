@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
+using NutriTrack.API.Helpers;
 using NutriTrack.Core.Entities;
 using NutriTrack.Core.Entities.Enums;
 using NutriTrack.Infraestructure.Repositories;
@@ -157,7 +158,7 @@ namespace NutriTrack.API.Controllers
                 return BadRequest("modo_seleccion inválido. Opciones: 'Rodeo completo', 'Seleccion manual' o 'Seleccion libre'.");
             }
 
-            int idUsuarioLogueado = 1; // TODO: reemplazar cuando se resuelva el issue de auth/Usuario
+            int idUsuario = User.ObtenerId(); 
 
             foreach (var animal in animalesSeleccionados)
             {
@@ -168,7 +169,7 @@ namespace NutriTrack.API.Controllers
                     VigenciaHasta = dto.VigenciaHasta,
                     FechaProximaAplicacion = dto.FechaProximaAplicacion,
                     Observaciones = dto.Observaciones,
-                    IdUsuario = idUsuarioLogueado,
+                    IdUsuario = idUsuario,
                     IdAnimal = animal.Id
                 };
 
