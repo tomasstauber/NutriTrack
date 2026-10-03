@@ -11,26 +11,81 @@ namespace NutriTrack.API.Controllers
     [Route("api/[controller]")]
     public class AnimalController : ControllerBase
     {
+        private const int LargoMaximoParteCaravana = 5;
+        private const string MensajeCaravanaInvalida =
+            "Formato de caravana inválido (cada parte alfanumérica, hasta 5 caracteres).";
+
         private readonly AltaAnimalRepository _animalRepo;
         private readonly DesactivacionReactivacionAnimalRepository _desactivacionRepo;
+        private readonly AnimalRepository _listadoRepo;
 
-
-        public AnimalController(AltaAnimalRepository animalRepo, DesactivacionReactivacionAnimalRepository desactivacionRepo)
+        public AnimalController(
+            AltaAnimalRepository animalRepo,
+            DesactivacionReactivacionAnimalRepository desactivacionRepo,
+            AnimalRepository listadoRepo)
         {
             _animalRepo = animalRepo;
             _desactivacionRepo = desactivacionRepo;
+            _listadoRepo = listadoRepo;
+        }
+        private static bool ParteCaravanaValida(string? parte)
+        {
+            return !string.IsNullOrEmpty(parte)
+                && parte.Length <= LargoMaximoParteCaravana
+                && parte.All(char.IsLetterOrDigit);
         }
 
+        // Listado de animales con filtros y paginación.
+        [HttpGet]
+        [ProducesResponseType(typeof(ListadoPaginadoDTO<AnimalListadoDTO>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<ListadoPaginadoDTO<AnimalListadoDTO>>> Listar(
+            [FromQuery] string? texto,
+            [FromQuery] int? idRodeo,
+            [FromQuery] bool sinRodeo = false,
+            [FromQuery] bool incluirInactivos = false,
+            [FromQuery] int pagina = 1,
+            [FromQuery] int tamanioPagina = 50)
+        {
+            if (pagina < 1)
+                return BadRequest("La página debe ser mayor o igual a 1.");
+
+            if (tamanioPagina < 1 || tamanioPagina > 100)
+                return BadRequest("El tamaño de página debe estar entre 1 y 100.");
+
+            if (sinRodeo && idRodeo.HasValue)
+                return BadRequest("No se puede filtrar por rodeo y por animales sin rodeo a la vez.");
+
+            var (animales, total) = await _listadoRepo.Listar(
+                texto, idRodeo, sinRodeo, incluirInactivos, pagina, tamanioPagina);
+
+            var respuesta = new ListadoPaginadoDTO<AnimalListadoDTO>
+            {
+                Items = animales.Select(a => new AnimalListadoDTO
+                {
+                    Id = a.Id,
+                    CaravanaCuig = a.CaravanaCuig,
+                    CaravanaNroManejo = a.CaravanaNroManejo,
+                    Raza = a.Raza,
+                    Sexo = a.Sexo.ToString(),
+                    FechaNacimiento = a.FechaNacimiento,
+                    Estado = a.Estado,
+                    RodeoId = a.RodeoId,
+                    RodeoNombre = a.Rodeo?.Nombre
+                }).ToList(),
+                Total = total,
+                Pagina = pagina,
+                TamanioPagina = tamanioPagina
+            };
+
+            return Ok(respuesta);
+        }
 
         [HttpPost]
         [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Crear([FromBody] CrearAnimalDTO dto)
         {
-            // Validar formato alfanumérico 6-8 caracteres
-            var caravanaCompleta = dto.CaravanaCuig + dto.CaravanaNroManejo;
-            if (caravanaCompleta.Length < 6 || caravanaCompleta.Length > 10 ||
-                !caravanaCompleta.All(char.IsLetterOrDigit))
-                return BadRequest("Formato de caravana inválido (alfanumérico, 6-8 caracteres).");
+            if (!ParteCaravanaValida(dto.CaravanaCuig) || !ParteCaravanaValida(dto.CaravanaNroManejo))
+                return BadRequest(MensajeCaravanaInvalida);
 
             if (await _animalRepo.ExisteCaravana(dto.CaravanaCuig, dto.CaravanaNroManejo))
                 return Conflict("Ya existe un animal con esa caravana.");
@@ -68,7 +123,7 @@ namespace NutriTrack.API.Controllers
                 Raza = dto.Raza,
                 Sexo = dto.Sexo,
                 ColorPelaje = dto.ColorPelaje,
-                FechaAlta = DateTime.Now, // Eso lo asigna automaticamente el sistema
+                FechaAlta = DateTime.Now, // lo asigna automáticamente el sistema
                 Estado = true,            // activo por defecto
                 RodeoId = null            // sin rodeo al dar de alta
             };
@@ -92,22 +147,12 @@ namespace NutriTrack.API.Controllers
             });
         }
 
-        //Desactivacion y reactivacion de animal
         [HttpPatch("desactivar")]
         [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Desactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
-            if (string.IsNullOrEmpty(cuig))
-                return BadRequest("El CUIG de la caravana es obligatorio");
-
-            if (string.IsNullOrEmpty(nroManejo))
-                return BadRequest("El numero de manejo de la caravana es obligatorio");
-
-            // Validar formato alfanumérico 6-8 caracteres
-            var caravanaCompleta = cuig + nroManejo;
-            if (caravanaCompleta.Length < 6 || caravanaCompleta.Length > 10 ||
-                !caravanaCompleta.All(char.IsLetterOrDigit))
-                return BadRequest("Formato de caravana inválido (alfanumérico, 6-8 caracteres).");
+            if (!ParteCaravanaValida(cuig) || !ParteCaravanaValida(nroManejo))
+                return BadRequest(MensajeCaravanaInvalida);
 
             var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
             if (animal == null)
@@ -115,6 +160,7 @@ namespace NutriTrack.API.Controllers
 
             if (!animal.Estado)
                 return BadRequest("El animal ya está inactivo.");
+
             animal.Estado = false;
             await _desactivacionRepo.Actualizar(animal);
             return Ok("Animal desactivado correctamente.");
@@ -124,24 +170,16 @@ namespace NutriTrack.API.Controllers
         [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<IActionResult> Reactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
-            if (string.IsNullOrEmpty(cuig))
-                return BadRequest("El CUIG de la caravana es obligatorio");
-
-            if (string.IsNullOrEmpty(nroManejo))
-                return BadRequest("El numero de manejo de la caravana es obligatorio");
-
-            // Validar formato alfanumérico 6-8 caracteres
-            var caravanaCompleta = cuig + nroManejo;
-            if (caravanaCompleta.Length < 6 || caravanaCompleta.Length > 10 ||
-                !caravanaCompleta.All(char.IsLetterOrDigit))
-                return BadRequest("Formato de caravana inválido (alfanumérico, 6-8 caracteres).");
+            if (!ParteCaravanaValida(cuig) || !ParteCaravanaValida(nroManejo))
+                return BadRequest(MensajeCaravanaInvalida);
 
             var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
             if (animal == null)
                 return NotFound("No se encontró un animal con esa caravana");
 
             if (animal.Estado)
-                return BadRequest("El animal ya esta activo.");
+                return BadRequest("El animal ya está activo.");
+
             animal.Estado = true;
             await _desactivacionRepo.Actualizar(animal);
             return Ok("Animal reactivado correctamente.");

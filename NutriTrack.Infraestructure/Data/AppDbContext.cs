@@ -20,6 +20,7 @@ namespace NutriTrack.Infraestructure.Data
         public DbSet<EventoSanitario> EventosSanitarios { get; set; }
         public DbSet<DetalleMedicamento> DetallesMedicamento { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RegistroPeso>(entity =>
@@ -48,6 +49,7 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.TiempoAlimentacion).HasColumnName("tiempo_alimentacion");
                 entity.Property(e => e.KgMsDiariaPorAnimal).HasColumnName("kg_ms_diaria_por_animal");
                 entity.Property(e => e.Observaciones).HasColumnName("observaciones");
+                entity.HasIndex(e => e.NombrePlan).IsUnique();
             });
 
             modelBuilder.Entity<PlanAlimenticioDetalle>(entity =>
@@ -68,6 +70,7 @@ namespace NutriTrack.Infraestructure.Data
                 entity.HasOne(d => d.Ingrediente)
                     .WithMany()
                     .HasForeignKey(d => d.IdIngrediente);
+                entity.HasIndex(e => new { e.IdPlanAlimenticio, e.IdIngrediente }).IsUnique();
             });
 
             modelBuilder.Entity<PlanRodeoAsignacion>(entity =>
@@ -84,10 +87,11 @@ namespace NutriTrack.Infraestructure.Data
                 entity.HasOne(d => d.PlanAlimenticio)
                     .WithMany()
                     .HasForeignKey(d => d.IdPlanAlimenticio);
-
                 entity.HasOne(d => d.Rodeo)
                     .WithMany()
-                    .HasForeignKey(d => d.IdRodeo);
+                    .HasForeignKey(d => d.IdRodeo)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(e => e.IdRodeo).IsUnique().HasFilter("activo");
             });
 
             modelBuilder.Entity<Rodeo>(entity =>
@@ -97,7 +101,8 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.Id).HasColumnName("id_rodeo").ValueGeneratedOnAdd();
                 entity.Property(e => e.Nombre).HasColumnName("nombre");
                 entity.Property(e => e.Descripcion).HasColumnName("descripcion");
-                entity.HasIndex(e => e.Nombre).IsUnique();
+                entity.Property(e => e.Activo).HasColumnName("activo");
+                entity.HasIndex(e => e.Nombre).IsUnique().HasFilter("activo");
             });
 
             modelBuilder.Entity<Animal>(entity =>
@@ -121,6 +126,9 @@ namespace NutriTrack.Infraestructure.Data
                 entity.Property(e => e.FechaAlta).HasColumnName("fecha_alta");
                 entity.Property(e => e.Estado).HasColumnName("estado");
                 entity.Property(e => e.RodeoId).HasColumnName("id_rodeo");
+
+                // caravana (clave compuesta) única
+                entity.HasIndex(e => new { e.CaravanaCuig, e.CaravanaNroManejo }).IsUnique();
 
                 entity.HasOne(a => a.Rodeo)
                     .WithMany(r => r.Animales)
@@ -191,7 +199,11 @@ namespace NutriTrack.Infraestructure.Data
                 entity.ToTable("eventosanitario");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).HasColumnName("id_evento_sanitario").ValueGeneratedOnAdd();
-                entity.Property(e => e.TipoEvento).HasColumnName("tipo_evento");
+
+                entity.Property(e => e.TipoEvento)
+                    .HasColumnName("tipo_evento")
+                    .HasConversion<string>();
+
                 entity.Property(e => e.FechaEvento).HasColumnName("fecha_evento");
                 entity.Property(e => e.VigenciaHasta).HasColumnName("vigencia_hasta");
                 entity.Property(e => e.FechaProximaAplicacion).HasColumnName("fecha_proxima_aplicacion");
@@ -218,6 +230,8 @@ namespace NutriTrack.Infraestructure.Data
                     .HasConversion<string>();
                 entity.Property(e => e.Contrasenia).HasColumnName("contrasenia");
                 entity.Property(e => e.Activo).HasColumnName("activo");
+                entity.HasIndex(e => e.NombreUsuario).IsUnique();
+                entity.HasIndex(e => e.Correo).IsUnique();
             });
         }
     }

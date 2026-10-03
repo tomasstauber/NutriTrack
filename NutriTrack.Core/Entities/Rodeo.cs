@@ -13,5 +13,6 @@ namespace NutriTrack.Core.Entities
         public string? Descripcion { get; set; }
 
         public List<Animal> Animales { get; set; } = new();
+        public bool Activo { get; set; } = true;
     }
 }

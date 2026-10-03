@@ -109,3 +109,12 @@ CREATE TABLE PlanRodeoAsignacion (
     id_plan_alimenticio INTEGER REFERENCES PlanAlimenticio(id_plan_alimenticio),
     id_rodeo INTEGER REFERENCES Rodeo(id_rodeo)
 );
+
+ALTER TABLE rodeo ADD COLUMN activo BOOLEAN NOT NULL DEFAULT TRUE;
+
+ALTER TABLE rodeo DROP CONSTRAINT rodeo_nombre_key;
+CREATE UNIQUE INDEX ux_rodeo_nombre_activo ON rodeo (LOWER(nombre)) WHERE activo;
+
+CREATE UNIQUE INDEX ux_asignacion_rodeo_activa ON planrodeoasignacion (id_rodeo) WHERE activo;
+
+CREATE UNIQUE INDEX ux_detalle_plan_ingrediente ON planalimenticiodetalle (id_plan_alimenticio, id_ingrediente);
