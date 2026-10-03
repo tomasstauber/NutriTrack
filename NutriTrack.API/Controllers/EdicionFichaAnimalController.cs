@@ -42,8 +42,8 @@ namespace NutriTrack.API.Controllers
             //validar fecha nacimiento
             if (dto.FechaNacimiento.Date > DateTime.Today)
                 return BadRequest("La fecha de nacimiento no puede ser posterior a hoy");
-            //validar sexo
-            if (!Enum.TryParse<Sexo>(dto.Sexo, ignoreCase: true, out var sexo))
+
+            if (!Enum.IsDefined(dto.Sexo))
                 return BadRequest("El sexo debe ser 'Macho' o 'Hembra'.");
 
             var madreInformada = CaravanaHelper.ProgenitorInformado(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre);
@@ -92,7 +92,7 @@ namespace NutriTrack.API.Controllers
             // Actualizar campos editables
             animal.FechaNacimiento = dto.FechaNacimiento;
             animal.PesoAlNacer = dto.PesoAlNacer;
-            animal.Sexo = sexo;
+            animal.Sexo = dto.Sexo;
             animal.Raza = dto.Raza;
             animal.ColorPelaje = dto.ColorPelaje;
             animal.MadreId = madre?.Id;

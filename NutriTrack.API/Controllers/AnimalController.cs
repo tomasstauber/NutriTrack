@@ -90,6 +90,9 @@ namespace NutriTrack.API.Controllers
             if (dto.FechaNacimiento.Date > DateTime.Today)
                 return BadRequest("La fecha de nacimiento no puede ser posterior a hoy.");
 
+            if (!Enum.IsDefined(dto.Sexo))
+                return BadRequest("El sexo debe ser 'Macho' o 'Hembra'.");
+
             var madreInformada = CaravanaHelper.ProgenitorInformado(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre);
             if (madreInformada)
             {
