@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
+using NutriTrack.API.Helpers;
 using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Repositories;
 
@@ -21,14 +22,8 @@ namespace NutriTrack.API.Controllers
         [HttpGet]
         public async Task<IActionResult> Consultar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
-            //validar y ver que no este vacio
-            //El campo es obligatorio
-            if (string.IsNullOrEmpty(cuig) || string.IsNullOrEmpty(nroManejo))
-                return BadRequest("La caravana es obligatoria");
-            //validar formato (6-8 caract y que esten los dos datos obligatorios juntos
-            var caravanaCompleta = cuig + nroManejo;
-            if (caravanaCompleta.Length < 6 || caravanaCompleta.Length > 10 || !caravanaCompleta.All(char.IsLetterOrDigit))
-                return BadRequest("Formato de caravana invalido (alfanumerico, 6-8 caracteres)");
+            if (!CaravanaHelper.ParteValida(cuig) || !CaravanaHelper.ParteValida(nroManejo))
+                return BadRequest(CaravanaHelper.MensajeCaravanaInvalida);
 
             var animal = await _repository.BuscarPorCaravana(cuig, nroManejo);
             if (animal == null)
