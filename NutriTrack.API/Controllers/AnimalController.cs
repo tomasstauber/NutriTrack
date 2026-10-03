@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
 using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Repositories;
@@ -79,6 +81,7 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Crear([FromBody] CrearAnimalDTO dto)
         {
             if (!ParteCaravanaValida(dto.CaravanaCuig) || !ParteCaravanaValida(dto.CaravanaNroManejo))
@@ -145,6 +148,7 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpPatch("desactivar")]
+        [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Desactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
             if (!ParteCaravanaValida(cuig) || !ParteCaravanaValida(nroManejo))
@@ -163,6 +167,7 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpPatch("reactivar")]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<IActionResult> Reactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
             if (!ParteCaravanaValida(cuig) || !ParteCaravanaValida(nroManejo))
