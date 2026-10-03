@@ -52,6 +52,7 @@ namespace NutriTrack.API.Controllers
                 Padre = animal.Padre != null ? $"{animal.Padre.CaravanaCuig}-{animal.Padre.CaravanaNroManejo}" : null,
                 UltimoPeso = UltimoPeso != null ? new UltimoPesoDTO
                 {
+                    Id = animal.Id,
                     FechaPesaje = UltimoPeso.FechaPesaje,
                     PesoKg = UltimoPeso.PesoKg
 

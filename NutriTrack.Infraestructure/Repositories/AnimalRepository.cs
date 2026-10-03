@@ -103,5 +103,11 @@ namespace NutriTrack.Infraestructure.Repositories
                 .Where(a => a.Estado)
                 .ToListAsync();
         }
+
+        public async Task<Animal?> ObtenerActivoPorId(int idAnimal)
+        {
+            return await _context.Animales
+                .FirstOrDefaultAsync(a => a.Id == idAnimal && a.Estado);
+        }
     }
 }
