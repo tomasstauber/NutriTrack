@@ -194,5 +194,34 @@ namespace NutriTrack.API.Controllers
                 FechaEvento = dto.FechaEvento
             });
         }
+
+        [HttpGet("animal/{idAnimal}")]
+        public async Task<IActionResult> ObtenerPorAnimal(int idAnimal)
+        {
+            if (!await _animalRepo.ExisteAnimalPorId(idAnimal))
+                return NotFound("No se encontró un animal con ese id.");
+
+            var eventos = await _eventoRepo.ObtenerPorAnimal(idAnimal);
+
+            var respuesta = eventos.Select(e => new EventoHistorialDTO
+            {
+                Id = e.Id,
+                TipoEvento = e.TipoEvento,
+                FechaEvento = e.FechaEvento,
+                VigenciaHasta = e.VigenciaHasta,
+                FechaProximaAplicacion = e.FechaProximaAplicacion,
+                Observaciones = e.Observaciones,
+                Responsable = e.Responsable,
+                Medicamentos = e.Medicamentos.Select(m => new MedicamentoHistorialDTO
+                {
+                    Nombre = m.Nombre,
+                    Dosis = m.Dosis,
+                    Unidad = m.Unidad,
+                    Observaciones = m.Observaciones
+                }).ToList()
+            }).ToList();
+
+            return Ok(respuesta);
+        }
     }
 }

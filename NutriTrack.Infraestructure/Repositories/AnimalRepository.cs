@@ -109,5 +109,11 @@ namespace NutriTrack.Infraestructure.Repositories
             return await _context.Animales
                 .FirstOrDefaultAsync(a => a.Id == idAnimal && a.Estado);
         }
+
+        public async Task<bool> ExisteAnimalPorId(int idAnimal)
+        {
+            return await _context.Animales
+                .AnyAsync(a => a.Id == idAnimal);
+        }
     }
 }
