@@ -64,19 +64,6 @@ namespace NutriTrack.Infraestructure.Repositories
             return (items, total);
         }
 
-        public async Task<List<Animal>> ObtenerActivosSinRodeo(string? caravana = null)
-        {
-            var query = _context.Animales
-                .Where(a => a.Estado && a.RodeoId == null);
-
-            if (!string.IsNullOrEmpty(caravana))
-                query = query.Where(a =>
-                    a.CaravanaCuig.Contains(caravana) ||
-                    a.CaravanaNroManejo.Contains(caravana));
-
-            return await query.ToListAsync();
-        }
-
         public async Task<int> ContarActivosPorRodeo(int IdRodeo)
         {
             return await _context.Animales

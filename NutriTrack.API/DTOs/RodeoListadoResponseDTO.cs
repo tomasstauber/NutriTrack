@@ -1,10 +1,9 @@
 ﻿namespace NutriTrack.API.DTOs
 {
-    public class RodeoResponseDTO 
+    public class RodeoListadoResponseDTO
     {
-        public string Mensaje { get; set; }
         public int Id { get; set; }
-        public string NombreRodeo { get; set; }
+        public string Nombre { get; set; }
         public string? Descripcion { get; set; }
         public int CantidadAnimales { get; set; }
     }

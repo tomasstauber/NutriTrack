@@ -9,7 +9,6 @@ namespace NutriTrack.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
     public class TransferenciaAnimalController : ControllerBase
     {
         private readonly TransferenciaAnimalesRepository _repository;
@@ -22,6 +21,7 @@ namespace NutriTrack.API.Controllers
         }
         //Rodeo origen debe existir
         [HttpPatch]
+        [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Transferir([FromBody] TransferenciaAnimalesDTO dto)
         {
             // 1. Rodeo origen existe
