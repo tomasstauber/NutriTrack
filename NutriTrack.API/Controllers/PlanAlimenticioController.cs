@@ -118,7 +118,7 @@ namespace NutriTrack.API.Controllers
                 Categoria = p.Categoria,
                 TipoAlimentacion = p.TipoAlimentacion,
                 KgMsDiariaPorAnimal = p.KgMsDiariaPorAnimal
-            }));
+            }).ToList());
         }
 
         [HttpGet("{idPlanAlimenticio}")]
