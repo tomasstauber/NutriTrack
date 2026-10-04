@@ -9,7 +9,6 @@ namespace NutriTrack.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.AsesorTecnico},{RolesUsuario.EncargadoDeCampo}")]
     public class MedicamentoController : ControllerBase
     {
         private readonly MedicamentoRepository _repository;
@@ -20,8 +19,13 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.AsesorTecnico}")]
         public async Task<IActionResult> CrearMedicamento([FromBody] MedicamentoDTO dto)
         {
+
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+                return BadRequest("El nombre del medicamento es obligatorio.");
+
             bool exists = await _repository.VerificarNombreUnico(dto.Nombre);
             if (exists)
             {
@@ -45,15 +49,16 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObtenerTodosAsync([FromQuery] string? nombre = null)
+        public async Task<IActionResult> ObtenerTodosAsync(
+            [FromQuery] string? nombre = null,
+            [FromQuery] bool incluirInactivos = false)
         {
-            var medicamento = await _repository.ObtenerTodosAsync(nombreMedicamento: nombre);
-            // 404 solo si el catálogo está vacío. Una búsqueda sin coincidencias
-            // no es error: devuelve 200 con lista vacía.
-            if (!medicamento.Any() && string.IsNullOrWhiteSpace(nombre))
-            {
-                return NotFound("No hay medicamentos almacenados.");
-            }
+            if (incluirInactivos && !User.IsInRole(RolesUsuario.Administrador))
+                return Forbid();
+
+            var medicamento = await _repository.ObtenerTodosAsync(
+                nombreMedicamento: nombre,
+                incluirInactivos: incluirInactivos);
 
             var responseDTO = medicamento.Select(m => new MedicamentoResponseDTO
             {
@@ -61,7 +66,9 @@ namespace NutriTrack.API.Controllers
                 Nombre = m.Nombre,
                 Descripcion = m.Descripcion,
                 Activo = m.Activo
-            }).ToList();
+            })
+                .OrderBy(m => m.Nombre)
+                .ToList();
 
             return Ok(responseDTO);
         }
@@ -87,6 +94,7 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpPut("{idMedicamento}")]
+        [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.AsesorTecnico}")]
         public async Task<IActionResult> EditarMedicamento(int idMedicamento, [FromBody]MedicamentoDTO dto)
         {
             var medicamento = await _repository.ObtenerPorIdAsync(idMedicamento);
@@ -94,6 +102,14 @@ namespace NutriTrack.API.Controllers
             {
                 return NotFound("No existe un medicamento con ese Id.");
             }
+
+            if (!medicamento.Activo)
+            {
+                return NotFound("No existe un medicamento con ese Id o se encuentra desactivado.");
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+                return BadRequest("El nombre del medicamento es obligatorio.");
 
             bool nombreEnUso = await _repository.VerificarNombreUnicoExcluyendo(dto.Nombre, idMedicamento);
             if (nombreEnUso)
@@ -108,6 +124,7 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpDelete("{idMedicamento}")]
+        [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.AsesorTecnico}")]
         public async Task<IActionResult> DesactivarMedicamento(int idMedicamento)
         {
             var medicamento = await _repository.ObtenerPorIdAsync(idMedicamento);
@@ -126,6 +143,7 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpPatch("activar/{idMedicamento}")]
+        [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<IActionResult> ActivarMedicamento(int idMedicamento)
         {
             var medicamento = await _repository.ObtenerPorIdAsync(idMedicamento);
