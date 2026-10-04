@@ -25,7 +25,7 @@ namespace NutriTrack.Infraestructure.Repositories
         public async Task<bool> VerificarNombreUnico(string NombrePlan)
         {
             return await _context.PlanesAlimenticios
-                .AnyAsync(p => p.NombrePlan == NombrePlan);
+                .AnyAsync(p => p.NombrePlan.ToLower() == NombrePlan.ToLower());
         }
 
         public async Task<PlanAlimenticio?> BuscarPlanId(int IdPlan)
@@ -56,6 +56,13 @@ namespace NutriTrack.Infraestructure.Repositories
         public async Task ActualizarAsync(PlanAlimenticio plan)
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<PlanAlimenticio>> ListarPlanes()
+        {
+            return await _context.PlanesAlimenticios
+                .OrderBy(r => r.NombrePlan)
+                .ToListAsync();
         }
     }   
 }
