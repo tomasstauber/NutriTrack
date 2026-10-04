@@ -21,17 +21,19 @@ namespace NutriTrack.API.Controllers
             _animalRepo = animalRepo;
         }
 
-        // GET: api/rodeo/animales-disponibles?caravana=123
-        [HttpGet("animales-disponibles")]
-        public async Task<IActionResult> ObtenerAnimalesDisponibles([FromQuery] string? caravana)
+        [HttpGet]
+        public async Task<IActionResult> ListarRodeos()
         {
-            var animales = await _animalRepo.ObtenerActivosSinRodeo(caravana);
-            return Ok(animales.Select(a => new {
-                a.Id,
-                a.CaravanaCuig,
-                a.CaravanaNroManejo
-            }));
+            var rodeos = await _rodeoRepo.ListarRodeosActivos();
+            return Ok(rodeos.Select(r => new RodeoListadoResponseDTO
+            {
+                Id = r.Id,
+                Nombre = r.Nombre,
+                Descripcion = r.Descripcion,
+                CantidadAnimales = r.CantidadAnimales
+            }).ToList());
         }
+
         // POST: api/rodeo
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearRodeoDTO dto)
@@ -68,6 +70,7 @@ namespace NutriTrack.API.Controllers
                 Mensaje = "Rodeo creado con éxito.",
                 Id = rodeo.Id,
                 NombreRodeo = rodeo.Nombre,
+                Descripcion = rodeo.Descripcion,
                 CantidadAnimales = rodeo.Animales.Count
             });
         }

@@ -34,5 +34,28 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             return await _context.Rodeos.FirstOrDefaultAsync(r => r.Id == idRodeo && r.Activo);
         }
+
+        public async Task<List<RodeoListadoRaw>> ListarRodeosActivos()
+        {
+            return await _context.Rodeos
+                .Where(r => r.Activo)
+                .OrderBy(r => r.Nombre)
+                .Select(r => new RodeoListadoRaw
+                {
+                    Id = r.Id,
+                    Nombre = r.Nombre,
+                    Descripcion = r.Descripcion,
+                    CantidadAnimales = r.Animales.Count(a => a.Estado)
+                })
+                .ToListAsync();
+        }
+    }
+
+    public class RodeoListadoRaw
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string? Descripcion { get; set; }
+        public int CantidadAnimales { get; set; }
     }
 }
