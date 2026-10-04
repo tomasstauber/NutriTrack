@@ -9,7 +9,6 @@ namespace NutriTrack.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
     public class RodeoController : ControllerBase
     {
         private readonly RodeoRepository _rodeoRepo;
@@ -36,6 +35,7 @@ namespace NutriTrack.API.Controllers
 
         // POST: api/rodeo
         [HttpPost]
+        [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Crear([FromBody] CrearRodeoDTO dto)
         {
             //validar que no sea null 
