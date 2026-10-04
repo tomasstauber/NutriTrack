@@ -11,7 +11,7 @@ namespace NutriTrack.Core.Entities
         public string CaravanaCuig { get; set; }
         public string CaravanaNroManejo { get; set; }
         public DateTime FechaNacimiento { get; set; }
-        public float PesoAlNacer { get; set; }
+        public decimal PesoAlNacer { get; set; }
         public int? PadreId { get; set; }
         public Animal? Padre { get; set; }
         public int? MadreId { get; set; }

@@ -5,7 +5,7 @@
         public string CaravanaCuig {  get; set; }
         public string CaravanaNroManejo { get; set; }
         public DateTime FechaNacimiento  {get; set; }
-        public float PesoAlNacer { get; set; }
+        public decimal PesoAlNacer { get; set; }
         public string Sexo {  get; set; }
         public string Raza { get; set; }
         public DateTime FechaAlta { get; set; }

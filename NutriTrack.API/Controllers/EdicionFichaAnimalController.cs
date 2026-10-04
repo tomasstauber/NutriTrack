@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
+using NutriTrack.API.Helpers;
 using NutriTrack.Core.Entities;
 using NutriTrack.Core.Entities.Enums;
 using NutriTrack.Infraestructure.Repositories;
@@ -21,39 +22,56 @@ namespace NutriTrack.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Editar ([FromQuery] string cuig, [FromQuery] string NroManejo, [FromBody] EdicionFichaAnimalDTO dto)
+        public async Task<IActionResult> Editar ([FromQuery] string cuig, [FromQuery] string nroManejo, [FromBody] EdicionFichaAnimalDTO dto)
         {
-            //validar que haya caravana, que no este vacia
-            if (string.IsNullOrEmpty(cuig) || string.IsNullOrEmpty(NroManejo))
-            {
-                return BadRequest("La caravana es obligatoria");
-            }
-            
-            // Validar formato alfanumérico 6-8 caracteres
-            var caravanaCompleta = cuig + NroManejo;
-            if (caravanaCompleta.Length < 6 || caravanaCompleta.Length > 10 ||
-                !caravanaCompleta.All(char.IsLetterOrDigit))
-                return BadRequest("Formato de caravana inválido (alfanumérico, 6-8 caracteres).");
-            
+            if (!CaravanaHelper.ParteValida(cuig) || !CaravanaHelper.ParteValida(nroManejo))
+                return BadRequest(CaravanaHelper.MensajeCaravanaInvalida);
+
             // Buscar el recurso a editar (¿existe el animal?)
             //buscar animal
-            var animal = await _repository.BuscarPorCaravana(cuig, NroManejo);
+            var animal = await _repository.BuscarPorCaravana(cuig, nroManejo);
             if (animal == null)
                 return NotFound("No se encontro un animal con esa caravana");
             //validar peso
             if (dto.PesoAlNacer <= 0 || dto.PesoAlNacer > 100)
                 return BadRequest("El peso al nacer debe ser mayor a 0 y menor o igual a 100kg");
+
+            if (string.IsNullOrWhiteSpace(dto.Raza))
+                return BadRequest("La raza es obligatoria.");
+
             //validar fecha nacimiento
-            if (dto.FechaNacimiento > DateTime.Now)
+            if (dto.FechaNacimiento.Date > DateTime.Today)
                 return BadRequest("La fecha de nacimiento no puede ser posterior a hoy");
-            //validar sexo
-            if (!Enum.TryParse<Sexo>(dto.Sexo, ignoreCase: true, out var sexo))
+
+            if (!Enum.IsDefined(dto.Sexo))
                 return BadRequest("El sexo debe ser 'Macho' o 'Hembra'.");
+
+            var madreInformada = CaravanaHelper.ProgenitorInformado(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre);
+            if (madreInformada)
+            {
+                var error = CaravanaHelper.ErrorProgenitor(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre, "la madre");
+                if (error is not null)
+                    return BadRequest(error);
+            }
+
+            var padreInformado = CaravanaHelper.ProgenitorInformado(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre);
+            if (padreInformado)
+            {
+                var error = CaravanaHelper.ErrorProgenitor(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre, "el padre");
+                if (error is not null)
+                    return BadRequest(error);
+            }
+
+            if (madreInformada && padreInformado
+                && CaravanaHelper.MismaCaravana(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre,
+                                                dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre))
+                return BadRequest("La madre y el padre no pueden ser el mismo animal");
+
             // Validar y resolver madre
             Animal? madre = null;
-            if (!string.IsNullOrEmpty(dto.CaravanaCuigMadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoMadre))
+            if (madreInformada)
             {
-                madre = await _repository.BuscarPorCaravana(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre);
+                madre = await _repository.BuscarPorCaravana(dto.CaravanaCuigMadre!, dto.CaravanaNroManejoMadre!);
                 if (madre == null)
                     return BadRequest("No se encontró un animal con la caravana de la madre indicada.");
                 if (madre.Id == animal.Id)
@@ -62,9 +80,9 @@ namespace NutriTrack.API.Controllers
 
             // Validar y resolver padre
             Animal? padre = null;
-            if (!string.IsNullOrEmpty(dto.CaravanaCuigPadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoPadre))
+            if (padreInformado)
             {
-                padre = await _repository.BuscarPorCaravana(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre);
+                padre = await _repository.BuscarPorCaravana(dto.CaravanaCuigPadre!, dto.CaravanaNroManejoPadre!);
                 if (padre == null)
                     return BadRequest("No se encontró un animal con la caravana del padre indicada.");
                 if (padre.Id == animal.Id)
@@ -74,7 +92,7 @@ namespace NutriTrack.API.Controllers
             // Actualizar campos editables
             animal.FechaNacimiento = dto.FechaNacimiento;
             animal.PesoAlNacer = dto.PesoAlNacer;
-            animal.Sexo = sexo;
+            animal.Sexo = dto.Sexo;
             animal.Raza = dto.Raza;
             animal.ColorPelaje = dto.ColorPelaje;
             animal.MadreId = madre?.Id;

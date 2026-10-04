@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
+using NutriTrack.API.Helpers;
 using NutriTrack.Core.Entities;
 using NutriTrack.Infraestructure.Repositories;
 
@@ -11,10 +12,6 @@ namespace NutriTrack.API.Controllers
     [Route("api/[controller]")]
     public class AnimalController : ControllerBase
     {
-        private const int LargoMaximoParteCaravana = 5;
-        private const string MensajeCaravanaInvalida =
-            "Formato de caravana inválido (cada parte alfanumérica, hasta 5 caracteres).";
-
         private readonly AltaAnimalRepository _animalRepo;
         private readonly DesactivacionReactivacionAnimalRepository _desactivacionRepo;
         private readonly AnimalRepository _listadoRepo;
@@ -27,12 +24,6 @@ namespace NutriTrack.API.Controllers
             _animalRepo = animalRepo;
             _desactivacionRepo = desactivacionRepo;
             _listadoRepo = listadoRepo;
-        }
-        private static bool ParteCaravanaValida(string? parte)
-        {
-            return !string.IsNullOrEmpty(parte)
-                && parte.Length <= LargoMaximoParteCaravana
-                && parte.All(char.IsLetterOrDigit);
         }
 
         // Listado de animales con filtros y paginación.
@@ -84,8 +75,8 @@ namespace NutriTrack.API.Controllers
         [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Crear([FromBody] CrearAnimalDTO dto)
         {
-            if (!ParteCaravanaValida(dto.CaravanaCuig) || !ParteCaravanaValida(dto.CaravanaNroManejo))
-                return BadRequest(MensajeCaravanaInvalida);
+            if (!CaravanaHelper.ParteValida(dto.CaravanaCuig) || !CaravanaHelper.ParteValida(dto.CaravanaNroManejo))
+                return BadRequest(CaravanaHelper.MensajeCaravanaInvalida);
 
             if (await _animalRepo.ExisteCaravana(dto.CaravanaCuig, dto.CaravanaNroManejo))
                 return Conflict("Ya existe un animal con esa caravana.");
@@ -93,21 +84,60 @@ namespace NutriTrack.API.Controllers
             if (dto.PesoAlNacer <= 0 || dto.PesoAlNacer > 100)
                 return BadRequest("El peso al nacer debe ser mayor a 0 y menor o igual a 100 kg.");
 
-            if (dto.FechaNacimiento > DateTime.Now)
+            if (string.IsNullOrWhiteSpace(dto.Raza))
+                return BadRequest("La raza es obligatoria.");
+
+            if (dto.FechaNacimiento.Date > DateTime.Today)
                 return BadRequest("La fecha de nacimiento no puede ser posterior a hoy.");
 
-            Animal? madre = null;
-            if (!string.IsNullOrEmpty(dto.CaravanaCuigMadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoMadre))
+            if (!Enum.IsDefined(dto.Sexo))
+                return BadRequest("El sexo debe ser 'Macho' o 'Hembra'.");
+
+            var madreInformada = CaravanaHelper.ProgenitorInformado(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre);
+            if (madreInformada)
             {
-                madre = await _animalRepo.BuscarPorCaravana(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre);
+                var error = CaravanaHelper.ErrorProgenitor(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre, "la madre");
+                if (error is not null)
+                    return BadRequest(error);
+            }
+
+            var padreInformado = CaravanaHelper.ProgenitorInformado(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre);
+            if (padreInformado)
+            {
+                var error = CaravanaHelper.ErrorProgenitor(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre, "el padre");
+                if (error is not null)
+                {
+                    return BadRequest(error);
+                }
+            }
+
+            if (madreInformada &&
+                CaravanaHelper.MismaCaravana(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre,
+                                             dto.CaravanaCuig, dto.CaravanaNroManejo))
+                return BadRequest("El animal no puede ser su propia madre");
+
+            if (padreInformado &&
+                CaravanaHelper.MismaCaravana(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre,
+                                             dto.CaravanaCuig, dto.CaravanaNroManejo))
+                return BadRequest("El animal no puede ser su propio padre");
+
+            if (madreInformada && padreInformado &&
+                CaravanaHelper.MismaCaravana(dto.CaravanaCuigMadre, dto.CaravanaNroManejoMadre,
+                                 dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre))
+                return BadRequest("La madre y el padre no pueden ser el mismo animal.");
+
+            Animal? madre = null;
+            if (madreInformada)
+            {
+                madre = await _animalRepo.BuscarPorCaravana(dto.CaravanaCuigMadre!, dto.CaravanaNroManejoMadre!);
                 if (madre == null)
                     return BadRequest("No se encontró un animal con la caravana de la madre indicada.");
             }
 
             Animal? padre = null;
-            if (!string.IsNullOrEmpty(dto.CaravanaCuigPadre) && !string.IsNullOrEmpty(dto.CaravanaNroManejoPadre))
+            if (padreInformado)
             {
-                padre = await _animalRepo.BuscarPorCaravana(dto.CaravanaCuigPadre, dto.CaravanaNroManejoPadre);
+                padre = await _animalRepo.BuscarPorCaravana(dto.CaravanaCuigPadre!, dto.CaravanaNroManejoPadre!);
                 if (padre == null)
                     return BadRequest("No se encontró un animal con la caravana del padre indicada.");
             }
@@ -151,8 +181,8 @@ namespace NutriTrack.API.Controllers
         [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
         public async Task<IActionResult> Desactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
-            if (!ParteCaravanaValida(cuig) || !ParteCaravanaValida(nroManejo))
-                return BadRequest(MensajeCaravanaInvalida);
+            if (!CaravanaHelper.ParteValida(cuig) || !CaravanaHelper.ParteValida(nroManejo))
+                return BadRequest(CaravanaHelper.MensajeCaravanaInvalida);
 
             var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
             if (animal == null)
@@ -170,8 +200,8 @@ namespace NutriTrack.API.Controllers
         [Authorize(Roles = RolesUsuario.Administrador)]
         public async Task<IActionResult> Reactivar([FromQuery] string cuig, [FromQuery] string nroManejo)
         {
-            if (!ParteCaravanaValida(cuig) || !ParteCaravanaValida(nroManejo))
-                return BadRequest(MensajeCaravanaInvalida);
+            if (!CaravanaHelper.ParteValida(cuig) || !CaravanaHelper.ParteValida(nroManejo))
+                return BadRequest(CaravanaHelper.MensajeCaravanaInvalida);
 
             var animal = await _desactivacionRepo.BuscarPorCaravana(cuig, nroManejo);
             if (animal == null)
