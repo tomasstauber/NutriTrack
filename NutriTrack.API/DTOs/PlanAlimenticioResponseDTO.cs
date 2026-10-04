@@ -14,6 +14,7 @@ namespace NutriTrack.API.DTOs
         public string? TiempoAlimentacion { get; set; }
         public decimal KgMsDiariaPorAnimal { get; set; }
         public string? Observaciones { get; set; }
+        public int AsignacionesVigentes { get; set; }
         public List<PlanAlimenticioDetalleResponseDTO> Detalles { get; set; } = new();
     }
 }

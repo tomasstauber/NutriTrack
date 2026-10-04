@@ -107,6 +107,20 @@ namespace NutriTrack.API.Controllers
             return Ok("Plan alimenticio creado exitosamente!");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ListarPlanes()
+        {
+            var planes = await _repository.ListarPlanes();
+            return Ok(planes.Select(p => new PlanAlimenticioListaResponseDTO
+            {
+                Id = p.Id,
+                NombrePlan = p.NombrePlan,
+                Categoria = p.Categoria,
+                TipoAlimentacion = p.TipoAlimentacion,
+                KgMsDiariaPorAnimal = p.KgMsDiariaPorAnimal
+            }));
+        }
+
         [HttpGet("{idPlanAlimenticio}")]
         public async Task<IActionResult> BuscarPlanId(int idPlanAlimenticio)
         {
@@ -116,8 +130,11 @@ namespace NutriTrack.API.Controllers
                 return NotFound("No existe un plan con ese Id.");
             }
 
+            int asignacionesVigentes = await _repository.ContarAsignacionesVigentes(idPlanAlimenticio);
+
             var responseDto = new PlanAlimenticioResponseDTO
             {
+                Id= plan.Id,
                 NombrePlan = plan.NombrePlan,
                 Categoria = plan.Categoria,
                 PesoVivoInicialPromedio = plan.PesoVivoInicialPromedio,
@@ -126,7 +143,8 @@ namespace NutriTrack.API.Controllers
                 TipoAlimentacion = plan.TipoAlimentacion,
                 TiempoAlimentacion = plan.TiempoAlimentacion,
                 KgMsDiariaPorAnimal = plan.KgMsDiariaPorAnimal,
-                Observaciones = plan.Observaciones
+                Observaciones = plan.Observaciones,
+                AsignacionesVigentes = asignacionesVigentes
             };
 
             responseDto.Detalles = plan.Detalles.Select(d => new PlanAlimenticioDetalleResponseDTO
