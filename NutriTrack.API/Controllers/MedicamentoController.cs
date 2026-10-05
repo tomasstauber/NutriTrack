@@ -100,12 +100,12 @@ namespace NutriTrack.API.Controllers
             var medicamento = await _repository.ObtenerPorIdAsync(idMedicamento);
             if (medicamento is null)
             {
-                return NotFound("No existe un medicamento con ese Id.");
+                return NotFound("No existe un medicamento con ese Id o se encuentra desactivado.");
             }
 
             if (!medicamento.Activo)
             {
-                return NotFound("No existe un medicamento con ese Id o se encuentra desactivado.");
+                return NotFound("El medicamento se encuentra desactivado.");
             }
 
             if (string.IsNullOrWhiteSpace(dto.Nombre))

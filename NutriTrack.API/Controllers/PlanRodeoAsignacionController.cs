@@ -121,7 +121,8 @@ namespace NutriTrack.API.Controllers
             return Ok(new
             {
                 NombrePlan = asignacion.PlanAlimenticio?.NombrePlan,
-                VigenciaDesde = asignacion.VigenciaDesde
+                VigenciaDesde = asignacion.VigenciaDesde,
+                VigenciaHasta = asignacion.VigenciaHasta
             });
         }
     }
