@@ -37,7 +37,7 @@ namespace NutriTrack.Infraestructure.Repositories
                     Observaciones = e.Observaciones,
                     Responsable = _context.Usuarios
                         .Where(u => u.Id == e.IdUsuario)
-                        .Select(u => u.NombreUsuario)
+                        .Select(u => u.Nombre)
                         .FirstOrDefault(),
                     Medicamentos = e.DetallesMedicamento
                         .Select(d => new MedicamentoHistorialRaw
