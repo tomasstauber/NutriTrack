@@ -10,23 +10,24 @@ CREATE TABLE Usuario (
 
 CREATE TABLE Rodeo (
     id_rodeo SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) UNIQUE NOT NULL,
-    descripcion TEXT
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE Animal (
     id_animal SERIAL PRIMARY KEY,
     caravana_cuig VARCHAR(5) NOT NULL,
     caravana_nro_manejo VARCHAR(5) NOT NULL,
-    fecha_nacimiento DATE,
-    peso_al_nacer DECIMAL,
+    fecha_nacimiento DATE NOT NULL,
+    peso_al_nacer DECIMAL NOT NULL,
+    raza VARCHAR(100) NOT NULL,
+    sexo VARCHAR(10) NOT NULL,
+    color_pelaje VARCHAR(100),
+    fecha_alta DATE NOT NULL,
+    estado BOOLEAN NOT NULL,
     id_madre INTEGER REFERENCES Animal(id_animal),
     id_padre INTEGER REFERENCES Animal(id_animal),
-    raza VARCHAR(100),
-    sexo VARCHAR(10),
-    color_pelaje VARCHAR(100),
-    fecha_alta DATE,
-    estado BOOLEAN,
     id_rodeo INTEGER REFERENCES Rodeo(id_rodeo),
     UNIQUE (caravana_cuig, caravana_nro_manejo)
 );
@@ -40,13 +41,13 @@ CREATE TABLE Medicamento (
 
 CREATE TABLE EventoSanitario (
     id_evento_sanitario SERIAL PRIMARY KEY,
-    tipo_evento VARCHAR(50),
-    fecha_evento DATE,
+    tipo_evento VARCHAR(50) NOT NULL,
+    fecha_evento DATE NOT NULL,
     vigencia_hasta DATE,
     fecha_proxima_aplicacion DATE,
     observaciones VARCHAR(500),
-    id_usuario INTEGER REFERENCES Usuario(id_usuario) ON DELETE RESTRICT,
-    id_animal INTEGER REFERENCES Animal(id_animal) ON DELETE RESTRICT
+    id_usuario INTEGER REFERENCES Usuario(id_usuario) ON DELETE RESTRICT NOT NULL,
+    id_animal INTEGER REFERENCES Animal(id_animal) ON DELETE RESTRICT NOT NULL
 );
 
 CREATE TABLE DetalleMedicamento (
@@ -54,17 +55,17 @@ CREATE TABLE DetalleMedicamento (
     dosis DECIMAL,
     unidad VARCHAR(10),
     observaciones VARCHAR(500),
-    id_evento_sanitario INTEGER REFERENCES EventoSanitario(id_evento_sanitario) ON DELETE CASCADE,
-    id_medicamento INTEGER REFERENCES Medicamento(id_medicamento) ON DELETE RESTRICT
+    id_evento_sanitario INTEGER REFERENCES EventoSanitario(id_evento_sanitario) ON DELETE CASCADE NOT NULL,
+    id_medicamento INTEGER REFERENCES Medicamento(id_medicamento) ON DELETE RESTRICT NOT NULL
 );
 
 CREATE TABLE ControlDePeso (
     id_control_de_peso SERIAL PRIMARY KEY,
-    fecha_pesaje DATE,
-    peso_kg DECIMAL,
+    fecha_pesaje DATE NOT NULL,
+    peso_kg DECIMAL NOT NULL,
     observaciones TEXT,
-    id_usuario INTEGER REFERENCES Usuario(id_usuario),
-    id_animal INTEGER REFERENCES Animal(id_animal)
+    id_usuario INTEGER REFERENCES Usuario(id_usuario) NOT NULL,
+    id_animal INTEGER REFERENCES Animal(id_animal) NOT NULL
 );
 
 CREATE TABLE Ingrediente (
@@ -75,7 +76,7 @@ CREATE TABLE Ingrediente (
     energia_metabolizable DECIMAL,
     proteina_bruta DECIMAL,
     fibra_det_neutro DECIMAL,
-    unidad_medida VARCHAR(50),
+    unidad_medida VARCHAR(50) NOT NULL,
     aditivos TEXT,
     activo BOOLEAN NOT NULL DEFAULT TRUE
 );
@@ -95,10 +96,10 @@ CREATE TABLE PlanAlimenticio (
 
 CREATE TABLE PlanAlimenticioDetalle (
     id_plan_alimenticio_detalle SERIAL PRIMARY KEY,
-    porcentaje_inclusion_ms DECIMAL,
+    porcentaje_inclusion_ms DECIMAL NOT NULL,
     observaciones TEXT,
-    id_plan_alimenticio INTEGER REFERENCES PlanAlimenticio(id_plan_alimenticio),
-    id_ingrediente INTEGER REFERENCES Ingrediente(id_ingrediente)
+    id_plan_alimenticio INTEGER REFERENCES PlanAlimenticio(id_plan_alimenticio) NOT NULL,
+    id_ingrediente INTEGER REFERENCES Ingrediente(id_ingrediente) NOT NULL
 );
 
 CREATE TABLE PlanRodeoAsignacion (
@@ -106,15 +107,16 @@ CREATE TABLE PlanRodeoAsignacion (
     vigencia_desde DATE NOT NULL,
     vigencia_hasta DATE,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
-    id_plan_alimenticio INTEGER REFERENCES PlanAlimenticio(id_plan_alimenticio),
-    id_rodeo INTEGER REFERENCES Rodeo(id_rodeo)
+    id_plan_alimenticio INTEGER REFERENCES PlanAlimenticio(id_plan_alimenticio) NOT NULL,
+    id_rodeo INTEGER REFERENCES Rodeo(id_rodeo) NOT NULL
 );
 
-ALTER TABLE rodeo ADD COLUMN activo BOOLEAN NOT NULL DEFAULT TRUE;
-
-ALTER TABLE rodeo DROP CONSTRAINT rodeo_nombre_key;
 CREATE UNIQUE INDEX ux_rodeo_nombre_activo ON rodeo (LOWER(nombre)) WHERE activo;
 
 CREATE UNIQUE INDEX ux_asignacion_rodeo_activa ON planrodeoasignacion (id_rodeo) WHERE activo;
 
 CREATE UNIQUE INDEX ux_detalle_plan_ingrediente ON planalimenticiodetalle (id_plan_alimenticio, id_ingrediente);
+
+CREATE UNIQUE INDEX ux_medicamento_nombre ON medicamento (LOWER(nombre));
+
+CREATE UNIQUE INDEX ux_ingrediente_nombre_activo ON ingrediente (LOWER(nombre)) WHERE activo;
