@@ -26,6 +26,7 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             return await _context.Ingredientes
                 .Where(i => i.Activo)
+                .OrderBy(i => i.NombreIngrediente)
                 .ToListAsync();
         }
 
@@ -40,6 +41,7 @@ namespace NutriTrack.Infraestructure.Repositories
             return await _context.Ingredientes
                 .Where(i => i.NombreIngrediente.ToLower().Contains(NombreIngrdiente.ToLower()))
                 .Where(i => i.Activo)
+                .OrderBy(i => i.NombreIngrediente)
                 .ToListAsync();
         }
 
@@ -65,9 +67,9 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             return await _context.PlanAlimenticioDetalles
                 .Where(d => d.IdIngrediente == IdIngrediente && d.PlanAlimenticio != null)
-                .Select(d => d.PlanAlimenticio)
+                .Select(d => d.PlanAlimenticio!)
                 .Distinct()
                 .ToListAsync();
-        } 
+        }
     }
 }
