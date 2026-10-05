@@ -2,6 +2,7 @@
 {
     public class IngredienteResponseDTO
     {
+        public int Id { get; set; }
         public string NombreIngrediente { get; set; }
         public string? Descripcion { get; set; }
         public string? Minerales { get; set; }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
 using NutriTrack.Core.Entities;
+using NutriTrack.Core.Entities.Enums;
 using NutriTrack.Infraestructure.Repositories;
 
 namespace NutriTrack.API.Controllers
@@ -19,9 +20,52 @@ namespace NutriTrack.API.Controllers
             _repository = repository;
         }
 
+        // Arma el DTO de respuesta. Se usa en todos los endpoints que devuelven ingredientes.
+        private static IngredienteResponseDTO ADto(Ingrediente i)
+        {
+            return new IngredienteResponseDTO
+            {
+                Id = i.Id,
+                NombreIngrediente = i.NombreIngrediente,
+                Descripcion = i.Descripcion,
+                Minerales = i.Minerales,
+                EnergiaMetabolizable = i.EnergiaMetabolizable,
+                ProteinaBruta = i.ProteinaBruta,
+                FibraDetergenteNeutro = i.FibraDetergenteNeutro,
+                UnidadMedida = i.UnidadMedida,
+                Aditivos = i.Aditivos
+            };
+        }
+
+        // Validaciones compartidas por alta y edición. Devuelve el mensaje de error, o null si está todo bien.
+        private static string? ValidarIngrediente(IngredienteDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.NombreIngrediente))
+                return "El nombre del ingrediente es obligatorio.";
+
+            if (dto.EnergiaMetabolizable < 0 || dto.ProteinaBruta < 0 || dto.FibraDetergenteNeutro < 0)
+                return "Los valores nutricionales deben ser mayores o iguales a 0.";
+
+            if (!Enum.TryParse<UnidadMedida>(dto.UnidadMedida, ignoreCase: true, out var unidad)
+                || !Enum.IsDefined(unidad))
+                return $"Unidad de medida inválida. Opciones: {string.Join(", ", Enum.GetNames<UnidadMedida>())}.";
+
+            return null;
+        }
+
+        // Devuelve la unidad escrita como en el enum (por ejemplo "KG" pasa a "kg").
+        private static string NormalizarUnidad(string unidad)
+        {
+            return Enum.Parse<UnidadMedida>(unidad, ignoreCase: true).ToString();
+        }
+
         [HttpPost]
         public async Task<IActionResult> CrearIngrediente([FromBody] IngredienteDTO dto)
         {
+            var error = ValidarIngrediente(dto);
+            if (error is not null)
+                return BadRequest(error);
+
             bool exists = await _repository.VerificarNombreUnico(dto.NombreIngrediente);
             if (exists)
             {
@@ -36,60 +80,26 @@ namespace NutriTrack.API.Controllers
                 EnergiaMetabolizable = dto.EnergiaMetabolizable,
                 ProteinaBruta = dto.ProteinaBruta,
                 FibraDetergenteNeutro = dto.FibraDetergenteNeutro,
-                UnidadMedida = dto.UnidadMedida,
+                UnidadMedida = NormalizarUnidad(dto.UnidadMedida),
                 Aditivos = dto.Aditivos
             };
 
             await _repository.CrearAsync(ingrediente);
-            return Ok("Ingrediente creado exitosamente!");
+            return Ok(ADto(ingrediente));
         }
 
         [HttpGet]
         public async Task<IActionResult> ObtenerTodosAsync()
         {
-            var ingrediente = await _repository.ObtenerTodosAsync();
-            if (!ingrediente.Any())
-            {
-                return NotFound("No hay ingredientes almacenados.");
-            }
-
-            var responseDTO = ingrediente.Select(i => new IngredienteResponseDTO
-            {
-                NombreIngrediente = i.NombreIngrediente,
-                Descripcion = i.Descripcion,
-                Minerales = i.Minerales,
-                EnergiaMetabolizable = i.EnergiaMetabolizable,
-                ProteinaBruta = i.ProteinaBruta, 
-                FibraDetergenteNeutro = i.FibraDetergenteNeutro,
-                UnidadMedida = i.UnidadMedida,
-                Aditivos = i.Aditivos
-            }).ToList();
-
-            return Ok(responseDTO);
+            var ingredientes = await _repository.ObtenerTodosAsync();
+            return Ok(ingredientes.Select(ADto).ToList());
         }
 
         [HttpGet("buscar")]
-        public async Task<IActionResult> BuscarPorNombre([FromQuery]string NombreIngrediente)
+        public async Task<IActionResult> BuscarPorNombre([FromQuery] string NombreIngrediente)
         {
             var ingredientes = await _repository.BuscarPorNombre(NombreIngrediente);
-            if (!ingredientes.Any())
-            {
-                return NotFound("No existe un ingrediente con ese nombre.");
-            }
-
-            var responseDTO = ingredientes.Select(i => new IngredienteResponseDTO
-            {
-                NombreIngrediente = i.NombreIngrediente,
-                Descripcion = i.Descripcion,
-                Minerales = i.Minerales,
-                EnergiaMetabolizable = i.EnergiaMetabolizable,
-                ProteinaBruta = i.ProteinaBruta,
-                FibraDetergenteNeutro = i.FibraDetergenteNeutro,
-                UnidadMedida = i.UnidadMedida,
-                Aditivos = i.Aditivos
-            }).ToList();
-
-            return Ok(responseDTO);
+            return Ok(ingredientes.Select(ADto).ToList());
         }
 
         [HttpPut("{id}")]
@@ -101,7 +111,16 @@ namespace NutriTrack.API.Controllers
                 return NotFound("No existe ningún ingrediente con ese Id.");
             }
 
-            //validamos que el nombreno esté en uso
+            if (!ingrediente.Activo)
+            {
+                return NotFound("No existe ningún ingrediente con ese Id.");
+            }
+
+            var error = ValidarIngrediente(dto);
+            if (error is not null)
+                return BadRequest(error);
+
+            // validamos que el nombre no esté en uso
             if (ingrediente.NombreIngrediente.ToLower() != dto.NombreIngrediente.ToLower())
             {
                 bool exist = await _repository.VerificarNombreUnico(dto.NombreIngrediente);
@@ -117,7 +136,7 @@ namespace NutriTrack.API.Controllers
             ingrediente.EnergiaMetabolizable = dto.EnergiaMetabolizable;
             ingrediente.ProteinaBruta = dto.ProteinaBruta;
             ingrediente.FibraDetergenteNeutro = dto.FibraDetergenteNeutro;
-            ingrediente.UnidadMedida = dto.UnidadMedida;
+            ingrediente.UnidadMedida = NormalizarUnidad(dto.UnidadMedida);
             ingrediente.Aditivos = dto.Aditivos;
 
             await _repository.ActualizarAsync(ingrediente);
@@ -133,10 +152,15 @@ namespace NutriTrack.API.Controllers
                 return NotFound("No existe un ingrediente con ese Id.");
             }
 
+            if (!ingrediente.Activo)
+            {
+                return Conflict("El ingrediente ya se encuentra desactivado.");
+            }
+
             var planesQueLoUsan = await _repository.ObtenerPlanesQueUsan(id);
 
             await _repository.DesactivarAsync(ingrediente);
-            
+
             if (planesQueLoUsan.Any())
             {
                 var nombres = string.Join(", ", planesQueLoUsan.Select(p => p.NombrePlan));
