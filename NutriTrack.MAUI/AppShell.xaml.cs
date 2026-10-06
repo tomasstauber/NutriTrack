@@ -17,6 +17,7 @@ namespace NutriTrack.MAUI
             MenuModulos.RegistrarRuta<IngredientesPage>(MenuModulos.Ingredientes);
             MenuModulos.RegistrarRuta<AnimalesPage>(MenuModulos.Animales);
             MenuModulos.RegistrarRuta<RodeosPage>(MenuModulos.Rodeos);
+            MenuModulos.RegistrarRuta<RegistrarPesoPage>(MenuModulos.Peso);
 
             _sesionService = sesionService;
             _sesionService.SesionExpirada += OnSesionExpirada;
@@ -42,4 +43,4 @@ namespace NutriTrack.MAUI
             });
         }
     }
-}
+}

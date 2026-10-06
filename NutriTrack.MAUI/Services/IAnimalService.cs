@@ -18,5 +18,10 @@ namespace NutriTrack.MAUI.Services
 
         // GET api/ConsultaFichaIndividualAnimal: ficha de un animal por su caravana.
         Task<ResultadoApi<FichaAnimal>> ObtenerFichaAsync(string cuig, string nroManejo);
+
+        // Animal ACTIVO con esa caravana completa, sin distinguir mayúsculas, para conseguir
+        // su id (la ficha no lo trae) y la caravana tal como está guardada.
+        // Datos es null si no hay ninguno.
+        Task<ResultadoApi<AnimalListado?>> BuscarActivoPorCaravanaAsync(string cuig, string nroManejo);
     }
 }
