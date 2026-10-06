@@ -10,6 +10,10 @@
         <Label Text="Panel principal (en construcción)"
                TextColor="{StaticResource TextoSecundario}"
                HorizontalOptions="Center" />
+        <!-- Menú: Asesor técnico y Administrador -->
+        <Button x:Name="BotonIngredientes"
+                Text="Ingredientes"
+                Clicked="OnIngredientesClicked" />
         <Button Text="Cerrar sesión (prueba de navegación)"
                 Clicked="OnCerrarSesionClicked" />
     </VerticalStackLayout>

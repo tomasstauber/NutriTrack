@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using NutriTrack.MAUI.Services;
+using NutriTrack.MAUI.ViewModels;
 using NutriTrack.MAUI.Views;
 
 namespace NutriTrack.MAUI
@@ -33,9 +34,16 @@ namespace NutriTrack.MAUI
             })
             .AddHttpMessageHandler<AuthHeaderHandler>();
 
+            // Servicios de la API
+            builder.Services.AddTransient<IIngredienteService, IngredienteService>();
+
+            // ViewModels
+            builder.Services.AddTransient<IngredientesViewModel>();
+
             // Navegación y pantallas
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<PanelPrincipalPage>();
+            builder.Services.AddTransient<IngredientesPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
