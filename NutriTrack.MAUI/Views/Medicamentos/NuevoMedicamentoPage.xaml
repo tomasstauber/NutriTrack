@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             x:Class="NutriTrack.MAUI.Views.NuevoMedicamentoPage"
+             x:DataType="vm:NuevoMedicamentoViewModel"
+             Title="Nuevo medicamento"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="600">
+
+            <Label Text="Nombre *"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextoPrincipal}" />
+            <Entry Text="{Binding Nombre}"
+                   Placeholder="Nombre del medicamento"
+                   IsEnabled="{Binding NoEstaOcupado}" />
+
+            <Label Text="Descripción"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextoPrincipal}" />
+            <Editor Text="{Binding Descripcion}"
+                    Placeholder="Opcional"
+                    AutoSize="TextChanges"
+                    MinimumHeightRequest="80"
+                    IsEnabled="{Binding NoEstaOcupado}" />
+
+            <!-- Validación y errores de la API -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Button Text="Guardar"
+                        Command="{Binding GuardarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.MedicamentosPage"
+             x:DataType="vm:MedicamentosViewModel"
+             Title="Medicamentos"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="12" Padding="16">
+
+        <!-- Búsqueda y alta -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <SearchBar Grid.Column="0"
+                       Placeholder="Buscar por nombre"
+                       Text="{Binding TextoBusqueda}"
+                       SearchCommand="{Binding CargarCommand}" />
+            <Button Grid.Column="1"
+                    Text="Nuevo medicamento"
+                    IsVisible="{Binding PuedeCrear}"
+                    Command="{Binding NuevoMedicamentoCommand}" />
+        </Grid>
+
+        <!-- Solo Administrador -->
+        <HorizontalStackLayout Grid.Row="1"
+                               Spacing="4"
+                               IsVisible="{Binding EsAdministrador}">
+            <CheckBox IsChecked="{Binding IncluirInactivos}"
+                      VerticalOptions="Center" />
+            <Label Text="Incluir inactivos"
+                   TextColor="{StaticResource TextoPrincipal}"
+                   VerticalOptions="Center" />
+        </HorizontalStackLayout>
+
+        <!-- Errores de la API -->
+        <Label Grid.Row="2"
+               Text="{Binding MensajeError}"
+               IsVisible="{Binding HayError}"
+               TextColor="{StaticResource Peligro}" />
+
+        <ActivityIndicator Grid.Row="3"
+                           IsRunning="{Binding EstaOcupado}"
+                           IsVisible="{Binding EstaOcupado}"
+                           VerticalOptions="Center" />
+
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding Medicamentos}"
+                        EmptyView="{Binding MensajeVacio}"
+                        IsVisible="{Binding NoEstaOcupado}">
+
+            <CollectionView.Header>
+                <Grid ColumnDefinitions="2*,3*,100"
+                      ColumnSpacing="8"
+                      Padding="8"
+                      BackgroundColor="{StaticResource Superficie}">
+                    <Label Grid.Column="0" Text="Nombre" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="1" Text="Descripción" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="2" Text="Estado" Style="{StaticResource Encabezado}" />
+                </Grid>
+            </CollectionView.Header>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Medicamento">
+                    <Grid RowDefinitions="*,Auto">
+                        <Grid ColumnDefinitions="2*,3*,100"
+                              ColumnSpacing="8"
+                              Padding="8">
+                            <Label Grid.Column="0" Text="{Binding Nombre}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="1" Text="{Binding Descripcion, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="2" Text="{Binding Estado}" Style="{StaticResource Celda}" />
+                        </Grid>
+                        <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
