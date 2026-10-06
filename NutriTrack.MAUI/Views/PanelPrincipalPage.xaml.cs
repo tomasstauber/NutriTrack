@@ -1,16 +1,22 @@
+using NutriTrack.MAUI.ViewModels;
+
 namespace NutriTrack.MAUI.Views
 {
     public partial class PanelPrincipalPage : ContentPage
     {
-        public PanelPrincipalPage()
+        private readonly PanelPrincipalViewModel _vm;
+
+        public PanelPrincipalPage(PanelPrincipalViewModel vm)
         {
             InitializeComponent();
+            BindingContext = _vm = vm; // conecta la View con su ViewModel
         }
 
-        // Provosira en la Fase 1 esto también va a cerrar la sesion real
-        private async void OnCerrarSesionClicked(object? sender, EventArgs e)
+        // Shell reutiliza la página: se recarga cada vez que aparece
+        protected override void OnAppearing()
         {
-            await Shell.Current.GoToAsync("//login");
+            base.OnAppearing();
+            _vm.CargarCommand.Execute(null);
         }
     }
 }

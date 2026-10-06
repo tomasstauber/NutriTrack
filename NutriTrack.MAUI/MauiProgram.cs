@@ -36,9 +36,11 @@ namespace NutriTrack.MAUI
 
             // Servicios que hablan con la API
             builder.Services.AddTransient<IAuthService, AuthService>();
+            builder.Services.AddTransient<IAnimalService, AnimalService>();
 
             // ViewModels
             builder.Services.AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<PanelPrincipalViewModel>();
 
             // Navegación y pantallas
             builder.Services.AddTransient<LoginPage>();
