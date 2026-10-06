@@ -1,4 +1,5 @@
-﻿using NutriTrack.MAUI.Services;
+﻿using NutriTrack.MAUI.Helpers;
+using NutriTrack.MAUI.Services;
 using NutriTrack.MAUI.Views;
 
 namespace NutriTrack.MAUI
@@ -11,8 +12,9 @@ namespace NutriTrack.MAUI
         {
             InitializeComponent();
 
-            // Pantallas secundarias: se navega con "ruta" (se apilan sobre la actual)
-            Routing.RegisterRoute("ingredientes", typeof(IngredientesPage));
+            // Pantallas de los módulos: se navega con "ruta" (se apilan sobre la actual)
+            // y aparecen en el menú del panel según el rol de la sesión
+            MenuModulos.RegistrarRuta<IngredientesPage>(MenuModulos.Ingredientes);
 
             _sesionService = sesionService;
             _sesionService.SesionExpirada += OnSesionExpirada;

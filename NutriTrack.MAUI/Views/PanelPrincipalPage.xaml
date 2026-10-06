@@ -8,19 +8,6 @@
              Title="Panel Principal"
              BackgroundColor="{StaticResource Fondo}">
 
-    <!-- PROVISORIA: el diseño real se hace en la Fase 2 -->
-    <VerticalStackLayout Spacing="16" VerticalOptions="Center" HorizontalOptions="Center">
-        <Label Text="Panel principal (en construcción)"
-               TextColor="{StaticResource TextoSecundario}"
-               HorizontalOptions="Center" />
-        <!-- Menú: Asesor técnico y Administrador -->
-        <Button x:Name="BotonIngredientes"
-                Text="Ingredientes"
-                Clicked="OnIngredientesClicked" />
-        <Button Text="Cerrar sesión (prueba de navegación)"
-                Clicked="OnCerrarSesionClicked" />
-    </VerticalStackLayout>
-</ContentPage>
     <ScrollView>
         <VerticalStackLayout Spacing="16"
                              Padding="16"
