@@ -38,22 +38,56 @@ namespace NutriTrack.MAUI.ViewModels
         [ObservableProperty]
         public partial string? MensajeVacio { get; set; }
 
-        // Al borrar la búsqueda se vuelve a mostrar el catálogo completo
-        partial void OnTextoBusquedaChanged(string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                CargarCommand.Execute(null);
-        }
+        // Búsqueda en tiempo real: espera a que se deje de escribir para no
+        // mandar un pedido por cada tecla
+        private const int DemoraBusquedaMs = 400;
+        private CancellationTokenSource? _demoraBusqueda;
+
+        partial void OnTextoBusquedaChanged(string? value) => _ = BuscarConDemoraAsync();
 
         partial void OnIncluirInactivosChanged(bool value) => CargarCommand.Execute(null);
 
-        [RelayCommand]
-        private Task CargarAsync() => EjecutarAsync(async () =>
+        private async Task BuscarConDemoraAsync()
         {
-            var busqueda = TextoBusqueda?.Trim();
+            // Cada tecla cancela la espera anterior: solo busca el último texto
+            _demoraBusqueda?.Cancel();
+            var demora = _demoraBusqueda = new CancellationTokenSource();
 
-            // Los otros roles nunca mandan incluirInactivos: el back les responde 403
-            var resultado = await _medicamentoService.ListarAsync(busqueda, EsAdministrador && IncluirInactivos);
+            try
+            {
+                await Task.Delay(DemoraBusquedaMs, demora.Token);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+
+            await CargarCommand.ExecuteAsync(null);
+        }
+
+        [RelayCommand]
+        private async Task CargarAsync()
+        {
+            string? busqueda;
+            bool incluirInactivos;
+
+            // Si mientras se esperaba la respuesta cambió el texto o el filtro
+            // (EjecutarAsync ignora los pedidos que llegan ocupado), se vuelve a cargar
+            // para que la lista siempre corresponda a lo que está escrito
+            do
+            {
+                busqueda = TextoBusqueda?.Trim();
+                // Los otros roles nunca mandan incluirInactivos: el back les responde 403
+                incluirInactivos = EsAdministrador && IncluirInactivos;
+
+                await ListarAsync(busqueda, incluirInactivos);
+            }
+            while (busqueda != TextoBusqueda?.Trim() || incluirInactivos != (EsAdministrador && IncluirInactivos));
+        }
+
+        private Task ListarAsync(string? busqueda, bool incluirInactivos) => EjecutarAsync(async () =>
+        {
+            var resultado = await _medicamentoService.ListarAsync(busqueda, incluirInactivos);
 
             Medicamentos.Clear();
 
