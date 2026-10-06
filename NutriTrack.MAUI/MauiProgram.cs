@@ -48,11 +48,13 @@ namespace NutriTrack.MAUI
             // ViewModels
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<PanelPrincipalViewModel>();
+            builder.Services.AddTransient<AnimalesViewModel>();
 
             // Navegación y pantallas
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<PanelPrincipalPage>();
             builder.Services.AddTransient<IngredientesPage>();
+            builder.Services.AddTransient<AnimalesPage>();
             builder.Services.AddTransient<RodeosPage>();
 
 #if DEBUG

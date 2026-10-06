@@ -1,3 +1,5 @@
+using NutriTrack.MAUI.Helpers;
+
 namespace NutriTrack.MAUI.Models
 {
     // Fila del listado de GET api/Animal (en el back: AnimalListadoDTO)
@@ -12,5 +14,8 @@ namespace NutriTrack.MAUI.Models
         public bool Estado { get; set; }
         public int? RodeoId { get; set; }
         public string? RodeoNombre { get; set; }
+
+        // Caravana para mostrar (CUIG-NRO). No viene de la API: se arma acá
+        public string Caravana => CaravanaValidador.Formatear(CaravanaCuig, CaravanaNroManejo);
     }
 }
