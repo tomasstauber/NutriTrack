@@ -15,6 +15,7 @@ namespace NutriTrack.MAUI
             // Pantallas de los módulos: se navega con "ruta" (se apilan sobre la actual)
             // y aparecen en el menú del panel según el rol de la sesión
             MenuModulos.RegistrarRuta<IngredientesPage>(MenuModulos.Ingredientes);
+            MenuModulos.RegistrarRuta<RodeosPage>(MenuModulos.Rodeos);
 
             _sesionService = sesionService;
             _sesionService.SesionExpirada += OnSesionExpirada;
