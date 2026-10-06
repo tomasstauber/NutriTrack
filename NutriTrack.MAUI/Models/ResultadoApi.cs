@@ -15,6 +15,10 @@ namespace NutriTrack.MAUI.Models
         public static ResultadoApi<T> Ok(T? datos) =>
             new() { Exito = true, Datos = datos };
 
+        // Igual que Ok, pero guarda el código HTTP de la respuesta (200, 204...)
+        public static ResultadoApi<T> Ok(T? datos, HttpStatusCode codigo) =>
+            new() { Exito = true, Datos = datos, CodigoEstado = codigo };
+
         public static ResultadoApi<T> Error(string mensaje, HttpStatusCode? codigo = null) =>
             new() { Exito = false, MensajeError = mensaje, CodigoEstado = codigo };
     }
