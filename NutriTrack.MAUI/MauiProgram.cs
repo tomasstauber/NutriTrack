@@ -34,6 +34,11 @@ namespace NutriTrack.MAUI
             })
             .AddHttpMessageHandler<AuthHeaderHandler>();
 
+            // Servicios de la API
+            builder.Services.AddTransient<IIngredienteService, IngredienteService>();
+
+            // ViewModels
+            builder.Services.AddTransient<IngredientesViewModel>();
             // Servicios que hablan con la API
             builder.Services.AddTransient<IAuthService, AuthService>();
             builder.Services.AddTransient<IAnimalService, AnimalService>();
@@ -45,6 +50,7 @@ namespace NutriTrack.MAUI
             // Navegación y pantallas
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<PanelPrincipalPage>();
+            builder.Services.AddTransient<IngredientesPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

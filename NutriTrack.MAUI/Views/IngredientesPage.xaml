@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.IngredientesPage"
+             x:DataType="vm:IngredientesViewModel"
+             Title="Ingredientes"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Padding="16">
+
+        <!-- Búsqueda y alta -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <SearchBar Grid.Column="0"
+                       Placeholder="Buscar por nombre"
+                       Text="{Binding TextoBusqueda}" />
+            <Button Grid.Column="1"
+                    Text="Nuevo ingrediente"
+                    Command="{Binding NuevoIngredienteCommand}" />
+        </Grid>
+
+        <!-- Errores de la API -->
+        <Label Grid.Row="1"
+               Text="{Binding MensajeError}"
+               IsVisible="{Binding HayError}"
+               TextColor="{StaticResource Peligro}" />
+
+        <ActivityIndicator Grid.Row="2"
+                           IsRunning="{Binding EstaOcupado}"
+                           IsVisible="{Binding EstaOcupado}"
+                           VerticalOptions="Center" />
+
+        <!-- Tabla: con scroll horizontal para que entren todas las columnas en pantallas chicas -->
+        <ScrollView Grid.Row="2"
+                    Orientation="Horizontal"
+                    IsVisible="{Binding NoEstaOcupado}">
+            <CollectionView ItemsSource="{Binding Ingredientes}"
+                            EmptyView="{Binding MensajeVacio}"
+                            WidthRequest="1140">
+
+                <CollectionView.Header>
+                    <Grid ColumnDefinitions="160,220,160,110,110,110,90,180"
+                          ColumnSpacing="8"
+                          Padding="8"
+                          BackgroundColor="{StaticResource Superficie}">
+                        <Label Grid.Column="0" Text="Nombre" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="1" Text="Descripción" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="2" Text="Minerales" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="3" Text="Energía metabolizable" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="4" Text="Proteína bruta" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="5" Text="Fibra detergente neutro" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="6" Text="Unidad de medida" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="7" Text="Aditivos" Style="{StaticResource Encabezado}" />
+                    </Grid>
+                </CollectionView.Header>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Ingrediente">
+                        <Grid RowDefinitions="*,Auto">
+                            <Grid ColumnDefinitions="160,220,160,110,110,110,90,180"
+                                  ColumnSpacing="8"
+                                  Padding="8">
+                                <Label Grid.Column="0" Text="{Binding NombreIngrediente}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="1" Text="{Binding Descripcion, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="2" Text="{Binding Minerales, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="3" Text="{Binding EnergiaMetabolizable, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="4" Text="{Binding ProteinaBruta, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="5" Text="{Binding FibraDetergenteNeutro, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="6" Text="{Binding UnidadMedida, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="7" Text="{Binding Aditivos, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                            </Grid>
+                            <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </Grid>
+</ContentPage>
