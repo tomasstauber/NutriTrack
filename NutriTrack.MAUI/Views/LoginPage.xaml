@@ -1,21 +1,58 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
              x:Class="NutriTrack.MAUI.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
              Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource Fondo}">
 
-    <!-- Esto es tipo provisorio para probar el diseño real se hace en la Fase 1 -->
-    <VerticalStackLayout Spacing="16" VerticalOptions="Center" HorizontalOptions="Center">
-        <Label Text="NutriTrack"
-               FontSize="32"
-               FontAttributes="Bold"
-               TextColor="{StaticResource TextoPrincipal}"
-               HorizontalOptions="Center" />
-        <Label Text="Pantalla de login (en construcción)"
-               TextColor="{StaticResource TextoSecundario}"
-               HorizontalOptions="Center" />
-        <Button Text="Entrar (prueba de navegación)"
-                Clicked="OnEntrarClicked" />
-    </VerticalStackLayout>
+    <ScrollView>
+        <Border BackgroundColor="{StaticResource Superficie}"
+                Stroke="{StaticResource Borde}"
+                StrokeShape="RoundRectangle 12"
+                Padding="24"
+                Margin="16"
+                MaximumWidthRequest="400"
+                VerticalOptions="Center">
+
+            <VerticalStackLayout Spacing="12">
+                <Label Text="NutriTrack"
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource Primary}"
+                       HorizontalOptions="Center" />
+                <Label Text="Iniciá sesión para continuar"
+                       TextColor="{StaticResource TextoSecundario}"
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,12" />
+
+                <Label Text="Usuario"
+                       TextColor="{StaticResource TextoPrincipal}" />
+                <Entry Text="{Binding NombreUsuario}"
+                       Placeholder="Nombre de usuario"
+                       Keyboard="Plain"
+                       IsSpellCheckEnabled="False"
+                       IsTextPredictionEnabled="False" />
+
+                <Label Text="Contraseña"
+                       TextColor="{StaticResource TextoPrincipal}" />
+                <Entry Text="{Binding Contrasenia}"
+                       Placeholder="Contraseña"
+                       IsPassword="True" />
+
+                <Label Text="{Binding MensajeError}"
+                       IsVisible="{Binding HayError}"
+                       TextColor="{StaticResource Peligro}" />
+
+                <Button Text="Ingresar"
+                        Command="{Binding IngresarCommand}"
+                        Margin="0,8,0,0" />
+
+                <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                                   IsVisible="{Binding EstaOcupado}"
+                                   Color="{StaticResource Primary}" />
+            </VerticalStackLayout>
+        </Border>
+    </ScrollView>
 </ContentPage>

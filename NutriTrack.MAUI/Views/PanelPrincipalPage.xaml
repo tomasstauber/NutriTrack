@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
              x:Class="NutriTrack.MAUI.Views.PanelPrincipalPage"
+             x:DataType="vm:PanelPrincipalViewModel"
              Title="Panel Principal"
              BackgroundColor="{StaticResource Fondo}">
 
@@ -17,4 +20,99 @@
         <Button Text="Cerrar sesión (prueba de navegación)"
                 Clicked="OnCerrarSesionClicked" />
     </VerticalStackLayout>
+</ContentPage>
+    <ScrollView>
+        <VerticalStackLayout Spacing="16"
+                             Padding="16"
+                             MaximumWidthRequest="600">
+
+            <!-- Usuario de la sesión y cerrar sesión -->
+            <Border BackgroundColor="{StaticResource Superficie}"
+                    Stroke="{StaticResource Borde}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <Label Text="{Binding NombreUsuario}"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextoPrincipal}" />
+                        <Label Text="{Binding Rol}"
+                               TextColor="{StaticResource TextoSecundario}" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="1"
+                            Text="Cerrar sesión"
+                            Command="{Binding CerrarSesionCommand}"
+                            VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Tarjeta de animales -->
+            <Border BackgroundColor="{StaticResource Superficie}"
+                    Stroke="{StaticResource Borde}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding IrAAnimalesCommand}" />
+                </Border.GestureRecognizers>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Animales"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextoPrincipal}" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding AnimalesActivos, TargetNullValue='—'}"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Primary}" />
+                            <Label Text="Activos"
+                                   TextColor="{StaticResource TextoSecundario}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1"
+                                             IsVisible="{Binding MostrarRegistrados}">
+                            <Label Text="{Binding AnimalesRegistrados}"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource TextoPrincipal}" />
+                            <Label Text="Registrados"
+                                   TextColor="{StaticResource TextoSecundario}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                                       IsVisible="{Binding EstaOcupado}"
+                                       Color="{StaticResource Primary}" />
+
+                    <Label Text="{Binding MensajeError}"
+                           IsVisible="{Binding HayError}"
+                           TextColor="{StaticResource Peligro}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Menú armado según el rol de la sesión -->
+            <Label Text="Menú"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextoPrincipal}" />
+
+            <VerticalStackLayout Spacing="8"
+                                 BindableLayout.ItemsSource="{Binding EntradasMenu}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:EntradaMenu">
+                        <Button Text="{Binding Titulo}"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PanelPrincipalViewModel}}, Path=NavegarCommand}"
+                                CommandParameter="{Binding .}" />
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+                <BindableLayout.EmptyView>
+                    <Label Text="Todavía no hay módulos disponibles para tu rol."
+                           TextColor="{StaticResource TextoSecundario}" />
+                </BindableLayout.EmptyView>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

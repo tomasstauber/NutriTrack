@@ -46,6 +46,36 @@ namespace NutriTrack.MAUI.Services
         protected Task<ResultadoApi<bool>> DeleteAsync(string url) =>
             EnviarAsync<bool>(() => Http.DeleteAsync(url), leerDatos: false);
 
+        // DELETE con cuerpo JSON (ej. EliminarRodeo): HttpClient.DeleteAsync no acepta cuerpo
+        protected Task<ResultadoApi<bool>> DeleteAsync(string url, object cuerpo) =>
+            EnviarAsync<bool>(() => EnviarConCuerpoAsync(HttpMethod.Delete, url, cuerpo), leerDatos: false);
+
+        //PATCH que devuelve datos (con T = string lee el texto plano del back)
+
+        protected Task<ResultadoApi<T>> PatchAsync<T>(string url) =>
+            EnviarAsync<T>(() => Http.PatchAsync(url, null), leerDatos: true);
+
+        protected Task<ResultadoApi<T>> PatchAsync<T>(string url, object cuerpo) =>
+            EnviarAsync<T>(() => Http.PatchAsJsonAsync(url, cuerpo, OpcionesJson), leerDatos: true);
+
+        //PATCH donde solo importa si salio todo bien (no se lee la respuesta)
+
+        protected Task<ResultadoApi<bool>> PatchSinRespuestaAsync(string url) =>
+            EnviarAsync<bool>(() => Http.PatchAsync(url, null), leerDatos: false);
+
+        protected Task<ResultadoApi<bool>> PatchSinRespuestaAsync(string url, object cuerpo) =>
+            EnviarAsync<bool>(() => Http.PatchAsJsonAsync(url, cuerpo, OpcionesJson), leerDatos: false);
+
+        // Arma el pedido a mano para los verbos que HttpClient no deja mandar con cuerpo
+        private async Task<HttpResponseMessage> EnviarConCuerpoAsync(HttpMethod metodo, string url, object cuerpo)
+        {
+            using var pedido = new HttpRequestMessage(metodo, url)
+            {
+                Content = JsonContent.Create(cuerpo, cuerpo.GetType(), options: OpcionesJson)
+            };
+            return await Http.SendAsync(pedido);
+        }
+
         //Es uun solo lugar que maneja todos los casos 
 
         private async Task<ResultadoApi<T>> EnviarAsync<T>(
@@ -62,17 +92,17 @@ namespace NutriTrack.MAUI.Services
                 }
 
                 if (!leerDatos)
-                    return ResultadoApi<T>.Ok(default);
+                    return ResultadoApi<T>.Ok(default, respuesta.StatusCode);
 
                 // Algunos endpoints devuelven un texto plano en vez de JSON
                 if (typeof(T) == typeof(string))
                 {
                     var texto = await respuesta.Content.ReadAsStringAsync();
-                    return ResultadoApi<T>.Ok((T)(object)texto);
+                    return ResultadoApi<T>.Ok((T)(object)texto, respuesta.StatusCode);
                 }
 
                 var datos = await respuesta.Content.ReadFromJsonAsync<T>(OpcionesJson);
-                return ResultadoApi<T>.Ok(datos);
+                return ResultadoApi<T>.Ok(datos, respuesta.StatusCode);
             }
             catch (TaskCanceledException)
             {
@@ -96,6 +126,10 @@ namespace NutriTrack.MAUI.Services
         {
             // Errores 500: nunca mostramos el detalle interno del servidor
             if ((int)respuesta.StatusCode >= 500)
+                return MensajePorDefecto(respuesta.StatusCode);
+
+            // 403: el back hace Forbid() sin cuerpo; el mensaje es siempre el mismo
+            if (respuesta.StatusCode == HttpStatusCode.Forbidden)
                 return MensajePorDefecto(respuesta.StatusCode);
 
             var contenido = (await respuesta.Content.ReadAsStringAsync()).Trim();
@@ -129,8 +163,9 @@ namespace NutriTrack.MAUI.Services
         {
             HttpStatusCode.BadRequest => "Los datos enviados no son válidos.",
             HttpStatusCode.Unauthorized => "Tu sesión expiró. Volvé a iniciar sesión.",
-            HttpStatusCode.Forbidden => "No tenés permisos para realizar esta acción.",
+            HttpStatusCode.Forbidden => "Tu rol no tiene permiso para esta acción",
             HttpStatusCode.NotFound => "No se encontró lo que buscabas.",
+            HttpStatusCode.Conflict => "La operación no se puede realizar en el estado actual.",
             _ when (int)codigo >= 500 => "Ocurrió un error en el servidor. Intentá de nuevo más tarde.",
             _ => "Ocurrió un error inesperado."
         };
