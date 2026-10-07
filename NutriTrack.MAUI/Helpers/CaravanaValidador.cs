@@ -28,5 +28,21 @@ namespace NutriTrack.MAUI.Helpers
         {
             return $"{cuig}-{nroManejo}";
         }
+
+        // Lo inverso de Formatear: separa "CUIG-NRO" (como llegan madre y padre en la ficha).
+        // Las partes no llevan guion: solo es válido con exactamente dos partes y las dos con formato válido
+        public static bool IntentarSeparar(string? texto, out string cuig, out string nroManejo)
+        {
+            cuig = string.Empty;
+            nroManejo = string.Empty;
+
+            var partes = texto?.Split('-');
+            if (partes is not { Length: 2 } || !EsValida(partes[0], partes[1]))
+                return false;
+
+            cuig = partes[0];
+            nroManejo = partes[1];
+            return true;
+        }
     }
 }

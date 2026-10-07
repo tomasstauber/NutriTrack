@@ -159,11 +159,19 @@ namespace NutriTrack.MAUI.ViewModels
             HistorialVacio = Eventos.Count == 0;
         }
 
+        // Formulario de edición con la caravana del animal: precarga la ficha solo.
+        // Al volver, el perfil se recarga (OnAppearing) y muestra los datos nuevos
         [RelayCommand]
-        private async Task EditarAsync()
+        private Task EditarAsync()
         {
-            // TODO #105: cuando exista la edición, navegar al formulario con la caravana del animal
-            await Shell.Current.DisplayAlertAsync("Editar animal", "Pantalla en construcción", "Aceptar");
+            if (Ficha is null)
+                return Task.CompletedTask;
+
+            return Shell.Current.GoToAsync(EditarAnimalViewModel.Ruta, new Dictionary<string, object>
+            {
+                ["caravanaCuig"] = Ficha.CaravanaCuig,
+                ["caravanaNroManejo"] = Ficha.CaravanaNroManejo
+            });
         }
 
         // Pantalla de peso con la caravana precargada: busca el animal sola

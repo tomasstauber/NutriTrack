@@ -23,6 +23,7 @@ namespace NutriTrack.MAUI
             MenuModulos.RegistrarRuta<AnimalesPage>(MenuModulos.Animales);
             Routing.RegisterRoute(AgregarAnimalViewModel.Ruta, typeof(AgregarAnimalPage));
             Routing.RegisterRoute(PerfilAnimalViewModel.Ruta, typeof(PerfilAnimalPage));
+            Routing.RegisterRoute(EditarAnimalViewModel.Ruta, typeof(EditarAnimalPage));
             MenuModulos.RegistrarRuta<RodeosPage>(MenuModulos.Rodeos);
             Routing.RegisterRoute(CrearRodeoViewModel.Ruta, typeof(CrearRodeoPage));
             MenuModulos.RegistrarRuta<UsuariosPage>(MenuModulos.Usuarios);

@@ -1,4 +1,3 @@
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NutriTrack.MAUI.Helpers;
@@ -13,8 +12,6 @@ namespace NutriTrack.MAUI.ViewModels
     {
         // Ruta de Shell del formulario (se registra en AppShell.xaml.cs)
         public const string Ruta = "agregarAnimal";
-
-        private const decimal PesoMaximoKg = 100;
 
         private readonly IAnimalService _animalService;
 
@@ -61,7 +58,7 @@ namespace NutriTrack.MAUI.ViewModels
         public partial string? NroManejoPadre { get; set; }
 
         // Opciones del Picker: viajan tal cual como texto
-        public IReadOnlyList<string> Sexos { get; } = ["Macho", "Hembra"];
+        public IReadOnlyList<string> Sexos { get; } = AnimalValidador.Sexos;
 
         // R2: no se puede elegir una fecha posterior a hoy
         public DateTime Hoy => DateTime.Today;
@@ -112,16 +109,17 @@ namespace NutriTrack.MAUI.ViewModels
 
             // El back guarda la caravana tal cual llega y distingue mayúsculas:
             // se recorta y se pasa a mayúsculas antes de validar y enviar
-            var cuig = NormalizarCaravana(Cuig);
-            var nroManejo = NormalizarCaravana(NroManejo);
-            var cuigMadre = NormalizarCaravana(CuigMadre);
-            var nroManejoMadre = NormalizarCaravana(NroManejoMadre);
-            var cuigPadre = NormalizarCaravana(CuigPadre);
-            var nroManejoPadre = NormalizarCaravana(NroManejoPadre);
+            var cuig = AnimalValidador.NormalizarCaravana(Cuig);
+            var nroManejo = AnimalValidador.NormalizarCaravana(NroManejo);
+            var cuigMadre = AnimalValidador.NormalizarCaravana(CuigMadre);
+            var nroManejoMadre = AnimalValidador.NormalizarCaravana(NroManejoMadre);
+            var cuigPadre = AnimalValidador.NormalizarCaravana(CuigPadre);
+            var nroManejoPadre = AnimalValidador.NormalizarCaravana(NroManejoPadre);
             var raza = Raza?.Trim();
             var colorPelaje = ColorPelaje?.Trim();
 
-            // E2: se validan todos los campos a la vez, para marcar cada uno con su error
+            // E2: se validan todos los campos a la vez, para marcar cada uno con su error.
+            // Las reglas compartidas con la edición están en AnimalValidador
 
             // R1: validador compartido de caravana
             ErrorCaravana = CaravanaValidador.EsValida(cuig, nroManejo)
@@ -130,47 +128,25 @@ namespace NutriTrack.MAUI.ViewModels
 
             // R2: fecha no posterior a hoy
             var fecha = FechaNacimiento?.Date;
-            ErrorFechaNacimiento = fecha switch
-            {
-                null => "La fecha de nacimiento es obligatoria.",
-                _ when fecha > DateTime.Today => "La fecha de nacimiento no puede ser posterior a hoy.",
-                _ => null
-            };
+            ErrorFechaNacimiento = AnimalValidador.ValidarFechaNacimiento(fecha);
 
             // R3: mayor a 0 y hasta 100 kg (acepta coma o punto decimal)
-            var pesoValido = IntentarLeerPeso(PesoAlNacer, out var pesoKg) && pesoKg > 0 && pesoKg <= PesoMaximoKg;
-            ErrorPesoAlNacer = pesoValido
-                ? null
-                : "El peso al nacer debe ser mayor a 0 y menor o igual a 100 kg.";
+            ErrorPesoAlNacer = AnimalValidador.ValidarPesoAlNacer(PesoAlNacer, out var pesoKg);
 
-            ErrorSexo = Sexos.Contains(Sexo) ? null : "El sexo es obligatorio.";
+            ErrorSexo = AnimalValidador.ValidarSexo(Sexo);
 
-            ErrorRaza = string.IsNullOrEmpty(raza) ? "La raza es obligatoria." : null;
+            ErrorRaza = AnimalValidador.ValidarRaza(raza);
 
             // R4: madre y padre completos o vacíos, con formato válido,
             // distintos del animal nuevo y distintos entre sí
-            var madreInformada = ProgenitorInformado(cuigMadre, nroManejoMadre);
-            var padreInformado = ProgenitorInformado(cuigPadre, nroManejoPadre);
+            var madreInformada = AnimalValidador.ProgenitorInformado(cuigMadre, nroManejoMadre);
+            var padreInformado = AnimalValidador.ProgenitorInformado(cuigPadre, nroManejoPadre);
 
-            ErrorMadre = null;
-            if (madreInformada)
-            {
-                ErrorMadre = ValidarProgenitor(cuigMadre, nroManejoMadre, "la madre");
-                if (ErrorMadre is null && cuigMadre == cuig && nroManejoMadre == nroManejo)
-                    ErrorMadre = "El animal no puede ser su propia madre.";
-            }
-
-            ErrorPadre = null;
-            if (padreInformado)
-            {
-                ErrorPadre = ValidarProgenitor(cuigPadre, nroManejoPadre, "el padre");
-                if (ErrorPadre is null && cuigPadre == cuig && nroManejoPadre == nroManejo)
-                    ErrorPadre = "El animal no puede ser su propio padre.";
-            }
-
-            if (madreInformada && padreInformado && ErrorMadre is null && ErrorPadre is null &&
-                cuigMadre == cuigPadre && nroManejoMadre == nroManejoPadre)
-                ErrorPadre = "La madre y el padre no pueden ser el mismo animal.";
+            AnimalValidador.ValidarProgenitores(cuig, nroManejo,
+                cuigMadre, nroManejoMadre, cuigPadre, nroManejoPadre,
+                out var errorMadre, out var errorPadre);
+            ErrorMadre = errorMadre;
+            ErrorPadre = errorPadre;
 
             // E2: Guardar no llama a la API mientras haya errores
             if (HayErrorCaravana || HayErrorFechaNacimiento || HayErrorPesoAlNacer ||
@@ -235,34 +211,5 @@ namespace NutriTrack.MAUI.ViewModels
 
         [RelayCommand]
         private Task Cancelar() => Shell.Current.GoToAsync("..");
-
-        // Recorta los espacios y pasa a mayúsculas ("  ar001" -> "AR001")
-        private static string NormalizarCaravana(string? parte) =>
-            parte?.Trim().ToUpperInvariant() ?? string.Empty;
-
-        // Misma regla que el back (CaravanaHelper.ProgenitorInformado), pero ya recortado:
-        // un espacio en blanco no cuenta como informado
-        private static bool ProgenitorInformado(string cuig, string nroManejo) =>
-            !string.IsNullOrEmpty(cuig) || !string.IsNullOrEmpty(nroManejo);
-
-        // Mismos mensajes que el back (CaravanaHelper.ErrorProgenitor)
-        private static string? ValidarProgenitor(string cuig, string nroManejo, string rol)
-        {
-            if (string.IsNullOrEmpty(cuig) || string.IsNullOrEmpty(nroManejo))
-                return $"La caravana de {rol} está incompleta: informe el CUIG y el número de manejo.";
-
-            if (!CaravanaValidador.EsValida(cuig, nroManejo))
-                return $"Formato de caravana de {rol} inválido (cada parte alfanumérica, hasta 5 caracteres).";
-
-            return null;
-        }
-
-        // Acepta coma o punto decimal, sin depender del idioma de la computadora
-        private static bool IntentarLeerPeso(string? texto, out decimal pesoKg)
-        {
-            var normalizado = texto?.Trim().Replace(',', '.');
-            return decimal.TryParse(normalizado, NumberStyles.AllowDecimalPoint,
-                CultureInfo.InvariantCulture, out pesoKg);
-        }
     }
 }
