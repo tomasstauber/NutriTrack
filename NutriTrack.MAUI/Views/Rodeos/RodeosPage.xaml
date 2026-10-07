@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             x:Class="NutriTrack.MAUI.Views.RodeosPage"
+             x:DataType="vm:RodeosViewModel"
+             Title="Rodeos"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Padding="16">
+
+        <!-- Acciones -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="12">
+            <Button Text="Crear rodeo"
+                    Command="{Binding CrearRodeoCommand}" />
+            <Button Text="Transferir animales"
+                    Command="{Binding TransferirAnimalesCommand}" />
+        </HorizontalStackLayout>
+
+        <!-- Cargando y errores de la API -->
+        <VerticalStackLayout Grid.Row="1" Spacing="8">
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}"
+                               Color="{StaticResource Primary}" />
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+        </VerticalStackLayout>
+
+        <!-- Lista de rodeos -->
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Rodeos}"
+                        EmptyView="{Binding MensajeVacio}">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Rodeo">
+                    <Border BackgroundColor="{StaticResource Superficie}"
+                            Stroke="{StaticResource Borde}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="16">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="{Binding Nombre}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource TextoPrincipal}" />
+                                <Label Text="{Binding Descripcion}"
+                                       IsVisible="{Binding TieneDescripcion}"
+                                       TextColor="{StaticResource TextoSecundario}"
+                                       LineBreakMode="WordWrap" />
+                                <Label Text="{Binding CantidadAnimales, StringFormat='Animales: {0}'}"
+                                       TextColor="{StaticResource TextoPrincipal}" />
+                            </VerticalStackLayout>
+
+                            <Button Grid.Column="1"
+                                    Text="Eliminar"
+                                    BackgroundColor="{StaticResource Peligro}"
+                                    TextColor="White"
+                                    VerticalOptions="Center"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RodeosViewModel}}, Path=EliminarCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

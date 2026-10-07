@@ -20,6 +20,8 @@ namespace NutriTrack.MAUI
 
             // Pantallas internas de los módulos (no aparecen en el menú)
             Routing.RegisterRoute(NuevoMedicamentoViewModel.Ruta, typeof(NuevoMedicamentoPage));
+            MenuModulos.RegistrarRuta<AnimalesPage>(MenuModulos.Animales);
+            MenuModulos.RegistrarRuta<RodeosPage>(MenuModulos.Rodeos);
 
             _sesionService = sesionService;
             _sesionService.SesionExpirada += OnSesionExpirada;
