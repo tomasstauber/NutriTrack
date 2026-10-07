@@ -88,11 +88,10 @@ namespace NutriTrack.MAUI.ViewModels
             Filtrar();
         });
 
-        // Pendiente: navegar al formulario de alta cuando exista
+        // CU21: la lista se recarga al volver del formulario (UsuariosPage.OnAppearing)
         [RelayCommand]
-        private void NuevoUsuario()
-        {
-        }
+        private Task NuevoUsuario() =>
+            Shell.Current.GoToAsync(NuevoUsuarioViewModel.Ruta);
 
         // R2 y R3: filtros en memoria sobre la lista ya cargada (el endpoint no tiene parámetros)
         private void Filtrar()

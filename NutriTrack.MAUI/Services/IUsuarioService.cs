@@ -6,5 +6,8 @@ namespace NutriTrack.MAUI.Services
     {
         // Lista los usuarios activos. Solo para Administrador (si no, 403).
         Task<ResultadoApi<List<Usuario>>> ListarAsync();
+
+        // Crea un usuario. Solo para Administrador. Devuelve el usuario creado.
+        Task<ResultadoApi<Usuario>> CrearAsync(CrearUsuarioRequest pedido);
     }
 }
