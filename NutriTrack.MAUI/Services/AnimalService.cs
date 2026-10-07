@@ -68,5 +68,13 @@ namespace NutriTrack.MAUI.Services
 
         public Task<ResultadoApi<AnimalCreado>> CrearAsync(CrearAnimalRequest animal) =>
             PostAsync<AnimalCreado>("api/Animal", animal);
+
+        public Task<ResultadoApi<bool>> DesactivarAsync(string cuig, string nroManejo)
+        {
+            var url = $"api/Animal/desactivar?cuig={Uri.EscapeDataString(cuig)}" +
+                      $"&nroManejo={Uri.EscapeDataString(nroManejo)}";
+
+            return PatchSinRespuestaAsync(url);
+        }
     }
 }

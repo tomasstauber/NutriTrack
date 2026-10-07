@@ -216,21 +216,20 @@ namespace NutriTrack.MAUI.ViewModels
 
             await Shell.Current.DisplayAlertAsync("Agregar animal", "Alta exitosa", "Aceptar");
 
-            // TODO #104: cuando exista el perfil, ir al perfil del animal nuevo en lugar de la lista
-            // (reemplaza el formulario, así "volver" desde el perfil lleva a la lista).
-            // Si la respuesta no trae id, se sigue volviendo a la lista:
-            // if (creado?.Id is int id)
-            // {
-            //     await Shell.Current.GoToAsync("../perfilAnimal", new Dictionary<string, object>
-            //     {
-            //         ["id"] = id,
-            //         ["caravanaCuig"] = creado.CaravanaCuig,
-            //         ["caravanaNroManejo"] = creado.CaravanaNroManejo
-            //     });
-            //     return;
-            // }
+            // Perfil del animal nuevo: "../" reemplaza el formulario,
+            // así "volver" desde el perfil lleva a la lista (que se recarga)
+            if (creado?.Id is int id)
+            {
+                await Shell.Current.GoToAsync($"../{PerfilAnimalViewModel.Ruta}", new Dictionary<string, object>
+                {
+                    ["id"] = id,
+                    ["caravanaCuig"] = creado.CaravanaCuig,
+                    ["caravanaNroManejo"] = creado.CaravanaNroManejo
+                });
+                return;
+            }
 
-            // La lista se recarga al volver y muestra el animal nuevo
+            // Si la respuesta no trae id, se vuelve a la lista, que se recarga y muestra el animal nuevo
             await Shell.Current.GoToAsync("..");
         }
 
