@@ -49,6 +49,8 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<PanelPrincipalViewModel>();
             builder.Services.AddTransient<AnimalesViewModel>();
+            // Selector múltiple de animales: cada pantalla anfitriona recibe el suyo
+            builder.Services.AddTransient<SelectorAnimalesViewModel>();
 
             // Navegación y pantallas
             builder.Services.AddTransient<LoginPage>();
