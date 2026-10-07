@@ -12,12 +12,40 @@ namespace NutriTrack.MAUI.Services
         public Task<ResultadoApi<ListadoPaginado<AnimalListado>>> ListarAsync(
             int pagina = 1, int tamanioPagina = 50, bool incluirInactivos = false)
         {
+            return ListarAsync(texto: null, pagina: pagina, tamanioPagina: tamanioPagina,
+                incluirInactivos: incluirInactivos);
+        }
+
+        public Task<ResultadoApi<ListadoPaginado<AnimalListado>>> ListarAsync(
+            string? texto, int? idRodeo = null, bool sinRodeo = false,
+            bool incluirInactivos = false, int pagina = 1, int tamanioPagina = 50)
+        {
             var url = $"api/Animal?pagina={pagina}&tamanioPagina={tamanioPagina}";
+
+            // El back busca sobre cuig y número pegados, sin guion:
+            // "AR001-00001" (como se muestra) tiene que viajar como "AR00100001"
+            var textoBusqueda = texto?.Replace("-", string.Empty).Trim();
+            if (!string.IsNullOrEmpty(textoBusqueda))
+                url += $"&texto={Uri.EscapeDataString(textoBusqueda)}";
+
+            if (idRodeo.HasValue)
+                url += $"&idRodeo={idRodeo.Value}";
+
+            if (sinRodeo)
+                url += "&sinRodeo=true";
 
             if (incluirInactivos)
                 url += "&incluirInactivos=true";
 
             return GetAsync<ListadoPaginado<AnimalListado>>(url);
+        }
+
+        public Task<ResultadoApi<FichaAnimal>> ObtenerFichaAsync(string cuig, string nroManejo)
+        {
+            var url = $"api/ConsultaFichaIndividualAnimal?cuig={Uri.EscapeDataString(cuig)}" +
+                      $"&nroManejo={Uri.EscapeDataString(nroManejo)}";
+
+            return GetAsync<FichaAnimal>(url);
         }
     }
 }
