@@ -65,5 +65,8 @@ namespace NutriTrack.MAUI.Services
 
             return ResultadoApi<AnimalListado?>.Ok(animal);
         }
+
+        public Task<ResultadoApi<AnimalCreado>> CrearAsync(CrearAnimalRequest animal) =>
+            PostAsync<AnimalCreado>("api/Animal", animal);
     }
 }

@@ -150,12 +150,7 @@ namespace NutriTrack.MAUI.ViewModels
         }
 
         [RelayCommand]
-        private async Task AgregarAnimalAsync()
-        {
-            // TODO #102: cuando exista el alta, navegar al formulario:
-            // await Shell.Current.GoToAsync("agregarAnimal");
-            await Shell.Current.DisplayAlertAsync("Agregar animal", "Pantalla en construcción", "Aceptar");
-        }
+        private Task AgregarAnimalAsync() => Shell.Current.GoToAsync(AgregarAnimalViewModel.Ruta);
 
         private void ActualizarEstado()
         {
