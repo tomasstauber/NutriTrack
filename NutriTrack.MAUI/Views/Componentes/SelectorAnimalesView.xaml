@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Selector múltiple de animales (#101). Componente, no una página.
+     La pantalla anfitriona le pasa su ViewModel:
+     <views:SelectorAnimalesView BindingContext="{Binding Selector}" />
+     Ponerlo en una fila de Grid con alto "*", no dentro de un ScrollView. -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.SelectorAnimalesView"
+             x:DataType="vm:SelectorAnimalesViewModel">
+
+    <ContentView.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentView.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="8">
+
+        <!-- Búsqueda contra el servidor: busca sola mientras se escribe -->
+        <SearchBar Grid.Row="0"
+                   Placeholder="Buscar por caravana"
+                   Text="{Binding TextoBusqueda}" />
+
+        <!-- "N seleccionados" y limpiar -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <Label Grid.Column="0"
+                   Text="{Binding TextoSeleccionados}"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextoPrincipal}"
+                   VerticalOptions="Center" />
+            <Button Grid.Column="1"
+                    Text="Limpiar"
+                    Command="{Binding LimpiarSeleccionCommand}" />
+        </Grid>
+
+        <!-- Error de carga y reintentar -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,Auto"
+              ColumnSpacing="12"
+              IsVisible="{Binding HayError}">
+            <Label Grid.Column="0"
+                   Text="{Binding MensajeError}"
+                   TextColor="{StaticResource Peligro}"
+                   VerticalOptions="Center" />
+            <Button Grid.Column="1"
+                    Text="Reintentar"
+                    Command="{Binding ReintentarCommand}" />
+        </Grid>
+
+        <!-- Lista: se marca o desmarca tocando la fila -->
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding Animales}"
+                        EmptyView="{Binding MensajeVacio}">
+
+            <CollectionView.Header>
+                <Grid ColumnDefinitions="40,2*,2*,*,2*"
+                      ColumnSpacing="8"
+                      Padding="8"
+                      BackgroundColor="{StaticResource Superficie}">
+                    <Label Grid.Column="1" Text="Caravana" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="2" Text="Raza" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="3" Text="Sexo" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="4" Text="Rodeo" Style="{StaticResource Encabezado}" />
+                </Grid>
+            </CollectionView.Header>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:AnimalSeleccionable">
+                    <Grid RowDefinitions="*,Auto">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SelectorAnimalesViewModel}}, Path=AlternarSeleccionCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Grid.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="40,2*,2*,*,2*"
+                              ColumnSpacing="8"
+                              Padding="8">
+                            <!-- Solo muestra la marca: el toque lo maneja la fila,
+                                 así el CheckBox no puede quedar distinto de la selección -->
+                            <CheckBox Grid.Column="0"
+                                      IsChecked="{Binding Seleccionado, Mode=OneWay}"
+                                      InputTransparent="True"
+                                      VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding Animal.Caravana}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="2" Text="{Binding Animal.Raza, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="3" Text="{Binding Animal.Sexo}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="4" Text="{Binding Animal.RodeoNombre, TargetNullValue='Sin rodeo'}" Style="{StaticResource Celda}" />
+                        </Grid>
+                        <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Carga y paginado -->
+        <Grid Grid.Row="4" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <ActivityIndicator Grid.Column="0"
+                               IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}"
+                               HorizontalOptions="Start" />
+            <Button Grid.Column="1"
+                    Text="Cargar más"
+                    IsVisible="{Binding HayMas}"
+                    IsEnabled="{Binding NoEstaOcupado}"
+                    Command="{Binding CargarMasCommand}" />
+        </Grid>
+    </Grid>
+</ContentView>
