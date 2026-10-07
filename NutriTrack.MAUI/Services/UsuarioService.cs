@@ -11,5 +11,8 @@ namespace NutriTrack.MAUI.Services
 
         public Task<ResultadoApi<List<Usuario>>> ListarAsync() =>
             GetAsync<List<Usuario>>("api/Usuario");
+
+        public Task<ResultadoApi<Usuario>> CrearAsync(CrearUsuarioRequest pedido) =>
+            PostAsync<Usuario>("api/Usuario", pedido);
     }
 }
