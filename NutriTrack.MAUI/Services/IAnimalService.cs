@@ -23,5 +23,9 @@ namespace NutriTrack.MAUI.Services
         // su id (la ficha no lo trae) y la caravana tal como está guardada.
         // Datos es null si no hay ninguno.
         Task<ResultadoApi<AnimalListado?>> BuscarActivoPorCaravanaAsync(string cuig, string nroManejo);
+
+        // POST api/Animal: alta de un animal. Devuelve el id y la caravana del animal creado.
+        // Los errores de negocio llegan como texto (409 caravana duplicada, 400 el resto).
+        Task<ResultadoApi<AnimalCreado>> CrearAsync(CrearAnimalRequest animal);
     }
 }
