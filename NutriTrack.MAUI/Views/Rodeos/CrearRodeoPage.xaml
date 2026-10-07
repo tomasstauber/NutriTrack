@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:views="clr-namespace:NutriTrack.MAUI.Views"
+             x:Class="NutriTrack.MAUI.Views.CrearRodeoPage"
+             x:DataType="vm:CrearRodeoViewModel"
+             Title="Crear rodeo"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <!-- Error de un campo, debajo del campo -->
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Sin ScrollView: el selector va en la fila "*" y tiene su propia lista -->
+    <Grid RowDefinitions="Auto,Auto,*,Auto"
+          RowSpacing="12"
+          Padding="16"
+          MaximumWidthRequest="800">
+
+        <!-- Datos del rodeo -->
+        <VerticalStackLayout Grid.Row="0" Spacing="8">
+            <Label Text="Nombre *" Style="{StaticResource Etiqueta}" />
+            <Entry Text="{Binding Nombre}"
+                   Placeholder="Ej. Rodeo Norte"
+                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Label Text="{Binding ErrorNombre}"
+                   IsVisible="{Binding HayErrorNombre}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Descripción" Style="{StaticResource Etiqueta}" />
+            <Entry Text="{Binding Descripcion}"
+                   Placeholder="Opcional"
+                   IsEnabled="{Binding NoEstaOcupado}" />
+        </VerticalStackLayout>
+
+        <!-- Animales: solo los activos sin rodeo -->
+        <VerticalStackLayout Grid.Row="1" Spacing="4">
+            <Label Text="Animales * (al menos dos)" Style="{StaticResource Etiqueta}" />
+            <Label Text="{Binding ErrorAnimales}"
+                   IsVisible="{Binding HayErrorAnimales}"
+                   Style="{StaticResource ErrorCampo}" />
+        </VerticalStackLayout>
+
+        <views:SelectorAnimalesView Grid.Row="2"
+                                    BindingContext="{Binding Selector}" />
+
+        <VerticalStackLayout Grid.Row="3" Spacing="8">
+            <!-- Errores de la API (nombre duplicado, animal no disponible...) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Button Text="Guardar"
+                        Command="{Binding GuardarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

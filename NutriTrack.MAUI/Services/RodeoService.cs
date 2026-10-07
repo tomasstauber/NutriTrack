@@ -17,5 +17,8 @@ namespace NutriTrack.MAUI.Services
 
         public Task<ResultadoApi<bool>> EliminarAsync(int idRodeo) =>
             DeleteAsync($"api/EliminarRodeo/{idRodeo}", new EliminarRodeoRequest { Confirmar = true });
+
+        public Task<ResultadoApi<RodeoResponse>> CrearAsync(CrearRodeoRequest rodeo) =>
+            PostAsync<RodeoResponse>("api/Rodeo", rodeo);
     }
 }
