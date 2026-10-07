@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             x:Class="NutriTrack.MAUI.Views.UsuariosPage"
+             x:DataType="vm:UsuariosViewModel"
+             Title="Usuarios"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="12" Padding="16">
+
+        <!-- Búsqueda y alta -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <SearchBar Grid.Column="0"
+                       Placeholder="Buscar por nombre, nombre de usuario o correo"
+                       Text="{Binding TextoBusqueda}" />
+            <Button Grid.Column="1"
+                    Text="Nuevo usuario"
+                    Command="{Binding NuevoUsuarioCommand}" />
+        </Grid>
+
+        <!-- Filtro por rol -->
+        <Picker Grid.Row="1"
+                Title="Rol"
+                ItemsSource="{Binding OpcionesRol}"
+                ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionRol}"
+                SelectedItem="{Binding RolSeleccionado}" />
+
+        <!-- Errores de la API y reintentar -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,Auto"
+              ColumnSpacing="12"
+              IsVisible="{Binding HayError}">
+            <Label Grid.Column="0"
+                   Text="{Binding MensajeError}"
+                   TextColor="{StaticResource Peligro}"
+                   VerticalOptions="Center" />
+            <Button Grid.Column="1"
+                    Text="Reintentar"
+                    IsVisible="{Binding PuedeReintentar}"
+                    Command="{Binding CargarCommand}" />
+        </Grid>
+
+        <ActivityIndicator Grid.Row="3"
+                           IsRunning="{Binding EstaOcupado}"
+                           IsVisible="{Binding EstaOcupado}"
+                           Color="{StaticResource Primary}"
+                           VerticalOptions="Center" />
+
+        <!-- Tabla (S1) -->
+        <CollectionView Grid.Row="3"
+                        ItemsSource="{Binding Usuarios}"
+                        EmptyView="{Binding MensajeVacio}"
+                        IsVisible="{Binding NoEstaOcupado}">
+
+            <CollectionView.Header>
+                <Grid ColumnDefinitions="*,*,2*,*"
+                      ColumnSpacing="8"
+                      Padding="8"
+                      BackgroundColor="{StaticResource Superficie}">
+                    <Label Grid.Column="0" Text="Nombre" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="1" Text="Nombre de usuario" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="2" Text="Correo" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="3" Text="Rol" Style="{StaticResource Encabezado}" />
+                </Grid>
+            </CollectionView.Header>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Usuario">
+                    <Grid RowDefinitions="*,Auto">
+                        <Grid ColumnDefinitions="*,*,2*,*"
+                              ColumnSpacing="8"
+                              Padding="8">
+                            <Label Grid.Column="0" Text="{Binding Nombre}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="1" Text="{Binding NombreUsuario}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="2" Text="{Binding Correo}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="3" Text="{Binding RolTexto}" Style="{StaticResource Celda}" />
+                        </Grid>
+                        <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Total de usuarios (S2) -->
+        <Label Grid.Row="4"
+               Text="{Binding TextoTotal}"
+               TextColor="{StaticResource TextoSecundario}" />
+    </Grid>
+</ContentPage>
