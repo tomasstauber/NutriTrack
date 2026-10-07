@@ -1,0 +1,10 @@
+using NutriTrack.MAUI.Models;
+
+namespace NutriTrack.MAUI.Services
+{
+    public interface IUsuarioService
+    {
+        // Lista los usuarios activos. Solo para Administrador (si no, 403).
+        Task<ResultadoApi<List<Usuario>>> ListarAsync();
+    }
+}
