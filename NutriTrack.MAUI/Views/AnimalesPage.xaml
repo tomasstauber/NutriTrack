@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.AnimalesPage"
+             x:DataType="vm:AnimalesViewModel"
+             Title="Animales"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12" Padding="16">
+
+        <!-- Búsqueda (contra el servidor) y alta -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+            <SearchBar Grid.Column="0"
+                       Placeholder="Buscar por caravana o raza"
+                       Text="{Binding TextoBusqueda}"
+                       SearchCommand="{Binding CargarCommand}" />
+            <!-- Botón visible para buscar (Enter también busca) -->
+            <Button Grid.Column="1"
+                    Text="Buscar"
+                    Command="{Binding CargarCommand}" />
+            <!-- Solo Encargado y Administrador -->
+            <Button Grid.Column="2"
+                    Text="Agregar animal"
+                    IsVisible="{Binding PuedeAgregar}"
+                    Command="{Binding AgregarAnimalCommand}" />
+        </Grid>
+
+        <!-- Errores de la API -->
+        <Label Grid.Row="1"
+               Text="{Binding MensajeError}"
+               IsVisible="{Binding HayError}"
+               TextColor="{StaticResource Peligro}" />
+
+        <!-- Lista -->
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Animales}"
+                        EmptyView="{Binding MensajeVacio}">
+
+            <CollectionView.Header>
+                <Grid ColumnDefinitions="2*,2*,*,2*"
+                      ColumnSpacing="8"
+                      Padding="8"
+                      BackgroundColor="{StaticResource Superficie}">
+                    <Label Grid.Column="0" Text="Caravana" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="1" Text="Raza" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="2" Text="Sexo" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="3" Text="Rodeo" Style="{StaticResource Encabezado}" />
+                </Grid>
+            </CollectionView.Header>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:AnimalListado">
+                    <Grid RowDefinitions="*,Auto">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AnimalesViewModel}}, Path=SeleccionarCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Grid.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="2*,2*,*,2*"
+                              ColumnSpacing="8"
+                              Padding="8">
+                            <Label Grid.Column="0" Text="{Binding Caravana}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="1" Text="{Binding Raza, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="2" Text="{Binding Sexo}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="3" Text="{Binding RodeoNombre, TargetNullValue='Sin rodeo'}" Style="{StaticResource Celda}" />
+                        </Grid>
+                        <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Contador y paginado -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <Label Grid.Column="0"
+                   Text="{Binding Contador}"
+                   TextColor="{StaticResource TextoSecundario}"
+                   VerticalOptions="Center" />
+            <ActivityIndicator Grid.Column="0"
+                               IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}"
+                               HorizontalOptions="End" />
+            <Button Grid.Column="1"
+                    Text="Cargar más"
+                    IsVisible="{Binding HayMas}"
+                    IsEnabled="{Binding NoEstaOcupado}"
+                    Command="{Binding CargarMasCommand}" />
+        </Grid>
+    </Grid>
+</ContentPage>
