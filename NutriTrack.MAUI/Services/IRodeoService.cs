@@ -12,5 +12,8 @@ namespace NutriTrack.MAUI.Services
 
         // Elimina el rodeo (baja lógica); sus animales quedan sin rodeo.
         Task<ResultadoApi<bool>> EliminarAsync(int idRodeo);
+
+        // Crea el rodeo con los animales indicados (deben estar activos y sin rodeo).
+        Task<ResultadoApi<RodeoResponse>> CrearAsync(CrearRodeoRequest rodeo);
     }
 }

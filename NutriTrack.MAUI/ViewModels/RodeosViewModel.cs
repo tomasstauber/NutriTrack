@@ -46,11 +46,9 @@ namespace NutriTrack.MAUI.ViewModels
             MensajeVacio = "No hay rodeos creados";
         });
 
-        // Pendiente: navegar al alta de rodeo cuando exista
+        // CU6: formulario de alta de rodeo
         [RelayCommand]
-        private void CrearRodeo()
-        {
-        }
+        private Task CrearRodeo() => Shell.Current.GoToAsync(CrearRodeoViewModel.Ruta);
 
         // Pendiente: navegar a la transferencia de animales cuando exista
         [RelayCommand]
