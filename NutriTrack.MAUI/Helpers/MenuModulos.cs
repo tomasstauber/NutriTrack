@@ -42,7 +42,7 @@ namespace NutriTrack.MAUI.Helpers
             new() { Titulo = "Evento sanitario", Ruta = EventoSanitario, Orden = 6,
                     Roles = [RolUsuario.Administrador, RolUsuario.EncargadoDeCampo, RolUsuario.AsesorTecnico] },
 
-            new() { Titulo = "Peso", Ruta = Peso, Orden = 7,
+            new() { Titulo = "Registrar peso", Ruta = Peso, Orden = 7,
                     Roles = [RolUsuario.Administrador, RolUsuario.EncargadoDeCampo] },
 
             new() { Titulo = "Usuarios", Ruta = Usuarios, Orden = 8,

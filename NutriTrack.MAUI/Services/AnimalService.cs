@@ -47,5 +47,23 @@ namespace NutriTrack.MAUI.Services
 
             return GetAsync<FichaAnimal>(url);
         }
+
+        public async Task<ResultadoApi<AnimalListado?>> BuscarActivoPorCaravanaAsync(string cuig, string nroManejo)
+        {
+            // texto busca en forma parcial (ILIKE): puede traer otras caravanas parecidas,
+            // así que se queda con la que coincide completa, sin distinguir mayúsculas
+            // ("ar001" encuentra "AR001", como la búsqueda del back)
+            var resultado = await ListarAsync(texto: cuig + nroManejo);
+
+            if (!resultado.Exito)
+                return ResultadoApi<AnimalListado?>.Error(
+                    resultado.MensajeError ?? "Ocurrió un error inesperado.", resultado.CodigoEstado);
+
+            var animal = resultado.Datos?.Items.FirstOrDefault(a =>
+                string.Equals(a.CaravanaCuig, cuig, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(a.CaravanaNroManejo, nroManejo, StringComparison.OrdinalIgnoreCase));
+
+            return ResultadoApi<AnimalListado?>.Ok(animal);
+        }
     }
 }

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.RegistrarPesoPage"
+             x:DataType="vm:RegistrarPesoViewModel"
+             Title="Registrar peso"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Titulo" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Dato" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="600">
+
+            <!-- Paso 1: buscar el animal por caravana -->
+            <Label Text="1. Animal" Style="{StaticResource Titulo}" />
+
+            <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="12">
+                <Entry Grid.Column="0"
+                       Text="{Binding Cuig}"
+                       Placeholder="CUIG"
+                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+                <Entry Grid.Column="1"
+                       Text="{Binding NroManejo}"
+                       Placeholder="Nro. de manejo"
+                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                       IsEnabled="{Binding NoEstaOcupado}"
+                       ReturnCommand="{Binding BuscarCommand}" />
+                <Button Grid.Column="2"
+                        Text="Buscar"
+                        Command="{Binding BuscarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </Grid>
+
+            <!-- Datos básicos para confirmar que es el animal correcto -->
+            <Border IsVisible="{Binding HayAnimal}"
+                    Padding="12"
+                    Stroke="{StaticResource Borde}"
+                    BackgroundColor="{StaticResource Superficie}">
+                <Grid ColumnDefinitions="Auto,*"
+                      RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                      ColumnSpacing="12"
+                      RowSpacing="6">
+                    <Label Grid.Row="0" Grid.Column="0" Text="Caravana" Style="{StaticResource Etiqueta}" />
+                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding Caravana}" Style="{StaticResource Dato}" />
+
+                    <Label Grid.Row="1" Grid.Column="0" Text="Raza" Style="{StaticResource Etiqueta}" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding Animal.Raza, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                    <Label Grid.Row="2" Grid.Column="0" Text="Sexo" Style="{StaticResource Etiqueta}" />
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding Animal.Sexo}" Style="{StaticResource Dato}" />
+
+                    <Label Grid.Row="3" Grid.Column="0" Text="Rodeo" Style="{StaticResource Etiqueta}" />
+                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding Animal.RodeoActual, TargetNullValue='Sin rodeo'}" Style="{StaticResource Dato}" />
+
+                    <Label Grid.Row="4" Grid.Column="0" Text="Último peso" Style="{StaticResource Etiqueta}" />
+                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding TextoUltimoPeso}" Style="{StaticResource Dato}" />
+                </Grid>
+            </Border>
+
+            <!-- Paso 2: datos del pesaje (solo con un animal activo encontrado) -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding HayAnimal}">
+                <Label Text="2. Pesaje" Style="{StaticResource Titulo}" />
+
+                <Label Text="Peso (kg) *" Style="{StaticResource Etiqueta}" />
+                <Entry Text="{Binding Peso}"
+                       Placeholder="Ej. 350,5"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+
+                <Label Text="Fecha de pesaje *" Style="{StaticResource Etiqueta}" />
+                <DatePicker Date="{Binding FechaPesaje}"
+                            MaximumDate="{Binding Hoy}"
+                            Format="dd/MM/yyyy"
+                            IsEnabled="{Binding NoEstaOcupado}" />
+
+                <Label Text="Observaciones" Style="{StaticResource Etiqueta}" />
+                <Editor Text="{Binding Observaciones}"
+                        Placeholder="Opcional"
+                        AutoSize="TextChanges"
+                        MinimumHeightRequest="80"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </VerticalStackLayout>
+
+            <!-- Validaciones y errores de la API -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <Button Text="Guardar"
+                    HorizontalOptions="End"
+                    IsVisible="{Binding HayAnimal}"
+                    Command="{Binding GuardarCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
