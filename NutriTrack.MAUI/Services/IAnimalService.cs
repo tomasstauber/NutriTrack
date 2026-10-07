@@ -28,6 +28,10 @@ namespace NutriTrack.MAUI.Services
         // Los errores de negocio llegan como texto (409 caravana duplicada, 400 el resto).
         Task<ResultadoApi<AnimalCreado>> CrearAsync(CrearAnimalRequest animal);
 
+        // PUT api/EdicionFichaAnimal: edita la ficha del animal (CU3). El 200 trae JSON y no se lee.
+        // Los errores llegan como texto (404 si no existe, 400 el resto, incluida madre o padre inexistente).
+        Task<ResultadoApi<bool>> EditarAsync(string cuig, string nroManejo, EditarAnimalRequest animal);
+
         // PATCH api/Animal/desactivar: da de baja al animal (CU4). El 200 trae texto plano y no se lee.
         // 400 "El animal ya está inactivo." si ya lo estaba; 404 si no existe.
         Task<ResultadoApi<bool>> DesactivarAsync(string cuig, string nroManejo);

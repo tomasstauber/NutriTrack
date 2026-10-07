@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.EditarAnimalPage"
+             x:DataType="vm:EditarAnimalViewModel"
+             Title="Editar animal"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="Titulo" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Dato" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <!-- Error de un campo, debajo del campo -->
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="600">
+
+            <!-- El formulario solo se muestra con la ficha cargada -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding FichaCargada}">
+
+                <!-- Datos del animal -->
+                <Label Text="Animal" Style="{StaticResource Titulo}" />
+
+                <!-- R6: se muestran, pero no se editan -->
+                <Label Text="Caravana" Style="{StaticResource Etiqueta}" />
+                <Label Text="{Binding Caravana}" Style="{StaticResource Dato}" />
+
+                <Label Text="Fecha de alta" Style="{StaticResource Etiqueta}" />
+                <Label Text="{Binding FechaAlta, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Dato}" />
+
+                <Label Text="Fecha de nacimiento *" Style="{StaticResource Etiqueta}" />
+                <DatePicker Date="{Binding FechaNacimiento}"
+                            MaximumDate="{Binding Hoy}"
+                            Format="dd/MM/yyyy"
+                            IsEnabled="{Binding NoEstaOcupado}" />
+                <Label Text="{Binding ErrorFechaNacimiento}"
+                       IsVisible="{Binding HayErrorFechaNacimiento}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <Label Text="Peso al nacer (kg) *" Style="{StaticResource Etiqueta}" />
+                <Entry Text="{Binding PesoAlNacer}"
+                       Placeholder="Ej. 35,5"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+                <Label Text="{Binding ErrorPesoAlNacer}"
+                       IsVisible="{Binding HayErrorPesoAlNacer}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <Label Text="Sexo *" Style="{StaticResource Etiqueta}" />
+                <Picker ItemsSource="{Binding Sexos}"
+                        SelectedItem="{Binding Sexo}"
+                        Title="Elegir"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Label Text="{Binding ErrorSexo}"
+                       IsVisible="{Binding HayErrorSexo}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <Label Text="Raza *" Style="{StaticResource Etiqueta}" />
+                <Entry Text="{Binding Raza}"
+                       Placeholder="Ej. Angus"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+                <Label Text="{Binding ErrorRaza}"
+                       IsVisible="{Binding HayErrorRaza}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <Label Text="Color de pelaje" Style="{StaticResource Etiqueta}" />
+                <Entry Text="{Binding ColorPelaje}"
+                       Placeholder="Opcional"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+
+                <!-- Madre y padre: las dos partes o ninguna. Vacíos, se borran al guardar -->
+                <Label Text="Progenitores (opcional)" Style="{StaticResource Titulo}" />
+
+                <Label Text="Madre" Style="{StaticResource Etiqueta}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Entry Grid.Column="0"
+                           Text="{Binding CuigMadre}"
+                           Placeholder="CUIG"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                    <Entry Grid.Column="1"
+                           Text="{Binding NroManejoMadre}"
+                           Placeholder="Nro. de manejo"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Grid>
+                <Label Text="{Binding ErrorLecturaMadre}"
+                       IsVisible="{Binding HayErrorLecturaMadre}"
+                       Style="{StaticResource ErrorCampo}" />
+                <Label Text="{Binding ErrorMadre}"
+                       IsVisible="{Binding HayErrorMadre}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <Label Text="Padre" Style="{StaticResource Etiqueta}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Entry Grid.Column="0"
+                           Text="{Binding CuigPadre}"
+                           Placeholder="CUIG"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                    <Entry Grid.Column="1"
+                           Text="{Binding NroManejoPadre}"
+                           Placeholder="Nro. de manejo"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Grid>
+                <Label Text="{Binding ErrorLecturaPadre}"
+                       IsVisible="{Binding HayErrorLecturaPadre}"
+                       Style="{StaticResource ErrorCampo}" />
+                <Label Text="{Binding ErrorPadre}"
+                       IsVisible="{Binding HayErrorPadre}"
+                       Style="{StaticResource ErrorCampo}" />
+            </VerticalStackLayout>
+
+            <!-- Errores de la carga de la ficha y de la API al guardar (madre o padre inexistente...) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <!-- Guardar queda deshabilitado sin ficha cargada o con un progenitor ilegible (CanExecute) -->
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Button Text="Guardar"
+                        Command="{Binding GuardarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
