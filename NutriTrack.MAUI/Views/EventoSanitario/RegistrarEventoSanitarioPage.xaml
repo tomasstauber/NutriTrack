@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:views="clr-namespace:NutriTrack.MAUI.Views"
+             x:Class="NutriTrack.MAUI.Views.RegistrarEventoSanitarioPage"
+             x:DataType="vm:RegistrarEventoSanitarioViewModel"
+             Title="Evento sanitario"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="Titulo" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <!-- Error de un campo, debajo del campo -->
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+
+        <!-- Marco de los Picker: con el estilo general (fondo transparente, sin borde)
+             no se notaba que se podían tocar -->
+        <Style x:Key="MarcoPicker" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource Borde}" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+            <Setter Property="BackgroundColor" Value="{StaticResource Superficie}" />
+            <Setter Property="Padding" Value="8,0" />
+        </Style>
+
+        <Style x:Key="Ayuda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoSecundario}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Dos columnas: el selector no puede ir dentro de un ScrollView,
+         así que los datos van a la izquierda (con scroll) y el selector a la derecha -->
+    <Grid ColumnDefinitions="*,*" ColumnSpacing="16" Padding="16">
+
+        <ScrollView Grid.Column="0">
+            <VerticalStackLayout Spacing="12">
+
+                <!-- Selección de animales -->
+                <Label Text="Animales" Style="{StaticResource Titulo}" />
+
+                <Label Text="Modo de selección *" Style="{StaticResource Etiqueta}" />
+                <Border Style="{StaticResource MarcoPicker}">
+                    <Picker ItemsSource="{Binding OpcionesModo}"
+                            ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionModoSeleccion}"
+                            SelectedItem="{Binding ModoSeleccionado}"
+                            Title="Elegí el modo de selección" />
+                </Border>
+                <Label Text="{Binding ErrorModo}"
+                       IsVisible="{Binding HayErrorModo}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <!-- Rodeo completo y Selección manual -->
+                <VerticalStackLayout Spacing="12" IsVisible="{Binding MostrarRodeo}">
+                    <Label Text="Rodeo *" Style="{StaticResource Etiqueta}" />
+                    <Border Style="{StaticResource MarcoPicker}">
+                        <Picker ItemsSource="{Binding Rodeos}"
+                                ItemDisplayBinding="{Binding Nombre, x:DataType=models:Rodeo}"
+                                SelectedItem="{Binding RodeoSeleccionado}"
+                                Title="Elegí un rodeo" />
+                    </Border>
+                    <Label Text="{Binding TextoAlcance}"
+                           IsVisible="{Binding MostrarAlcance}"
+                           Style="{StaticResource Ayuda}" />
+                    <Label Text="{Binding ErrorRodeo}"
+                           IsVisible="{Binding HayErrorRodeo}"
+                           Style="{StaticResource ErrorCampo}" />
+                </VerticalStackLayout>
+
+                <!-- Selección manual y libre: los animales se eligen en el selector de la derecha -->
+                <Label Text="{Binding ErrorAnimales}"
+                       IsVisible="{Binding HayErrorAnimales}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <!-- Datos del evento -->
+                <Label Text="Datos del evento" Style="{StaticResource Titulo}" />
+
+                <Label Text="Tipo de evento *" Style="{StaticResource Etiqueta}" />
+                <Border Style="{StaticResource MarcoPicker}">
+                    <Picker ItemsSource="{Binding OpcionesTipo}"
+                            ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionTipoEvento}"
+                            SelectedItem="{Binding TipoSeleccionado}"
+                            Title="Elegí el tipo de evento" />
+                </Border>
+                <Label Text="{Binding ErrorTipo}"
+                       IsVisible="{Binding HayErrorTipo}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <Label Text="Fecha del evento *" Style="{StaticResource Etiqueta}" />
+                <DatePicker Date="{Binding FechaEvento}"
+                            MaximumDate="{Binding Hoy}"
+                            Format="dd/MM/yyyy" />
+                <Label Text="{Binding ErrorFechaEvento}"
+                       IsVisible="{Binding HayErrorFechaEvento}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <!-- Opcionales: sin tildar viajan en null -->
+                <HorizontalStackLayout Spacing="4">
+                    <CheckBox IsChecked="{Binding CargarVigencia}"
+                              VerticalOptions="Center" />
+                    <Label Text="Cargar vigencia hasta"
+                           TextColor="{StaticResource TextoPrincipal}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <DatePicker Date="{Binding VigenciaHasta}"
+                            IsVisible="{Binding CargarVigencia}"
+                            Format="dd/MM/yyyy" />
+                <Label Text="{Binding ErrorVigencia}"
+                       IsVisible="{Binding HayErrorVigencia}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <HorizontalStackLayout Spacing="4">
+                    <CheckBox IsChecked="{Binding CargarProximaAplicacion}"
+                              VerticalOptions="Center" />
+                    <Label Text="Cargar próxima aplicación"
+                           TextColor="{StaticResource TextoPrincipal}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <DatePicker Date="{Binding FechaProximaAplicacion}"
+                            IsVisible="{Binding CargarProximaAplicacion}"
+                            Format="dd/MM/yyyy" />
+                <Label Text="{Binding ErrorProximaAplicacion}"
+                       IsVisible="{Binding HayErrorProximaAplicacion}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <Label Text="Observaciones" Style="{StaticResource Etiqueta}" />
+                <Label Text="Con el tipo Otro, detallá el evento en observaciones."
+                       IsVisible="{Binding EsTipoOtro}"
+                       Style="{StaticResource Ayuda}" />
+                <Editor Text="{Binding Observaciones}"
+                        Placeholder="Opcional"
+                        AutoSize="TextChanges"
+                        MinimumHeightRequest="80" />
+
+                <!-- Errores de la API (carga de rodeos) -->
+                <Label Text="{Binding MensajeError}"
+                       IsVisible="{Binding HayError}"
+                       TextColor="{StaticResource Peligro}" />
+
+                <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                                   IsVisible="{Binding EstaOcupado}" />
+
+                <Button Text="Guardar"
+                        HorizontalOptions="End"
+                        IsEnabled="{Binding NoEstaOcupado}"
+                        Command="{Binding GuardarCommand}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Selector: manual (animales del rodeo elegido) y libre (todos los activos) -->
+        <Grid Grid.Column="1" IsVisible="{Binding MostrarSelector}">
+            <views:SelectorAnimalesView BindingContext="{Binding Selector}" />
+        </Grid>
+
+        <Label Grid.Column="1"
+               Text="Elegí un rodeo para ver sus animales."
+               IsVisible="{Binding MostrarElegirRodeo}"
+               Style="{StaticResource Ayuda}" />
+    </Grid>
+</ContentPage>

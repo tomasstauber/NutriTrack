@@ -25,6 +25,7 @@ namespace NutriTrack.MAUI
             MenuModulos.RegistrarRuta<RodeosPage>(MenuModulos.Rodeos);
             MenuModulos.RegistrarRuta<UsuariosPage>(MenuModulos.Usuarios);
             MenuModulos.RegistrarRuta<RegistrarPesoPage>(MenuModulos.Peso);
+            MenuModulos.RegistrarRuta<RegistrarEventoSanitarioPage>(MenuModulos.EventoSanitario);
 
             _sesionService = sesionService;
             _sesionService.SesionExpirada += OnSesionExpirada;
