@@ -53,12 +53,14 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<IAuthService, AuthService>();
             builder.Services.AddTransient<IAnimalService, AnimalService>();
             builder.Services.AddTransient<IRegistroPesoService, RegistroPesoService>();
+            builder.Services.AddTransient<IEventoSanitarioService, EventoSanitarioService>();
 
             // ViewModels
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<PanelPrincipalViewModel>();
             builder.Services.AddTransient<AnimalesViewModel>();
             builder.Services.AddTransient<AgregarAnimalViewModel>();
+            builder.Services.AddTransient<PerfilAnimalViewModel>();
             builder.Services.AddTransient<RegistrarPesoViewModel>();
             // Selector múltiple de animales: cada pantalla anfitriona recibe el suyo
             builder.Services.AddTransient<SelectorAnimalesViewModel>();
@@ -71,6 +73,7 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<NuevoMedicamentoPage>();
             builder.Services.AddTransient<AnimalesPage>();
             builder.Services.AddTransient<AgregarAnimalPage>();
+            builder.Services.AddTransient<PerfilAnimalPage>();
             builder.Services.AddTransient<RodeosPage>();
             builder.Services.AddTransient<UsuariosPage>();
             builder.Services.AddTransient<RegistrarPesoPage>();

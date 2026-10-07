@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.PerfilAnimalPage"
+             x:DataType="vm:PerfilAnimalViewModel"
+             Title="Perfil del animal"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Titulo" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Dato" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="700">
+
+            <!-- Errores de la ficha y de desactivar -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <!-- Ficha (CU2) -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding HayFicha}">
+                <Label Text="Ficha" Style="{StaticResource Titulo}" />
+
+                <Border Padding="12"
+                        Stroke="{StaticResource Borde}"
+                        BackgroundColor="{StaticResource Superficie}">
+                    <Grid ColumnDefinitions="Auto,*"
+                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                          ColumnSpacing="12"
+                          RowSpacing="6">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Caravana" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Caravana}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Estado" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Ficha.Estado}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Fecha de nacimiento" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding Ficha.FechaNacimiento, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="3" Grid.Column="0" Text="Peso al nacer" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding TextoPesoAlNacer}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="4" Grid.Column="0" Text="Sexo" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding Ficha.Sexo}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="5" Grid.Column="0" Text="Raza" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="5" Grid.Column="1" Text="{Binding Ficha.Raza, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="6" Grid.Column="0" Text="Color de pelaje" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="6" Grid.Column="1" Text="{Binding Ficha.ColorPelaje, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="7" Grid.Column="0" Text="Fecha de alta" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="7" Grid.Column="1" Text="{Binding Ficha.FechaAlta, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="8" Grid.Column="0" Text="Rodeo actual" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="8" Grid.Column="1" Text="{Binding Ficha.RodeoActual, TargetNullValue='Sin rodeo'}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="9" Grid.Column="0" Text="Madre" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="9" Grid.Column="1" Text="{Binding Ficha.Madre, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="10" Grid.Column="0" Text="Padre" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="10" Grid.Column="1" Text="{Binding Ficha.Padre, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="11" Grid.Column="0" Text="Último peso" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="11" Grid.Column="1" Text="{Binding TextoUltimoPeso}" Style="{StaticResource Dato}" />
+                    </Grid>
+                </Border>
+
+                <!-- Acciones: Editar para Encargado y Administrador;
+                     Registrar peso y Desactivar además solo con el animal activo -->
+                <FlexLayout Wrap="Wrap" JustifyContent="End">
+                    <Button Text="Editar"
+                            Margin="0,0,12,8"
+                            IsVisible="{Binding PuedeGestionar}"
+                            IsEnabled="{Binding NoEstaOcupado}"
+                            Command="{Binding EditarCommand}" />
+                    <Button Text="Registrar peso"
+                            Margin="0,0,12,8"
+                            IsVisible="{Binding PuedeRegistrarPeso}"
+                            IsEnabled="{Binding NoEstaOcupado}"
+                            Command="{Binding RegistrarPesoCommand}" />
+                    <Button Text="Desactivar"
+                            Margin="0,0,0,8"
+                            BackgroundColor="{StaticResource Peligro}"
+                            TextColor="White"
+                            IsVisible="{Binding PuedeDesactivar}"
+                            IsEnabled="{Binding NoEstaOcupado}"
+                            Command="{Binding DesactivarCommand}" />
+                </FlexLayout>
+            </VerticalStackLayout>
+
+            <!-- Historial sanitario (se carga aparte de la ficha) -->
+            <Label Text="Historial sanitario" Style="{StaticResource Titulo}" />
+
+            <Label Text="{Binding MensajeErrorHistorial}"
+                   IsVisible="{Binding HayErrorHistorial}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <Label Text="Sin eventos sanitarios registrados"
+                   IsVisible="{Binding HistorialVacio}"
+                   TextColor="{StaticResource TextoSecundario}" />
+
+            <!-- Dentro del ScrollView de la página: BindableLayout en vez de CollectionView -->
+            <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Eventos}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:EventoHistorial">
+                        <Border Padding="12"
+                                Stroke="{StaticResource Borde}"
+                                BackgroundColor="{StaticResource Superficie}">
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="Auto,*"
+                                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                                      ColumnSpacing="12"
+                                      RowSpacing="6">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="Tipo de evento" Style="{StaticResource Etiqueta}" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding TipoEvento}" Style="{StaticResource Dato}" />
+
+                                    <Label Grid.Row="1" Grid.Column="0" Text="Fecha" Style="{StaticResource Etiqueta}" />
+                                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding FechaEvento, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Dato}" />
+
+                                    <Label Grid.Row="2" Grid.Column="0" Text="Vigencia hasta" Style="{StaticResource Etiqueta}" />
+                                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding VigenciaHasta, StringFormat='{0:dd/MM/yyyy}', TargetNullValue='—'}" Style="{StaticResource Dato}" />
+
+                                    <Label Grid.Row="3" Grid.Column="0" Text="Próxima aplicación" Style="{StaticResource Etiqueta}" />
+                                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding FechaProximaAplicacion, StringFormat='{0:dd/MM/yyyy}', TargetNullValue='—'}" Style="{StaticResource Dato}" />
+
+                                    <Label Grid.Row="4" Grid.Column="0" Text="Responsable" Style="{StaticResource Etiqueta}" />
+                                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding Responsable, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                                    <Label Grid.Row="5" Grid.Column="0" Text="Observaciones" Style="{StaticResource Etiqueta}" />
+                                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding Observaciones, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+                                </Grid>
+
+                                <!-- Medicamentos del evento: nombre; dosis y unidad si hay; observaciones -->
+                                <Label Text="Medicamentos" Style="{StaticResource Etiqueta}" />
+                                <VerticalStackLayout Spacing="4"
+                                                     Padding="12,0,0,0"
+                                                     BindableLayout.ItemsSource="{Binding Medicamentos}">
+                                    <BindableLayout.EmptyView>
+                                        <Label Text="—" Style="{StaticResource Dato}" />
+                                    </BindableLayout.EmptyView>
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:MedicamentoHistorial">
+                                            <VerticalStackLayout>
+                                                <Label Text="{Binding Nombre, Converter={StaticResource NuloAGuion}}"
+                                                       FontAttributes="Bold"
+                                                       Style="{StaticResource Dato}" />
+                                                <Label Text="{Binding TextoDosis, StringFormat='Dosis: {0}'}"
+                                                       IsVisible="{Binding HayDosis}"
+                                                       Style="{StaticResource Dato}" />
+                                                <Label Text="{Binding Observaciones, Converter={StaticResource NuloAGuion}, StringFormat='Observaciones: {0}'}"
+                                                       TextColor="{StaticResource TextoSecundario}"
+                                                       LineBreakMode="WordWrap" />
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

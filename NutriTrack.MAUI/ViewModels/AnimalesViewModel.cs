@@ -137,17 +137,14 @@ namespace NutriTrack.MAUI.ViewModels
         });
 
         [RelayCommand]
-        private async Task SeleccionarAsync(AnimalListado animal)
-        {
-            // TODO #104: cuando exista el perfil, navegar pasando id y caravana:
-            // await Shell.Current.GoToAsync("perfilAnimal", new Dictionary<string, object>
-            // {
-            //     ["id"] = animal.Id,
-            //     ["caravanaCuig"] = animal.CaravanaCuig,
-            //     ["caravanaNroManejo"] = animal.CaravanaNroManejo
-            // });
-            await Shell.Current.DisplayAlertAsync("Perfil del animal", "Pantalla en construcción", "Aceptar");
-        }
+        private Task SeleccionarAsync(AnimalListado animal) =>
+            // El perfil pide la ficha por caravana y el historial por id
+            Shell.Current.GoToAsync(PerfilAnimalViewModel.Ruta, new Dictionary<string, object>
+            {
+                ["id"] = animal.Id,
+                ["caravanaCuig"] = animal.CaravanaCuig,
+                ["caravanaNroManejo"] = animal.CaravanaNroManejo
+            });
 
         [RelayCommand]
         private Task AgregarAnimalAsync() => Shell.Current.GoToAsync(AgregarAnimalViewModel.Ruta);

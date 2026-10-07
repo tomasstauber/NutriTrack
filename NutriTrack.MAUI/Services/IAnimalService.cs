@@ -27,5 +27,9 @@ namespace NutriTrack.MAUI.Services
         // POST api/Animal: alta de un animal. Devuelve el id y la caravana del animal creado.
         // Los errores de negocio llegan como texto (409 caravana duplicada, 400 el resto).
         Task<ResultadoApi<AnimalCreado>> CrearAsync(CrearAnimalRequest animal);
+
+        // PATCH api/Animal/desactivar: da de baja al animal (CU4). El 200 trae texto plano y no se lee.
+        // 400 "El animal ya está inactivo." si ya lo estaba; 404 si no existe.
+        Task<ResultadoApi<bool>> DesactivarAsync(string cuig, string nroManejo);
     }
 }
