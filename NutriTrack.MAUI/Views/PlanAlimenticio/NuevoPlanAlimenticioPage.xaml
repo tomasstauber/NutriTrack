@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.NuevoPlanAlimenticioPage"
+             x:DataType="vm:NuevoPlanAlimenticioViewModel"
+             Title="Nuevo plan alimenticio"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Titulo" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+
+        <!-- Marco gris de los campos de texto y Picker, para que se distingan del fondo -->
+        <Style x:Key="MarcoCampo" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource Gray200}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+            <Setter Property="BackgroundColor" Value="{StaticResource Superficie}" />
+            <Setter Property="Padding" Value="8,0" />
+        </Style>
+
+        <!-- Error de un campo, debajo del campo -->
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="700">
+
+            <!-- D1 a D9 -->
+            <Label Text="Datos del plan" Style="{StaticResource Titulo}" />
+
+            <Label Text="Nombre *" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Nombre}"
+                       Placeholder="Nombre del plan"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+            <Label Text="{Binding ErrorNombre}"
+                   IsVisible="{Binding HayErrorNombre}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Categoría" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Categoria}"
+                       Placeholder="Opcional"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+
+            <Label Text="Peso vivo inicial promedio (kg)" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding PesoVivoInicialPromedio}"
+                       Placeholder="Opcional"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+            <Label Text="{Binding ErrorPesoVivoInicialPromedio}"
+                   IsVisible="{Binding HayErrorPesoVivoInicialPromedio}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Peso objetivo (kg)" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding PesoObjetivo}"
+                       Placeholder="Opcional"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+            <Label Text="{Binding ErrorPesoObjetivo}"
+                   IsVisible="{Binding HayErrorPesoObjetivo}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Ganancia de peso esperada (kg/día)" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding GananciaPesoEsperada}"
+                       Placeholder="Opcional"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+            <Label Text="{Binding ErrorGananciaPesoEsperada}"
+                   IsVisible="{Binding HayErrorGananciaPesoEsperada}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Tipo de alimentación *" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding TipoAlimentacion}"
+                       Placeholder="Ej. Feedlot, suplementación a campo"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+            <Label Text="{Binding ErrorTipoAlimentacion}"
+                   IsVisible="{Binding HayErrorTipoAlimentacion}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Tiempo de alimentación" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding TiempoAlimentacion}"
+                       Placeholder="Opcional"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+
+            <Label Text="Kg de MS diaria por animal *" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding KgMsDiariaPorAnimal}"
+                       Placeholder="Ej. 8,5"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+            <Label Text="{Binding ErrorKgMsDiariaPorAnimal}"
+                   IsVisible="{Binding HayErrorKgMsDiariaPorAnimal}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Observaciones" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Editor Text="{Binding Observaciones}"
+                        Placeholder="Opcional"
+                        AutoSize="TextChanges"
+                        MinimumHeightRequest="80"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+
+            <!-- Grilla de componentes -->
+            <Label Text="Componentes *" Style="{StaticResource Titulo}" />
+
+            <!-- Agregar componente -->
+            <Border Stroke="{StaticResource Borde}"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="12">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Ingrediente" Style="{StaticResource Etiqueta}" />
+                    <!-- Solo los ingredientes activos -->
+                    <Border Style="{StaticResource MarcoCampo}">
+                        <Picker ItemsSource="{Binding Ingredientes}"
+                                ItemDisplayBinding="{Binding NombreIngrediente, x:DataType=models:Ingrediente}"
+                                SelectedItem="{Binding IngredienteSeleccionado}"
+                                Title="Elegí un ingrediente"
+                                IsEnabled="{Binding NoEstaOcupado}" />
+                    </Border>
+                    <Label Text="{Binding ErrorIngrediente}"
+                           IsVisible="{Binding HayErrorIngrediente}"
+                           Style="{StaticResource ErrorCampo}" />
+
+                    <Label Text="Porcentaje de inclusión (% de MS)" Style="{StaticResource Etiqueta}" />
+                    <Border Style="{StaticResource MarcoCampo}">
+                        <Entry Text="{Binding PorcentajeInclusion}"
+                               Placeholder="Entre 0 y 100"
+                               Keyboard="Numeric"
+                               IsEnabled="{Binding NoEstaOcupado}" />
+                    </Border>
+                    <Label Text="{Binding ErrorPorcentajeInclusion}"
+                           IsVisible="{Binding HayErrorPorcentajeInclusion}"
+                           Style="{StaticResource ErrorCampo}" />
+
+                    <Label Text="Observaciones del componente" Style="{StaticResource Etiqueta}" />
+                    <Border Style="{StaticResource MarcoCampo}">
+                        <Entry Text="{Binding ObservacionesComponente}"
+                               Placeholder="Opcional"
+                               IsEnabled="{Binding NoEstaOcupado}" />
+                    </Border>
+
+                    <Button Text="Agregar"
+                            HorizontalOptions="End"
+                            Command="{Binding AgregarComponenteCommand}"
+                            IsEnabled="{Binding NoEstaOcupado}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Encabezado de la grilla -->
+            <Grid ColumnDefinitions="2*,*,2*,90"
+                  ColumnSpacing="8"
+                  Padding="8"
+                  BackgroundColor="{StaticResource Superficie}">
+                <Label Grid.Column="0" Text="Ingrediente" Style="{StaticResource Encabezado}" />
+                <Label Grid.Column="1" Text="% MS" Style="{StaticResource Encabezado}" />
+                <Label Grid.Column="2" Text="Observaciones" Style="{StaticResource Encabezado}" />
+            </Grid>
+
+            <!-- Dentro del ScrollView: BindableLayout en vez de CollectionView -->
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Componentes}">
+                <BindableLayout.EmptyView>
+                    <Label Text="Sin componentes. Agregá al menos uno."
+                           Padding="8"
+                           Style="{StaticResource Celda}" />
+                </BindableLayout.EmptyView>
+
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ComponentePlanFila">
+                        <Grid RowDefinitions="*,Auto">
+                            <Grid ColumnDefinitions="2*,*,2*,90"
+                                  ColumnSpacing="8"
+                                  Padding="8">
+                                <Label Grid.Column="0" Text="{Binding NombreIngrediente}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="1" Text="{Binding PorcentajeInclusionMs, StringFormat='{0:0.##}%'}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="2" Text="{Binding Observaciones, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                <Button Grid.Column="3"
+                                        Text="Quitar"
+                                        VerticalOptions="Center"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:NuevoPlanAlimenticioViewModel}}, Path=QuitarComponenteCommand, x:DataType=vm:NuevoPlanAlimenticioViewModel}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                            <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <!-- R6: suma en vivo; E4 si supera 100 -->
+            <Label Text="{Binding TextoSuma}"
+                   HorizontalOptions="End"
+                   Style="{StaticResource Etiqueta}" />
+            <Label Text="{Binding MensajeSuma}"
+                   IsVisible="{Binding SumaSupera100}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <!-- R4: sin componentes -->
+            <Label Text="{Binding ErrorComponentes}"
+                   IsVisible="{Binding HayErrorComponentes}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <!-- Errores de la API (nombre duplicado...) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Button Text="Guardar"
+                        Command="{Binding GuardarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
