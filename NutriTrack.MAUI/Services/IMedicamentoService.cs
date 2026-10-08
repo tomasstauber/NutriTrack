@@ -11,5 +11,14 @@ namespace NutriTrack.MAUI.Services
 
         // POST api/Medicamento: devuelve el medicamento creado.
         Task<ResultadoApi<Medicamento>> CrearAsync(MedicamentoRequest medicamento);
+
+        // PUT api/Medicamento/{id}: solo Administrador y Asesor técnico.
+        Task<ResultadoApi<bool>> EditarAsync(int idMedicamento, MedicamentoRequest medicamento);
+
+        // DELETE api/Medicamento/{id}: baja lógica. Solo Administrador y Asesor técnico.
+        Task<ResultadoApi<bool>> DesactivarAsync(int idMedicamento);
+
+        // PATCH api/Medicamento/activar/{id}: solo Administrador.
+        Task<ResultadoApi<bool>> ReactivarAsync(int idMedicamento);
     }
 }

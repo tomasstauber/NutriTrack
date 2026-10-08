@@ -38,5 +38,14 @@ namespace NutriTrack.MAUI.Services
 
         public Task<ResultadoApi<Medicamento>> CrearAsync(MedicamentoRequest medicamento) =>
             PostAsync<Medicamento>("api/Medicamento", medicamento);
+
+        public Task<ResultadoApi<bool>> EditarAsync(int idMedicamento, MedicamentoRequest medicamento) =>
+            PutSinRespuestaAsync($"api/Medicamento/{idMedicamento}", medicamento);
+
+        public Task<ResultadoApi<bool>> DesactivarAsync(int idMedicamento) =>
+            DeleteAsync($"api/Medicamento/{idMedicamento}");
+
+        public Task<ResultadoApi<bool>> ReactivarAsync(int idMedicamento) =>
+            PatchSinRespuestaAsync($"api/Medicamento/activar/{idMedicamento}");
     }
 }
