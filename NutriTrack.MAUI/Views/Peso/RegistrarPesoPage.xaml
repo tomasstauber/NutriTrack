@@ -59,7 +59,7 @@
                     Stroke="{StaticResource Borde}"
                     BackgroundColor="{StaticResource Superficie}">
                 <Grid ColumnDefinitions="Auto,*"
-                      RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                       ColumnSpacing="12"
                       RowSpacing="6">
                     <Label Grid.Row="0" Grid.Column="0" Text="Caravana" Style="{StaticResource Etiqueta}" />
@@ -76,6 +76,9 @@
 
                     <Label Grid.Row="4" Grid.Column="0" Text="Último peso" Style="{StaticResource Etiqueta}" />
                     <Label Grid.Row="4" Grid.Column="1" Text="{Binding TextoUltimoPeso}" Style="{StaticResource Dato}" />
+
+                    <Label Grid.Row="5" Grid.Column="0" Text="Observaciones del último pesaje" Style="{StaticResource Etiqueta}" />
+                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding ObservacionesUltimoPeso, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
                 </Grid>
             </Border>
 

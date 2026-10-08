@@ -1,9 +1,9 @@
 namespace NutriTrack.MAUI.Models
 {
     // Ficha de GET api/ConsultaFichaIndividualAnimal (en el back: ConsultaFichaIndividualAnimalDTO)
-    // No trae el id del animal: se pide por caravana
     public class FichaAnimal
     {
+        public int Id { get; set; }
         public string CaravanaCuig { get; set; } = string.Empty;
         public string CaravanaNroManejo { get; set; } = string.Empty;
         public DateTime FechaNacimiento { get; set; }

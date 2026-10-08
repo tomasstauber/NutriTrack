@@ -18,7 +18,7 @@ namespace NutriTrack.MAUI.ViewModels
         private readonly IAnimalService _animalService;
         private readonly IRegistroPesoService _registroPesoService;
 
-        // Id del animal encontrado: la ficha no lo trae, sale del listado
+        // Id del animal encontrado, sale de la ficha
         private int? _idAnimal;
 
         public RegistrarPesoViewModel(IAnimalService animalService, IRegistroPesoService registroPesoService)
@@ -40,6 +40,7 @@ namespace NutriTrack.MAUI.ViewModels
         [NotifyPropertyChangedFor(nameof(HayAnimal))]
         [NotifyPropertyChangedFor(nameof(Caravana))]
         [NotifyPropertyChangedFor(nameof(TextoUltimoPeso))]
+        [NotifyPropertyChangedFor(nameof(ObservacionesUltimoPeso))]
         [NotifyCanExecuteChangedFor(nameof(GuardarCommand))]
         public partial FichaAnimal? Animal { get; set; }
 
@@ -53,6 +54,8 @@ namespace NutriTrack.MAUI.ViewModels
         public string TextoUltimoPeso => Animal?.UltimoPeso is { } ultimo
             ? $"{FormatearPeso(ultimo.PesoKg)} kg ({ultimo.FechaPesaje:dd/MM/yyyy})"
             : "Sin pesajes";
+
+        public string? ObservacionesUltimoPeso => Animal?.UltimoPeso?.Observaciones;
 
         // Paso 2: pesaje
 
@@ -103,7 +106,7 @@ namespace NutriTrack.MAUI.ViewModels
             await EjecutarAsync(async () =>
             {
                 // Primero el listado: no distingue mayúsculas ("ar001" encuentra "AR001")
-                // y trae el id, que la ficha no tiene. Solo devuelve animales activos
+                // y trae la caravana tal como está guardada. Solo devuelve animales activos
                 var animal = await _animalService.BuscarActivoPorCaravanaAsync(cuig!, nroManejo!);
 
                 if (!animal.Exito)
@@ -139,7 +142,7 @@ namespace NutriTrack.MAUI.ViewModels
                     return;
                 }
 
-                _idAnimal = animal.Datos.Id;
+                _idAnimal = ficha.Datos.Id;
                 Animal = ficha.Datos;
             });
         }
