@@ -28,9 +28,8 @@ namespace NutriTrack.Infraestructure.Repositories
         {
             return await _context.RegistrosPeso
                 .Where(p => p.IdAnimal == idAnimal)
-                //ultimo peso
                 .OrderByDescending(p => p.FechaPesaje)
-                //toma el primero
+                .ThenByDescending(p => p.Id)
                 .FirstOrDefaultAsync();
         }
     }
