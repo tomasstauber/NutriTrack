@@ -46,6 +46,14 @@ namespace NutriTrack.MAUI.ViewModels
         [RelayCommand]
         private Task NuevoPlan() => Shell.Current.GoToAsync(NuevoPlanAlimenticioViewModel.Ruta);
 
+        // #159: tocar un plan abre su ficha
+        [RelayCommand]
+        private Task VerFicha(PlanAlimenticio plan) =>
+            Shell.Current.GoToAsync(FichaPlanAlimenticioViewModel.Ruta, new Dictionary<string, object>
+            {
+                ["idPlan"] = plan.Id
+            });
+
         // CU11: editar plan. Mismo formulario del alta; se pasa solo el id porque
         // la fila no trae los componentes. La lista se recarga al volver (OnAppearing)
         [RelayCommand]

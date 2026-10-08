@@ -23,5 +23,8 @@ namespace NutriTrack.MAUI.Services
 
         public Task<ResultadoApi<AsignarPlanResponse>> AsignarARodeoAsync(AsignarPlanRequest asignacion) =>
             PostAsync<AsignarPlanResponse>("api/PlanRodeoAsignacion", asignacion);
+
+        public Task<ResultadoApi<List<AsignacionActivaPlan>>> ListarAsignacionesActivasAsync(int idPlan) =>
+            GetAsync<List<AsignacionActivaPlan>>($"api/PlanRodeoAsignacion/plan/{idPlan}/activas");
     }
 }

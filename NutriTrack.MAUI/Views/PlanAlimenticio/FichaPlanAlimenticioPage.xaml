@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.FichaPlanAlimenticioPage"
+             x:DataType="vm:FichaPlanAlimenticioViewModel"
+             Title="Ficha del plan alimenticio"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Titulo" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Dato" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="700">
+
+            <!-- Errores del plan (404, red) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding HayPlan}">
+
+                <!-- D1 a D9, solo lectura -->
+                <Label Text="Datos del plan" Style="{StaticResource Titulo}" />
+
+                <Border Padding="12"
+                        Stroke="{StaticResource Borde}"
+                        BackgroundColor="{StaticResource Superficie}">
+                    <Grid ColumnDefinitions="Auto,*"
+                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                          ColumnSpacing="12"
+                          RowSpacing="6">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Nombre" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Plan.NombrePlan}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Categoría" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Plan.Categoria, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Peso vivo inicial promedio (kg)" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding Plan.PesoVivoInicialPromedio, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="3" Grid.Column="0" Text="Peso objetivo (kg)" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding Plan.PesoObjetivo, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="4" Grid.Column="0" Text="Ganancia de peso esperada (kg/día)" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding Plan.GananciaPesoEsperada, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="5" Grid.Column="0" Text="Tipo de alimentación" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="5" Grid.Column="1" Text="{Binding Plan.TipoAlimentacion}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="6" Grid.Column="0" Text="Tiempo de alimentación" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="6" Grid.Column="1" Text="{Binding Plan.TiempoAlimentacion, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="7" Grid.Column="0" Text="Kg de MS diaria por animal" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="7" Grid.Column="1" Text="{Binding Plan.KgMsDiariaPorAnimal, StringFormat='{0:0.##}'}" Style="{StaticResource Dato}" />
+
+                        <Label Grid.Row="8" Grid.Column="0" Text="Observaciones" Style="{StaticResource Etiqueta}" />
+                        <Label Grid.Row="8" Grid.Column="1" Text="{Binding Plan.Observaciones, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Dato}" />
+                    </Grid>
+                </Border>
+
+                <!-- Acciones -->
+                <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+                    <Button Text="Editar"
+                            Command="{Binding EditarCommand}"
+                            IsEnabled="{Binding NoEstaOcupado}" />
+                    <Button Text="Asignar a rodeo"
+                            Command="{Binding AsignarARodeoCommand}"
+                            IsEnabled="{Binding NoEstaOcupado}" />
+                </HorizontalStackLayout>
+
+                <!-- Componentes -->
+                <Label Text="Componentes" Style="{StaticResource Titulo}" />
+
+                <Grid ColumnDefinitions="2*,*,2*"
+                      ColumnSpacing="8"
+                      Padding="8"
+                      BackgroundColor="{StaticResource Superficie}">
+                    <Label Grid.Column="0" Text="Ingrediente" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="1" Text="% MS" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="2" Text="Observaciones" Style="{StaticResource Encabezado}" />
+                </Grid>
+
+                <!-- Dentro del ScrollView: BindableLayout en vez de CollectionView -->
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Plan.Detalles}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:PlanAlimenticioDetalle">
+                            <Grid RowDefinitions="*,Auto">
+                                <Grid ColumnDefinitions="2*,*,2*"
+                                      ColumnSpacing="8"
+                                      Padding="8">
+                                    <Label Grid.Column="0" Text="{Binding NombreIngrediente, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                    <Label Grid.Column="1" Text="{Binding PorcentajeInclusionMs, StringFormat='{0:0.##}%'}" Style="{StaticResource Celda}" />
+                                    <Label Grid.Column="2" Text="{Binding Observaciones, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                </Grid>
+                                <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Label Text="{Binding TextoSuma}"
+                       HorizontalOptions="End"
+                       Style="{StaticResource Etiqueta}" />
+
+                <!-- Asignaciones activas -->
+                <Label Text="Asignaciones activas" Style="{StaticResource Titulo}" />
+
+                <Label Text="{Binding MensajeErrorAsignaciones}"
+                       IsVisible="{Binding HayErrorAsignaciones}"
+                       TextColor="{StaticResource Peligro}" />
+
+                <Label Text="El plan no está asignado a ningún rodeo"
+                       IsVisible="{Binding SinAsignaciones}"
+                       Style="{StaticResource Dato}" />
+
+                <Grid ColumnDefinitions="2*,*,*,*"
+                      ColumnSpacing="8"
+                      Padding="8"
+                      BackgroundColor="{StaticResource Superficie}">
+                    <Label Grid.Column="0" Text="Rodeo" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="1" Text="Animales" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="2" Text="Desde" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="3" Text="Hasta" Style="{StaticResource Encabezado}" />
+                </Grid>
+
+                <!-- Tocar una asignación abre el rodeo asignado -->
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Asignaciones}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:AsignacionActivaPlan">
+                            <Grid RowDefinitions="*,Auto">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FichaPlanAlimenticioViewModel}}, Path=VerRodeoCommand, x:DataType=vm:FichaPlanAlimenticioViewModel}"
+                                                          CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+
+                                <Grid ColumnDefinitions="2*,*,*,*"
+                                      ColumnSpacing="8"
+                                      Padding="8">
+                                    <Label Grid.Column="0" Text="{Binding NombreRodeo}" Style="{StaticResource Celda}" />
+                                    <Label Grid.Column="1" Text="{Binding CantidadAnimales}" Style="{StaticResource Celda}" />
+                                    <Label Grid.Column="2" Text="{Binding TextoVigenciaDesde}" Style="{StaticResource Celda}" />
+                                    <Label Grid.Column="3" Text="{Binding TextoVigenciaHasta}" Style="{StaticResource Celda}" />
+                                </Grid>
+                                <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -26,5 +26,9 @@ namespace NutriTrack.MAUI.Services
         // Si el rodeo tenía otro plan activo, el back lo cierra y lo informa en la respuesta.
         // Errores en texto (404 plan o rodeo, 400 el resto). Solo Asesor técnico y Administrador
         Task<ResultadoApi<AsignarPlanResponse>> AsignarARodeoAsync(AsignarPlanRequest asignacion);
+
+        // GET api/PlanRodeoAsignacion/plan/{id}/activas: asignaciones activas del plan (#159).
+        // Lista vacía si no está asignado; 404 si el plan no existe
+        Task<ResultadoApi<List<AsignacionActivaPlan>>> ListarAsignacionesActivasAsync(int idPlan);
     }
 }
