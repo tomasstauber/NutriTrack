@@ -143,7 +143,92 @@
                         AutoSize="TextChanges"
                         MinimumHeightRequest="80" />
 
-                <!-- Errores de la API (carga de rodeos) -->
+                <!-- Medicamentos: cero, uno o varios -->
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="Medicamentos"
+                           Style="{StaticResource Titulo}"
+                           VerticalOptions="Center" />
+                    <Button Grid.Column="1"
+                            Text="Agregar"
+                            Command="{Binding AgregarMedicamentoCommand}" />
+                </Grid>
+
+                <!-- Dentro del ScrollView: BindableLayout en vez de CollectionView -->
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Medicamentos}">
+                    <BindableLayout.EmptyView>
+                        <Label Text="Sin medicamentos. El evento se puede guardar igual."
+                               Style="{StaticResource Ayuda}" />
+                    </BindableLayout.EmptyView>
+
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DetalleMedicamentoEditable">
+                            <Border Stroke="{StaticResource Borde}"
+                                    StrokeShape="RoundRectangle 8"
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    Padding="12">
+                                <VerticalStackLayout Spacing="8">
+
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0"
+                                               Text="Medicamento *"
+                                               Style="{StaticResource Etiqueta}"
+                                               VerticalOptions="Center" />
+                                        <Button Grid.Column="1"
+                                                Text="Quitar"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RegistrarEventoSanitarioViewModel}}, Path=QuitarMedicamentoCommand, x:DataType=vm:RegistrarEventoSanitarioViewModel}"
+                                                CommandParameter="{Binding .}" />
+                                    </Grid>
+                                    <!-- Solo los medicamentos activos -->
+                                    <Border Style="{StaticResource MarcoPicker}">
+                                        <Picker ItemsSource="{Binding Medicamentos}"
+                                                ItemDisplayBinding="{Binding Nombre, x:DataType=models:Medicamento}"
+                                                SelectedItem="{Binding MedicamentoSeleccionado}"
+                                                Title="Elegí un medicamento" />
+                                    </Border>
+                                    <Label Text="{Binding ErrorMedicamento}"
+                                           IsVisible="{Binding HayErrorMedicamento}"
+                                           Style="{StaticResource ErrorCampo}" />
+
+                                    <!-- Dosis opcional; si hay dosis, la unidad es obligatoria -->
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                            <Label Text="Dosis" Style="{StaticResource Etiqueta}" />
+                                            <Border Style="{StaticResource MarcoPicker}">
+                                                <Entry Text="{Binding Dosis}"
+                                                       Placeholder="Opcional"
+                                                       Keyboard="Numeric" />
+                                            </Border>
+                                            <Label Text="{Binding ErrorDosis}"
+                                                   IsVisible="{Binding HayErrorDosis}"
+                                                   Style="{StaticResource ErrorCampo}" />
+                                        </VerticalStackLayout>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                            <Label Text="Unidad" Style="{StaticResource Etiqueta}" />
+                                            <Border Style="{StaticResource MarcoPicker}">
+                                                <Picker ItemsSource="{x:Static vm:DetalleMedicamentoEditable.Unidades}"
+                                                        SelectedItem="{Binding Unidad}"
+                                                        Title="Unidad" />
+                                            </Border>
+                                            <Label Text="{Binding ErrorUnidad}"
+                                                   IsVisible="{Binding HayErrorUnidad}"
+                                                   Style="{StaticResource ErrorCampo}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                    <Label Text="Observaciones" Style="{StaticResource Etiqueta}" />
+                                    <Border Style="{StaticResource MarcoPicker}">
+                                        <Entry Text="{Binding Observaciones}"
+                                               Placeholder="Opcional" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Errores de la API (carga de catálogos y registro del evento) -->
                 <Label Text="{Binding MensajeError}"
                        IsVisible="{Binding HayError}"
                        TextColor="{StaticResource Peligro}" />

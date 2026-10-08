@@ -2,7 +2,6 @@ namespace NutriTrack.MAUI.Models
 {
     // Cuerpo de POST api/EventoSanitario/multiple (en el back: RegistrarEventoSanitarioMultipleDTO).
     // El responsable lo toma el back del token: no se envía.
-    // detallesMedicamento lo agrega el issue de medicamentos y guardado (#109)
     public class RegistrarEventoSanitarioRequest
     {
         // Rodeo completo y Selección manual: obligatorio. Selección libre: null
@@ -19,6 +18,9 @@ namespace NutriTrack.MAUI.Models
 
         // DateOnly viaja en ISO solo fecha ("2026-10-07")
         public DateOnly FechaEvento { get; set; }
+
+        // Cero, uno o varios medicamentos. Sin medicamentos viaja vacía
+        public List<DetalleMedicamentoRequest> DetallesMedicamento { get; set; } = [];
 
         // Opcionales: sin cargar viajan en null
         public DateOnly? VigenciaHasta { get; set; }

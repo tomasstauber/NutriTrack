@@ -12,11 +12,11 @@ namespace NutriTrack.MAUI.Views
             BindingContext = _viewModel = viewModel;
         }
 
-        // Rodeos al día (cantidad de animales incluida) cada vez que se entra
+        // Rodeos (cantidad de animales incluida) y medicamentos activos al día cada vez que se entra
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _viewModel.CargarRodeosCommand.ExecuteAsync(null);
+            await _viewModel.CargarCatalogosCommand.ExecuteAsync(null);
         }
     }
 }
