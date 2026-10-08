@@ -1,3 +1,4 @@
+using System.Net;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NutriTrack.MAUI.Models;
@@ -5,8 +6,9 @@ using NutriTrack.MAUI.Services;
 
 namespace NutriTrack.MAUI.ViewModels
 {
-    // CU28 - Crear medicamento
-    public partial class NuevoMedicamentoViewModel : BaseViewModel
+    // CU28 - Crear medicamento y CU30 - Editar medicamento
+    // Para editar se navega con "medicamento" (la fila de la lista): no se usa el GET por id
+    public partial class NuevoMedicamentoViewModel : BaseViewModel, IQueryAttributable
     {
         // Ruta de Shell del formulario (se registra en AppShell.xaml.cs)
         public const string Ruta = "nuevo-medicamento";
@@ -14,8 +16,12 @@ namespace NutriTrack.MAUI.ViewModels
         private const string MensajeDuplicado = "Ya existe un medicamento";
         private const string AclaracionDuplicado =
             "Si no aparece en la lista, puede estar inactivo: lo reactiva un Administrador.";
+        private const string MensajeNoExiste = "No existe un medicamento con ese id";
 
         private readonly IMedicamentoService _medicamentoService;
+
+        // Id del medicamento que se edita; null en el alta
+        private int? _idMedicamento;
 
         public NuevoMedicamentoViewModel(IMedicamentoService medicamentoService)
         {
@@ -23,10 +29,25 @@ namespace NutriTrack.MAUI.ViewModels
         }
 
         [ObservableProperty]
+        public partial string Titulo { get; set; } = "Nuevo medicamento";
+
+        [ObservableProperty]
         public partial string? Nombre { get; set; }
 
         [ObservableProperty]
         public partial string? Descripcion { get; set; }
+
+        // CU30: precarga con los datos de la fila
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (!query.TryGetValue("medicamento", out var valor) || valor is not Medicamento medicamento)
+                return;
+
+            _idMedicamento = medicamento.Id;
+            Titulo = "Editar medicamento";
+            Nombre = medicamento.Nombre;
+            Descripcion = medicamento.Descripcion;
+        }
 
         [RelayCommand]
         private async Task GuardarAsync()
@@ -46,6 +67,19 @@ namespace NutriTrack.MAUI.ViewModels
                 Descripcion = string.IsNullOrEmpty(descripcion) ? null : descripcion
             };
 
+            var guardado = _idMedicamento is int idMedicamento
+                ? await EditarAsync(idMedicamento, pedido)
+                : await CrearAsync(pedido);
+
+            if (!guardado)
+                return;
+
+            // La lista se recarga al volver
+            await Shell.Current.GoToAsync("..");
+        }
+
+        private async Task<bool> CrearAsync(MedicamentoRequest pedido)
+        {
             var creado = false;
 
             await EjecutarAsync(async () =>
@@ -65,13 +99,37 @@ namespace NutriTrack.MAUI.ViewModels
                     : resultado.MensajeError;
             });
 
-            if (!creado)
-                return;
+            if (creado)
+                await Shell.Current.DisplayAlertAsync("Nuevo medicamento", "Medicamento creado con éxito.", "Aceptar");
 
-            await Shell.Current.DisplayAlertAsync("Nuevo medicamento", "Medicamento creado con éxito.", "Aceptar");
+            return creado;
+        }
 
-            // La lista se recarga al volver y muestra el nuevo como Activo
-            await Shell.Current.GoToAsync("..");
+        private async Task<bool> EditarAsync(int idMedicamento, MedicamentoRequest pedido)
+        {
+            var editado = false;
+
+            await EjecutarAsync(async () =>
+            {
+                var resultado = await _medicamentoService.EditarAsync(idMedicamento, pedido);
+
+                if (resultado.Exito)
+                {
+                    editado = true;
+                    return;
+                }
+
+                // CU30 E1: no existe (o lo desactivaron mientras tanto).
+                // E2: nombre repetido, con el mensaje del back
+                MensajeError = resultado.CodigoEstado == HttpStatusCode.NotFound
+                    ? MensajeNoExiste
+                    : resultado.MensajeError;
+            });
+
+            if (editado)
+                await Shell.Current.DisplayAlertAsync("Editar medicamento", "Medicamento actualizado con éxito.", "Aceptar");
+
+            return editado;
         }
 
         [RelayCommand]

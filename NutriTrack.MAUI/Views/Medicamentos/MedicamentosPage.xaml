@@ -66,25 +66,53 @@
                         IsVisible="{Binding NoEstaOcupado}">
 
             <CollectionView.Header>
-                <Grid ColumnDefinitions="2*,3*,100"
+                <Grid ColumnDefinitions="2*,3*,100,Auto"
                       ColumnSpacing="8"
                       Padding="8"
                       BackgroundColor="{StaticResource Superficie}">
                     <Label Grid.Column="0" Text="Nombre" Style="{StaticResource Encabezado}" />
                     <Label Grid.Column="1" Text="Descripción" Style="{StaticResource Encabezado}" />
                     <Label Grid.Column="2" Text="Estado" Style="{StaticResource Encabezado}" />
+                    <!-- Mismo ancho que las acciones de las filas; el Encargado no las tiene -->
+                    <Label Grid.Column="3"
+                           Text="Acciones"
+                           WidthRequest="220"
+                           IsVisible="{Binding PuedeCrear}"
+                           Style="{StaticResource Encabezado}" />
                 </Grid>
             </CollectionView.Header>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Medicamento">
                     <Grid RowDefinitions="*,Auto">
-                        <Grid ColumnDefinitions="2*,3*,100"
+                        <Grid ColumnDefinitions="2*,3*,100,Auto"
                               ColumnSpacing="8"
                               Padding="8">
                             <Label Grid.Column="0" Text="{Binding Nombre}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="1" Text="{Binding Descripcion, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="2" Text="{Binding Estado}" Style="{StaticResource Celda}" />
+
+                            <!-- Acciones: el Encargado no ve ninguna -->
+                            <HorizontalStackLayout Grid.Column="3"
+                                                   Spacing="8"
+                                                   WidthRequest="220"
+                                                   IsVisible="{Binding TieneAcciones}"
+                                                   VerticalOptions="Center">
+                                <Button Text="Editar"
+                                        IsVisible="{Binding PuedeEditarYDesactivar}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MedicamentosViewModel}}, Path=EditarCommand}"
+                                        CommandParameter="{Binding .}" />
+                                <Button Text="Desactivar"
+                                        BackgroundColor="{StaticResource Peligro}"
+                                        TextColor="White"
+                                        IsVisible="{Binding PuedeEditarYDesactivar}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MedicamentosViewModel}}, Path=DesactivarCommand}"
+                                        CommandParameter="{Binding .}" />
+                                <Button Text="Reactivar"
+                                        IsVisible="{Binding PuedeReactivar}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MedicamentosViewModel}}, Path=ReactivarCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </HorizontalStackLayout>
                         </Grid>
                         <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
                     </Grid>
