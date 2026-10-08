@@ -66,6 +66,11 @@ namespace NutriTrack.MAUI.Services
         protected Task<ResultadoApi<bool>> PatchSinRespuestaAsync(string url, object cuerpo) =>
             EnviarAsync<bool>(() => Http.PatchAsJsonAsync(url, cuerpo, OpcionesJson), leerDatos: false);
 
+        //Archivos (ej. PDF de los reportes): devuelve los bytes y el nombre que sugiere el back
+
+        protected Task<ResultadoApi<ArchivoDescargado>> GetArchivoAsync(string url) =>
+            EnviarAsync(() => Http.GetAsync(url), LeerArchivoAsync);
+
         // Arma el pedido a mano para los verbos que HttpClient no deja mandar con cuerpo
         private async Task<HttpResponseMessage> EnviarConCuerpoAsync(HttpMethod metodo, string url, object cuerpo)
         {
@@ -78,8 +83,48 @@ namespace NutriTrack.MAUI.Services
 
         //Es uun solo lugar que maneja todos los casos 
 
-        private async Task<ResultadoApi<T>> EnviarAsync<T>(
-            Func<Task<HttpResponseMessage>> pedido, bool leerDatos)
+        private Task<ResultadoApi<T>> EnviarAsync<T>(
+            Func<Task<HttpResponseMessage>> pedido, bool leerDatos) =>
+            EnviarAsync(pedido, respuesta => LeerDatosAsync<T>(respuesta, leerDatos));
+
+        // JSON, texto plano o nada, según el pedido
+        private static async Task<ResultadoApi<T>> LeerDatosAsync<T>(HttpResponseMessage respuesta, bool leerDatos)
+        {
+            if (!leerDatos)
+                return ResultadoApi<T>.Ok(default, respuesta.StatusCode);
+
+            // Algunos endpoints devuelven un texto plano en vez de JSON
+            if (typeof(T) == typeof(string))
+            {
+                var texto = await respuesta.Content.ReadAsStringAsync();
+                return ResultadoApi<T>.Ok((T)(object)texto, respuesta.StatusCode);
+            }
+
+            var datos = await respuesta.Content.ReadFromJsonAsync<T>(OpcionesJson);
+            return ResultadoApi<T>.Ok(datos, respuesta.StatusCode);
+        }
+
+        // Un archivo viaja como bytes, no como JSON. El nombre viene en el encabezado
+        // Content-Disposition (lo arma File(bytes, tipo, nombre) en el back)
+        private static async Task<ResultadoApi<ArchivoDescargado>> LeerArchivoAsync(HttpResponseMessage respuesta)
+        {
+            var contenido = respuesta.Content.Headers;
+            var nombre = contenido.ContentDisposition?.FileNameStar ?? contenido.ContentDisposition?.FileName;
+
+            var archivo = new ArchivoDescargado
+            {
+                Contenido = await respuesta.Content.ReadAsByteArrayAsync(),
+                NombreSugerido = nombre?.Trim('"'),
+                TipoContenido = contenido.ContentType?.MediaType ?? "application/octet-stream"
+            };
+
+            return ResultadoApi<ArchivoDescargado>.Ok(archivo, respuesta.StatusCode);
+        }
+
+        // Errores, timeout y sin conexión en un solo lugar, para cualquier forma de leer la respuesta
+        private static async Task<ResultadoApi<T>> EnviarAsync<T>(
+            Func<Task<HttpResponseMessage>> pedido,
+            Func<HttpResponseMessage, Task<ResultadoApi<T>>> leerRespuesta)
         {
             try
             {
@@ -91,18 +136,7 @@ namespace NutriTrack.MAUI.Services
                     return ResultadoApi<T>.Error(mensaje, respuesta.StatusCode);
                 }
 
-                if (!leerDatos)
-                    return ResultadoApi<T>.Ok(default, respuesta.StatusCode);
-
-                // Algunos endpoints devuelven un texto plano en vez de JSON
-                if (typeof(T) == typeof(string))
-                {
-                    var texto = await respuesta.Content.ReadAsStringAsync();
-                    return ResultadoApi<T>.Ok((T)(object)texto, respuesta.StatusCode);
-                }
-
-                var datos = await respuesta.Content.ReadFromJsonAsync<T>(OpcionesJson);
-                return ResultadoApi<T>.Ok(datos, respuesta.StatusCode);
+                return await leerRespuesta(respuesta);
             }
             catch (TaskCanceledException)
             {

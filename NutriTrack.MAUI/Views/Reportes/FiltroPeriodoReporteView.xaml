@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Filtro de período de los reportes (#116): rodeo, tipo y fechas. Componente, no una página.
+     La pantalla del reporte le pasa su ViewModel:
+     <views:FiltroPeriodoReporteView BindingContext="{Binding Filtro}" />
+     Los campos van uno debajo del otro, como en el resto de los formularios. No usar FlexLayout:
+     en Windows, al cambiar una fecha, rearmaba la fila y cerraba el calendario del DatePicker. -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             x:Class="NutriTrack.MAUI.Views.FiltroPeriodoReporteView"
+             x:DataType="vm:FiltroPeriodoReporteViewModel">
+
+    <ContentView.Resources>
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <!-- Error de un campo, debajo del campo -->
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+
+        <!-- Marco de los Picker: con el estilo general (fondo transparente, sin borde)
+             no se notaba que se podían tocar -->
+        <Style x:Key="MarcoPicker" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource Borde}" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+            <Setter Property="BackgroundColor" Value="{StaticResource Superficie}" />
+            <Setter Property="Padding" Value="8,0" />
+        </Style>
+
+        <Style x:Key="Ayuda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoSecundario}" />
+        </Style>
+
+        <!-- Cada campo: etiqueta, control y error -->
+        <Style x:Key="Campo" TargetType="VerticalStackLayout">
+            <Setter Property="Spacing" Value="4" />
+        </Style>
+    </ContentView.Resources>
+
+    <VerticalStackLayout Spacing="8">
+
+        <!-- "Todos" no manda IdRodeo -->
+        <VerticalStackLayout Style="{StaticResource Campo}">
+            <Label Text="Rodeo" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoPicker}">
+                <Picker ItemsSource="{Binding Rodeos}"
+                        ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionRodeoReporte}"
+                        SelectedItem="{Binding RodeoSeleccionado}"
+                        Title="Elegí el rodeo" />
+            </Border>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Style="{StaticResource Campo}">
+            <Label Text="Tipo de reporte *" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoPicker}">
+                <Picker ItemsSource="{Binding Tipos}"
+                        ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionTipoReporte}"
+                        SelectedItem="{Binding TipoSeleccionado}"
+                        Title="Elegí el tipo" />
+            </Border>
+            <Label Text="{Binding ErrorTipo}"
+                   IsVisible="{Binding HayErrorTipo}"
+                   Style="{StaticResource ErrorCampo}" />
+        </VerticalStackLayout>
+
+        <!-- De diario a anual -->
+        <VerticalStackLayout Style="{StaticResource Campo}"
+                             IsVisible="{Binding MostrarFechaReferencia}">
+            <Label Text="Fecha de referencia *" Style="{StaticResource Etiqueta}" />
+            <DatePicker Date="{Binding FechaReferencia}"
+                        Format="dd/MM/yyyy" />
+            <Label Text="{Binding ErrorFechaReferencia}"
+                   IsVisible="{Binding HayErrorFechaReferencia}"
+                   Style="{StaticResource ErrorCampo}" />
+        </VerticalStackLayout>
+
+        <!-- Personalizado -->
+        <VerticalStackLayout Style="{StaticResource Campo}"
+                             IsVisible="{Binding MostrarRango}">
+            <Label Text="Desde *" Style="{StaticResource Etiqueta}" />
+            <DatePicker Date="{Binding Desde}"
+                        Format="dd/MM/yyyy" />
+            <Label Text="{Binding ErrorDesde}"
+                   IsVisible="{Binding HayErrorDesde}"
+                   Style="{StaticResource ErrorCampo}" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Style="{StaticResource Campo}"
+                             IsVisible="{Binding MostrarRango}">
+            <Label Text="Hasta *" Style="{StaticResource Etiqueta}" />
+            <DatePicker Date="{Binding Hasta}"
+                        Format="dd/MM/yyyy" />
+            <Label Text="{Binding ErrorHasta}"
+                   IsVisible="{Binding HayErrorHasta}"
+                   Style="{StaticResource ErrorCampo}" />
+        </VerticalStackLayout>
+
+        <!-- CU17 R3: qué fechas abarca el tipo elegido -->
+        <Label Text="{Binding TextoPeriodo}"
+               IsVisible="{Binding HayTextoPeriodo}"
+               Style="{StaticResource Ayuda}" />
+
+        <!-- Error al cargar los rodeos -->
+        <Label Text="{Binding MensajeError}"
+               IsVisible="{Binding HayError}"
+               TextColor="{StaticResource Peligro}" />
+    </VerticalStackLayout>
+</ContentView>

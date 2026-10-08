@@ -33,6 +33,8 @@ namespace NutriTrack.MAUI
             MenuModulos.RegistrarRuta<RegistrarPesoPage>(MenuModulos.Peso);
             MenuModulos.RegistrarRuta<RegistrarEventoSanitarioPage>(MenuModulos.EventoSanitario);
             MenuModulos.RegistrarRuta<PlanesAlimenticiosPage>(MenuModulos.PlanAlimenticio);
+            MenuModulos.RegistrarRuta<ReportesPage>(MenuModulos.Reportes);
+            Routing.RegisterRoute(ReporteInventarioViewModel.Ruta, typeof(ReporteInventarioPage));
             Routing.RegisterRoute(AsignarPlanRodeoViewModel.Ruta, typeof(AsignarPlanRodeoPage));
 
             _sesionService = sesionService;

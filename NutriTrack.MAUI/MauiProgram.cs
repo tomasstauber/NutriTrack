@@ -59,6 +59,8 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<IRegistroPesoService, RegistroPesoService>();
             builder.Services.AddTransient<IEventoSanitarioService, EventoSanitarioService>();
             builder.Services.AddTransient<IPlanAlimenticioService, PlanAlimenticioService>();
+            builder.Services.AddTransient<IReporteService, ReporteService>();
+            builder.Services.AddTransient<IArchivoService, ArchivoService>();
 
             // ViewModels
             builder.Services.AddTransient<LoginViewModel>();
@@ -70,6 +72,10 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<RegistrarPesoViewModel>();
             builder.Services.AddTransient<RegistrarEventoSanitarioViewModel>();
             builder.Services.AddTransient<PlanesAlimenticiosViewModel>();
+            builder.Services.AddTransient<ReportesViewModel>();
+            builder.Services.AddTransient<ReporteInventarioViewModel>();
+            // Filtro de período de los reportes: cada reporte recibe el suyo
+            builder.Services.AddTransient<FiltroPeriodoReporteViewModel>();
             builder.Services.AddTransient<AsignarPlanRodeoViewModel>();
             // Selector múltiple de animales: cada pantalla anfitriona recibe el suyo
             builder.Services.AddTransient<SelectorAnimalesViewModel>();
@@ -93,6 +99,8 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<RegistrarPesoPage>();
             builder.Services.AddTransient<RegistrarEventoSanitarioPage>();
             builder.Services.AddTransient<PlanesAlimenticiosPage>();
+            builder.Services.AddTransient<ReportesPage>();
+            builder.Services.AddTransient<ReporteInventarioPage>();
             builder.Services.AddTransient<AsignarPlanRodeoPage>();
 
 #if DEBUG

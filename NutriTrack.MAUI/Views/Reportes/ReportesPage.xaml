@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             x:Class="NutriTrack.MAUI.Views.ReportesPage"
+             x:DataType="vm:ReportesViewModel"
+             Title="Reportes"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <!-- Mismo estilo que el menú del panel principal -->
+    <ScrollView>
+        <VerticalStackLayout Spacing="8"
+                             Padding="16"
+                             MaximumWidthRequest="600">
+            <Button Text="Inventario de animales"
+                    Command="{Binding InventarioCommand}" />
+            <Button Text="Fechas importantes"
+                    Command="{Binding FechasImportantesCommand}" />
+            <Button Text="Evolución de peso"
+                    Command="{Binding EvolucionPesoCommand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
