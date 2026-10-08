@@ -69,7 +69,7 @@
                         IsVisible="{Binding NoEstaOcupado}">
 
             <CollectionView.Header>
-                <Grid ColumnDefinitions="*,*,2*,*"
+                <Grid ColumnDefinitions="*,*,2*,*,100"
                       ColumnSpacing="8"
                       Padding="8"
                       BackgroundColor="{StaticResource Superficie}">
@@ -83,13 +83,22 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Usuario">
                     <Grid RowDefinitions="*,Auto">
-                        <Grid ColumnDefinitions="*,*,2*,*"
+                        <Grid ColumnDefinitions="*,*,2*,*,100"
                               ColumnSpacing="8"
                               Padding="8">
                             <Label Grid.Column="0" Text="{Binding Nombre}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="1" Text="{Binding NombreUsuario}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="2" Text="{Binding Correo}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="3" Text="{Binding RolTexto}" Style="{StaticResource Celda}" />
+                            <!-- CU23: oculto en la fila del usuario logueado (R4) -->
+                            <Button Grid.Column="4"
+                                    Text="Eliminar"
+                                    BackgroundColor="{StaticResource Peligro}"
+                                    TextColor="White"
+                                    VerticalOptions="Center"
+                                    IsVisible="{Binding PuedeEliminarse}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UsuariosViewModel}}, Path=EliminarCommand}"
+                                    CommandParameter="{Binding .}" />
                         </Grid>
                         <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
                     </Grid>
