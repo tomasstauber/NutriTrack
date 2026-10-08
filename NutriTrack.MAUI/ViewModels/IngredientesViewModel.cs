@@ -49,11 +49,10 @@ namespace NutriTrack.MAUI.ViewModels
             Filtrar();
         });
 
-        // Pendiente: navegar al formulario de alta cuando exista
+        // CU24: el catálogo se recarga al volver del alta
         [RelayCommand]
-        private void NuevoIngrediente()
-        {
-        }
+        private Task NuevoIngrediente() =>
+            Shell.Current.GoToAsync(NuevoIngredienteViewModel.Ruta);
 
         // R2: búsqueda por nombre en memoria, parcial y sin distinguir mayúsculas
         private void Filtrar()

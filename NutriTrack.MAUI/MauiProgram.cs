@@ -40,6 +40,7 @@ namespace NutriTrack.MAUI
 
             // ViewModels
             builder.Services.AddTransient<IngredientesViewModel>();
+            builder.Services.AddTransient<NuevoIngredienteViewModel>();
             builder.Services.AddTransient<MedicamentosViewModel>();
             builder.Services.AddTransient<NuevoMedicamentoViewModel>();
             builder.Services.AddTransient<IRodeoService, RodeoService>();
@@ -74,6 +75,7 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<LoginPage>();
             builder.Services.AddTransient<PanelPrincipalPage>();
             builder.Services.AddTransient<IngredientesPage>();
+            builder.Services.AddTransient<NuevoIngredientePage>();
             builder.Services.AddTransient<MedicamentosPage>();
             builder.Services.AddTransient<NuevoMedicamentoPage>();
             builder.Services.AddTransient<AnimalesPage>();
