@@ -10,7 +10,7 @@ namespace NutriTrack.MAUI.ViewModels
     // CU2 - Consulta de ficha individual y CU4 - Desactivar ficha de un animal.
     // El historial sanitario viene del prototipo.
     // Recibe por navegación "id", "caravanaCuig" y "caravanaNroManejo":
-    // la ficha se pide por caravana (no trae id) y el historial por id
+    // la ficha se pide por caravana y el historial por id
     public partial class PerfilAnimalViewModel : BaseViewModel, IQueryAttributable
     {
         // Ruta de Shell del perfil (se registra en AppShell.xaml.cs)
@@ -39,6 +39,7 @@ namespace NutriTrack.MAUI.ViewModels
         [NotifyPropertyChangedFor(nameof(Caravana))]
         [NotifyPropertyChangedFor(nameof(TextoPesoAlNacer))]
         [NotifyPropertyChangedFor(nameof(TextoUltimoPeso))]
+        [NotifyPropertyChangedFor(nameof(ObservacionesUltimoPeso))]
         [NotifyPropertyChangedFor(nameof(EstaActivo))]
         [NotifyPropertyChangedFor(nameof(PuedeRegistrarPeso))]
         [NotifyPropertyChangedFor(nameof(PuedeDesactivar))]
@@ -54,11 +55,12 @@ namespace NutriTrack.MAUI.ViewModels
             ? string.Empty
             : $"{FormatearPeso(Ficha.PesoAlNacer)} kg";
 
-        // El id de UltimoPeso es el del animal, no el del pesaje: no se usa.
         // La fecha llega con Z y se muestra tal cual, sin pasar a hora local
         public string TextoUltimoPeso => Ficha?.UltimoPeso is { } ultimo
             ? $"{FormatearPeso(ultimo.PesoKg)} kg ({ultimo.FechaPesaje:dd/MM/yyyy})"
             : "Sin pesajes";
+
+        public string? ObservacionesUltimoPeso => Ficha?.UltimoPeso?.Observaciones;
 
         public bool EstaActivo => Ficha?.Estado == "Activo";
 
