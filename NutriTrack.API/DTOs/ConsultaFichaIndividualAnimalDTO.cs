@@ -2,6 +2,7 @@
 {
     public class ConsultaFichaIndividualAnimalDTO
     {
+        public int Id { get; set; }
         public string CaravanaCuig {  get; set; }
         public string CaravanaNroManejo { get; set; }
         public DateTime FechaNacimiento  {get; set; }
@@ -18,11 +19,11 @@
          
     }
 
-    //funcion pq hay dos datos asi lo agrupo en un objeto
     public class UltimoPesoDTO
     {
         public int Id { get; set; }
         public DateTime FechaPesaje {  get; set; }
         public decimal PesoKg { get; set; }
+        public string? Observaciones { get; set; }
     }
 }

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:views="clr-namespace:NutriTrack.MAUI.Views"
+             x:Class="NutriTrack.MAUI.Views.ReporteInventarioPage"
+             x:DataType="vm:ReporteInventarioViewModel"
+             Title="Inventario de animales"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Sin ScrollView: la tabla va en la fila "*" y tiene su propio scroll -->
+    <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="12" Padding="16">
+
+        <!-- El período no es el inventario total: sin esta aclaración, "sin resultados" parece un error -->
+        <Label Grid.Row="0"
+               Text="Muestra los animales activos dados de alta en el sistema dentro del período elegido. No es el inventario total: con el tipo Actual solo aparecen los dados de alta hoy."
+               TextColor="{StaticResource TextoSecundario}" />
+
+        <views:FiltroPeriodoReporteView Grid.Row="1" BindingContext="{Binding Filtro}" />
+
+        <VerticalStackLayout Grid.Row="2" Spacing="8">
+            <HorizontalStackLayout Spacing="12">
+                <Button Text="Generar"
+                        Command="{Binding GenerarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+
+                <!-- Mismos filtros que Generar; abre el PDF con el visor del sistema -->
+                <Button Text="Descargar PDF"
+                        Command="{Binding DescargarPdfCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+
+            <Label Text="Descargando PDF…"
+                   IsVisible="{Binding DescargandoPdf}"
+                   TextColor="{StaticResource TextoSecundario}" />
+
+            <!-- Errores de la API (los 404 van como estado vacío) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <!-- S1 -->
+            <Label Text="{Binding TextoTotal}"
+                   IsVisible="{Binding HayResultado}"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource TextoPrincipal}" />
+        </VerticalStackLayout>
+
+        <ActivityIndicator Grid.Row="3"
+                           IsRunning="{Binding EstaOcupado}"
+                           IsVisible="{Binding EstaOcupado}"
+                           VerticalOptions="Center" />
+
+        <!-- E6 / E1: sin resultados (404), con el mensaje del back -->
+        <Label Grid.Row="3"
+               Text="{Binding MensajeVacio}"
+               IsVisible="{Binding HayMensajeVacio}"
+               TextColor="{StaticResource TextoSecundario}"
+               HorizontalOptions="Center"
+               VerticalOptions="Start" />
+
+        <!-- Tabla: con scroll horizontal para que entren todas las columnas en pantallas chicas -->
+        <ScrollView Grid.Row="3"
+                    Orientation="Horizontal"
+                    IsVisible="{Binding HayResultado}">
+            <CollectionView ItemsSource="{Binding Animales}"
+                            WidthRequest="960">
+
+                <CollectionView.Header>
+                    <Grid ColumnDefinitions="150,140,90,150,110,90,160"
+                          ColumnSpacing="8"
+                          Padding="8"
+                          BackgroundColor="{StaticResource Superficie}">
+                        <Label Grid.Column="0" Text="Caravana" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="1" Text="Raza" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="2" Text="Sexo" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="3" Text="Edad" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="4" Text="Fecha de alta" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="5" Text="Estado" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="6" Text="Rodeo" Style="{StaticResource Encabezado}" />
+                    </Grid>
+                </CollectionView.Header>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:AnimalInventario">
+                        <Grid RowDefinitions="*,Auto">
+                            <Grid ColumnDefinitions="150,140,90,150,110,90,160"
+                                  ColumnSpacing="8"
+                                  Padding="8">
+                                <Label Grid.Column="0" Text="{Binding Caravana}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="1" Text="{Binding Raza}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="2" Text="{Binding Sexo}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="3" Text="{Binding Edad}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="4" Text="{Binding FechaAltaSistema, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="5" Text="{Binding EstadoActual}" Style="{StaticResource Celda}" />
+                                <Label Grid.Column="6" Text="{Binding RodeoTexto}" Style="{StaticResource Celda}" />
+                            </Grid>
+                            <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+    </Grid>
+</ContentPage>

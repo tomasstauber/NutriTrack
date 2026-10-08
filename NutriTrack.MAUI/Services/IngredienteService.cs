@@ -11,5 +11,8 @@ namespace NutriTrack.MAUI.Services
 
         public Task<ResultadoApi<List<Ingrediente>>> ListarAsync() =>
             GetAsync<List<Ingrediente>>("api/Ingrediente");
+
+        public Task<ResultadoApi<Ingrediente>> CrearAsync(IngredienteRequest ingrediente) =>
+            PostAsync<Ingrediente>("api/Ingrediente", ingrediente);
     }
 }

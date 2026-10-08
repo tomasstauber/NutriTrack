@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             x:Class="NutriTrack.MAUI.Views.NuevoIngredientePage"
+             x:DataType="vm:NuevoIngredienteViewModel"
+             Title="Nuevo ingrediente"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="Titulo" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <!-- Error de un campo, debajo del campo -->
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" MaximumWidthRequest="600">
+
+            <!-- D1 a D3 -->
+            <Label Text="Nombre *" Style="{StaticResource Etiqueta}" />
+            <Entry Text="{Binding Nombre}"
+                   Placeholder="Nombre del ingrediente"
+                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Label Text="{Binding ErrorNombre}"
+                   IsVisible="{Binding HayErrorNombre}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Descripción" Style="{StaticResource Etiqueta}" />
+            <Editor Text="{Binding Descripcion}"
+                    Placeholder="Opcional"
+                    AutoSize="TextChanges"
+                    MinimumHeightRequest="80"
+                    IsEnabled="{Binding NoEstaOcupado}" />
+
+            <Label Text="Minerales" Style="{StaticResource Etiqueta}" />
+            <Entry Text="{Binding Minerales}"
+                   Placeholder="Opcional"
+                   IsEnabled="{Binding NoEstaOcupado}" />
+
+            <!-- D4 a D6: opcionales, mayores o iguales a 0 -->
+            <Label Text="Valores nutricionales (opcionales)" Style="{StaticResource Titulo}" />
+
+            <Label Text="Energía metabolizable" Style="{StaticResource Etiqueta}" />
+            <Entry Text="{Binding EnergiaMetabolizable}"
+                   Placeholder="Ej. 2,8"
+                   Keyboard="Numeric"
+                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Label Text="{Binding ErrorEnergiaMetabolizable}"
+                   IsVisible="{Binding HayErrorEnergiaMetabolizable}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Proteína bruta" Style="{StaticResource Etiqueta}" />
+            <Entry Text="{Binding ProteinaBruta}"
+                   Placeholder="Ej. 12,5"
+                   Keyboard="Numeric"
+                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Label Text="{Binding ErrorProteinaBruta}"
+                   IsVisible="{Binding HayErrorProteinaBruta}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Fibra detergente neutro" Style="{StaticResource Etiqueta}" />
+            <Entry Text="{Binding FibraDetergenteNeutro}"
+                   Placeholder="Ej. 45"
+                   Keyboard="Numeric"
+                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Label Text="{Binding ErrorFibraDetergenteNeutro}"
+                   IsVisible="{Binding HayErrorFibraDetergenteNeutro}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <!-- D7 y D8 -->
+            <Label Text="Unidad de medida *" Style="{StaticResource Etiqueta}" />
+            <Picker ItemsSource="{Binding Unidades}"
+                    SelectedItem="{Binding UnidadMedida}"
+                    Title="Elegir"
+                    IsEnabled="{Binding NoEstaOcupado}" />
+            <Label Text="{Binding ErrorUnidadMedida}"
+                   IsVisible="{Binding HayErrorUnidadMedida}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Aditivos" Style="{StaticResource Etiqueta}" />
+            <Entry Text="{Binding Aditivos}"
+                   Placeholder="Opcional"
+                   IsEnabled="{Binding NoEstaOcupado}" />
+
+            <!-- Errores de la API (nombre duplicado...) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Button Text="Guardar"
+                        Command="{Binding GuardarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

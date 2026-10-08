@@ -6,5 +6,8 @@ namespace NutriTrack.MAUI.Services
     {
         // Lista los ingredientes activos del catálogo.
         Task<ResultadoApi<List<Ingrediente>>> ListarAsync();
+
+        // POST api/Ingrediente: devuelve el ingrediente creado, con su id.
+        Task<ResultadoApi<Ingrediente>> CrearAsync(IngredienteRequest ingrediente);
     }
 }

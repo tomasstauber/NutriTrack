@@ -7,20 +7,24 @@ using NutriTrack.MAUI.Services;
 
 namespace NutriTrack.MAUI.ViewModels
 {
-    // CU20 - Consultar usuarios y CU22 - Editar usuario
+    // CU20 - Consultar usuarios y CU23 - Eliminar usuario
     public partial class UsuariosViewModel : BaseViewModel
     {
         private const string MensajeSinResultados = "No se encontraron usuarios con los filtros seleccionados.";
         private const string MensajeErrorCarga = "No se pudieron cargar los usuarios; intente nuevamente.";
+        private const string MensajeEliminarPropio = "No puede eliminar su propio usuario";
+        private const string MensajeErrorEliminar = "No se pudo eliminar el usuario; intente nuevamente.";
 
         private readonly IUsuarioService _usuarioService;
+        private readonly ISesionService _sesionService;
 
         // Lista completa tal como vino de la API; los filtros se aplican sobre esta lista
         private List<Usuario> _todos = [];
 
-        public UsuariosViewModel(IUsuarioService usuarioService)
+        public UsuariosViewModel(IUsuarioService usuarioService, ISesionService sesionService)
         {
             _usuarioService = usuarioService;
+            _sesionService = sesionService;
             RolSeleccionado = OpcionesRol[0];
         }
 
@@ -68,6 +72,10 @@ namespace NutriTrack.MAUI.ViewModels
             if (resultado.Exito)
             {
                 _todos = resultado.Datos ?? [];
+
+                // CU23 R4: en la fila propia no se puede eliminar
+                foreach (var usuario in _todos)
+                    usuario.PuedeEliminarse = !EsUsuarioActual(usuario);
             }
             else
             {
@@ -101,6 +109,57 @@ namespace NutriTrack.MAUI.ViewModels
             {
                 ["usuario"] = usuario
             });
+
+        // CU23 - Eliminar usuario
+        [RelayCommand]
+        private async Task EliminarAsync(Usuario usuario)
+        {
+            // E2: el botón está oculto en la fila propia; esto es por las dudas
+            if (EsUsuarioActual(usuario))
+            {
+                MensajeError = MensajeEliminarPropio;
+                return;
+            }
+
+            // R2: confirmación que nombra al usuario
+            var confirmado = await Shell.Current.DisplayAlertAsync(
+                "Eliminar usuario",
+                $"Vas a eliminar al usuario \"{usuario.NombreUsuario}\" ({usuario.Nombre}). ¿Querés continuar?",
+                "Eliminar", "Cancelar");
+
+            // E1: si cancela, no se llama a la API
+            if (!confirmado)
+                return;
+
+            var eliminado = false;
+
+            await EjecutarAsync(async () =>
+            {
+                PuedeReintentar = false;
+
+                var resultado = await _usuarioService.EliminarAsync(usuario.Id);
+
+                if (resultado.Exito)
+                    eliminado = true;
+                // E2 y E3: los valida el back y se muestra su mensaje
+                else if (resultado.CodigoEstado == HttpStatusCode.BadRequest)
+                    MensajeError = resultado.MensajeError;
+                // E4: cualquier otro error
+                else
+                    MensajeError = MensajeErrorEliminar;
+            });
+
+            if (!eliminado)
+                return;
+
+            await Shell.Current.DisplayAlertAsync("Eliminar usuario", "Usuario eliminado correctamente.", "Aceptar");
+            await CargarAsync();
+        }
+
+        // R4: se compara el nombre de usuario de la fila con el de la sesión
+        private bool EsUsuarioActual(Usuario usuario) =>
+            string.Equals(usuario.NombreUsuario, _sesionService.SesionActual?.NombreUsuario,
+                StringComparison.OrdinalIgnoreCase);
 
         // R2 y R3: filtros en memoria sobre la lista ya cargada (el endpoint no tiene parámetros)
         private void Filtrar()

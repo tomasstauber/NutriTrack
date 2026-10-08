@@ -19,6 +19,7 @@ namespace NutriTrack.MAUI
             MenuModulos.RegistrarRuta<MedicamentosPage>(MenuModulos.Medicamentos);
 
             // Pantallas internas de los módulos (no aparecen en el menú)
+            Routing.RegisterRoute(NuevoIngredienteViewModel.Ruta, typeof(NuevoIngredientePage));
             Routing.RegisterRoute(NuevoMedicamentoViewModel.Ruta, typeof(NuevoMedicamentoPage));
             MenuModulos.RegistrarRuta<AnimalesPage>(MenuModulos.Animales);
             Routing.RegisterRoute(AgregarAnimalViewModel.Ruta, typeof(AgregarAnimalPage));
@@ -32,6 +33,10 @@ namespace NutriTrack.MAUI
             Routing.RegisterRoute(EditarUsuarioViewModel.Ruta, typeof(EditarUsuarioPage));
             MenuModulos.RegistrarRuta<RegistrarPesoPage>(MenuModulos.Peso);
             MenuModulos.RegistrarRuta<RegistrarEventoSanitarioPage>(MenuModulos.EventoSanitario);
+            MenuModulos.RegistrarRuta<PlanesAlimenticiosPage>(MenuModulos.PlanAlimenticio);
+            MenuModulos.RegistrarRuta<ReportesPage>(MenuModulos.Reportes);
+            Routing.RegisterRoute(ReporteInventarioViewModel.Ruta, typeof(ReporteInventarioPage));
+            Routing.RegisterRoute(AsignarPlanRodeoViewModel.Ruta, typeof(AsignarPlanRodeoPage));
 
             _sesionService = sesionService;
             _sesionService.SesionExpirada += OnSesionExpirada;

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.AsignarPlanRodeoPage"
+             x:DataType="vm:AsignarPlanRodeoViewModel"
+             Title="Asignar plan a rodeo"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Dato" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <!-- Error de un campo, debajo del campo -->
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto"
+          RowSpacing="12"
+          Padding="16"
+          MaximumWidthRequest="800">
+
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Spacing="8">
+
+                <!-- Plan elegido en la lista: solo lectura -->
+                <Border Padding="12"
+                        BackgroundColor="{StaticResource Superficie}"
+                        Stroke="{StaticResource Borde}"
+                        IsVisible="{Binding HayPlan}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding Plan.NombrePlan}"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="{StaticResource TextoPrincipal}" />
+                        <Label Text="{Binding Plan.Categoria, StringFormat='Categoría: {0}', Converter={StaticResource NuloAGuion}}"
+                               Style="{StaticResource Dato}" />
+                        <Label Text="{Binding Plan.TipoAlimentacion, StringFormat='Tipo de alimentación: {0}'}"
+                               Style="{StaticResource Dato}" />
+                        <Label Text="{Binding Plan.KgMsDiariaPorAnimal, StringFormat='Kg MS / animal / día: {0:0.##}'}"
+                               Style="{StaticResource Dato}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- R2: el texto de cada opción ya avisa si el rodeo está vacío -->
+                <Label Text="Rodeo *" Style="{StaticResource Etiqueta}" />
+                <Picker ItemsSource="{Binding Rodeos}"
+                        ItemDisplayBinding="{Binding TextoOpcion, x:DataType=models:Rodeo}"
+                        SelectedItem="{Binding RodeoSeleccionado}"
+                        Title="Elegí el rodeo"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Label Text="{Binding ErrorRodeo}"
+                       IsVisible="{Binding HayErrorRodeo}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <Label Text="Vigencia desde *" Style="{StaticResource Etiqueta}" />
+                <DatePicker Date="{Binding VigenciaDesde}"
+                            Format="dd/MM/yyyy" />
+                <Label Text="{Binding ErrorVigenciaDesde}"
+                       IsVisible="{Binding HayErrorVigenciaDesde}"
+                       Style="{StaticResource ErrorCampo}" />
+
+                <!-- Opcional: sin tildar viaja en null -->
+                <HorizontalStackLayout Spacing="4">
+                    <CheckBox IsChecked="{Binding CargarVigenciaHasta}"
+                              VerticalOptions="Center" />
+                    <Label Text="Cargar vigencia hasta"
+                           TextColor="{StaticResource TextoPrincipal}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <DatePicker Date="{Binding VigenciaHasta}"
+                            IsVisible="{Binding CargarVigenciaHasta}"
+                            Format="dd/MM/yyyy" />
+                <Label Text="{Binding ErrorVigenciaHasta}"
+                       IsVisible="{Binding HayErrorVigenciaHasta}"
+                       Style="{StaticResource ErrorCampo}" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <VerticalStackLayout Grid.Row="1" Spacing="8">
+            <!-- Errores de la API (plan ya asignado, rodeo sin animales, inexistente...) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Button Text="Asignar"
+                        Command="{Binding AsignarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

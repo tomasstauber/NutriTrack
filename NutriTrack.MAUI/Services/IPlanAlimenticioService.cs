@@ -1,0 +1,16 @@
+using NutriTrack.MAUI.Models;
+
+namespace NutriTrack.MAUI.Services
+{
+    public interface IPlanAlimenticioService
+    {
+        // GET api/PlanAlimenticio: lista de planes.
+        // Solo Asesor técnico y Administrador: al resto el back responde 403.
+        Task<ResultadoApi<List<PlanAlimenticio>>> ListarAsync();
+
+        // POST api/PlanRodeoAsignacion: asigna el plan a un rodeo (CU10).
+        // Si el rodeo tenía otro plan activo, el back lo cierra y lo informa en la respuesta.
+        // Errores en texto (404 plan o rodeo, 400 el resto). Solo Asesor técnico y Administrador
+        Task<ResultadoApi<AsignarPlanResponse>> AsignarARodeoAsync(AsignarPlanRequest asignacion);
+    }
+}
