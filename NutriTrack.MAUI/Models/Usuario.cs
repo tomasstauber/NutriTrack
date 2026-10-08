@@ -10,6 +10,9 @@ namespace NutriTrack.MAUI.Models
         public string NombreUsuario { get; set; } = string.Empty;
         public RolUsuario Rol { get; set; }
 
+        // No viene de la API: false en la fila del usuario logueado (CU23 R4)
+        public bool PuedeEliminarse { get; set; } = true;
+
         // No viene de la API: el rol en texto legible para la tabla
         public string RolTexto => Rol switch
         {
