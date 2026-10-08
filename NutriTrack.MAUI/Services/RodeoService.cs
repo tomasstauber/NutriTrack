@@ -20,5 +20,8 @@ namespace NutriTrack.MAUI.Services
 
         public Task<ResultadoApi<RodeoResponse>> CrearAsync(CrearRodeoRequest rodeo) =>
             PostAsync<RodeoResponse>("api/Rodeo", rodeo);
+
+        public Task<ResultadoApi<TransferenciaResponse>> TransferirAsync(TransferirAnimalesRequest transferencia) =>
+            PatchAsync<TransferenciaResponse>("api/TransferenciaAnimal", transferencia);
     }
 }

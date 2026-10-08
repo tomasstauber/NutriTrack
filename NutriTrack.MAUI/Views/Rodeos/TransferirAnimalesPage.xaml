@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:views="clr-namespace:NutriTrack.MAUI.Views"
+             x:Class="NutriTrack.MAUI.Views.TransferirAnimalesPage"
+             x:DataType="vm:TransferirAnimalesViewModel"
+             Title="Transferir animales"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <!-- Error de un campo, debajo del campo -->
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Sin ScrollView: el selector va en la fila "*" y tiene su propia lista -->
+    <Grid RowDefinitions="Auto,Auto,*,Auto"
+          RowSpacing="12"
+          Padding="16"
+          MaximumWidthRequest="800">
+
+        <!-- Rodeos origen y destino -->
+        <VerticalStackLayout Grid.Row="0" Spacing="8">
+            <Label Text="Rodeo origen *" Style="{StaticResource Etiqueta}" />
+            <Picker ItemsSource="{Binding Rodeos}"
+                    ItemDisplayBinding="{Binding Nombre, x:DataType=models:Rodeo}"
+                    SelectedItem="{Binding RodeoOrigen}"
+                    Title="Elegí el rodeo origen"
+                    IsEnabled="{Binding NoEstaOcupado}" />
+            <Label Text="{Binding ErrorOrigen}"
+                   IsVisible="{Binding HayErrorOrigen}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <!-- R3: sin el rodeo origen entre las opciones -->
+            <Label Text="Rodeo destino *" Style="{StaticResource Etiqueta}" />
+            <Picker ItemsSource="{Binding RodeosDestino}"
+                    ItemDisplayBinding="{Binding Nombre, x:DataType=models:Rodeo}"
+                    SelectedItem="{Binding RodeoDestino}"
+                    Title="Elegí el rodeo destino"
+                    IsEnabled="{Binding NoEstaOcupado}" />
+            <Label Text="{Binding ErrorDestino}"
+                   IsVisible="{Binding HayErrorDestino}"
+                   Style="{StaticResource ErrorCampo}" />
+        </VerticalStackLayout>
+
+        <!-- Animales: los activos del rodeo origen -->
+        <VerticalStackLayout Grid.Row="1" Spacing="4">
+            <Label Text="Animales * (al menos uno)" Style="{StaticResource Etiqueta}" />
+            <Label Text="Elegí el rodeo origen para ver sus animales"
+                   IsVisible="{Binding MostrarElegirOrigen}"
+                   TextColor="{StaticResource TextoSecundario}" />
+            <Label Text="{Binding ErrorAnimales}"
+                   IsVisible="{Binding HayErrorAnimales}"
+                   Style="{StaticResource ErrorCampo}" />
+        </VerticalStackLayout>
+
+        <!-- IsVisible va en el contenedor: en el selector se evaluaría contra su propio BindingContext -->
+        <Grid Grid.Row="2" IsVisible="{Binding MostrarSelector}">
+            <views:SelectorAnimalesView BindingContext="{Binding Selector}" />
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="3" Spacing="8">
+            <!-- Errores de la API (rodeo inexistente, animal que ya no pertenece al origen...) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Button Text="Transferir"
+                        Command="{Binding TransferirCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

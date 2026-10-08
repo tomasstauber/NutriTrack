@@ -15,5 +15,9 @@ namespace NutriTrack.MAUI.Services
 
         // Crea el rodeo con los animales indicados (deben estar activos y sin rodeo).
         Task<ResultadoApi<RodeoResponse>> CrearAsync(CrearRodeoRequest rodeo);
+
+        // PATCH api/TransferenciaAnimal: pasa los animales del rodeo origen al destino (CU7).
+        // Atómica: si un animal falla, no se transfiere ninguno. Errores en texto (404 rodeo, 400 el resto).
+        Task<ResultadoApi<TransferenciaResponse>> TransferirAsync(TransferirAnimalesRequest transferencia);
     }
 }
