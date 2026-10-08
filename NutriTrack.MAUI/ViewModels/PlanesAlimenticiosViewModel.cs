@@ -50,10 +50,12 @@ namespace NutriTrack.MAUI.ViewModels
         }
 
         // CU11: asignar el plan a un rodeo
-        // TODO #115: navegar a la asignación pasando el plan
+        // Se pasa el plan completo: la pantalla lo muestra sin pedirlo de nuevo a la API
         [RelayCommand]
-        private void AsignarARodeo(PlanAlimenticio plan)
-        {
-        }
+        private Task AsignarARodeo(PlanAlimenticio plan) =>
+            Shell.Current.GoToAsync(AsignarPlanRodeoViewModel.Ruta, new Dictionary<string, object>
+            {
+                ["plan"] = plan
+            });
     }
 }
