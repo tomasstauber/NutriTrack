@@ -4,7 +4,7 @@
              xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
              x:Class="NutriTrack.MAUI.Views.NuevoIngredientePage"
              x:DataType="vm:NuevoIngredienteViewModel"
-             Title="Nuevo ingrediente"
+             Title="{Binding Titulo}"
              BackgroundColor="{StaticResource Fondo}">
 
     <ContentPage.Resources>

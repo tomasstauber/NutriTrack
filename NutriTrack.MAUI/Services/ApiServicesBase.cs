@@ -46,6 +46,10 @@ namespace NutriTrack.MAUI.Services
         protected Task<ResultadoApi<bool>> DeleteAsync(string url) =>
             EnviarAsync<bool>(() => Http.DeleteAsync(url), leerDatos: false);
 
+        // DELETE que devuelve datos (con T = string lee el texto plano del back, ej. DesactivarIngrediente)
+        protected Task<ResultadoApi<T>> DeleteAsync<T>(string url) =>
+            EnviarAsync<T>(() => Http.DeleteAsync(url), leerDatos: true);
+
         // DELETE con cuerpo JSON (ej. EliminarRodeo): HttpClient.DeleteAsync no acepta cuerpo
         protected Task<ResultadoApi<bool>> DeleteAsync(string url, object cuerpo) =>
             EnviarAsync<bool>(() => EnviarConCuerpoAsync(HttpMethod.Delete, url, cuerpo), leerDatos: false);

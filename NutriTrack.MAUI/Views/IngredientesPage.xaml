@@ -48,16 +48,19 @@
                            IsVisible="{Binding EstaOcupado}"
                            VerticalOptions="Center" />
 
-        <!-- Tabla: con scroll horizontal para que entren todas las columnas en pantallas chicas -->
+        <!-- Tabla: con scroll horizontal para que entren todas las columnas en pantallas chicas.
+             WidthRequest = suma de columnas (1400) + 8 espacios de 8 (64) + padding de la fila (16) -->
+        <!-- Si se cambia una columna, recalcular WidthRequest -->
+
         <ScrollView Grid.Row="2"
                     Orientation="Horizontal"
                     IsVisible="{Binding NoEstaOcupado}">
             <CollectionView ItemsSource="{Binding Ingredientes}"
                             EmptyView="{Binding MensajeVacio}"
-                            WidthRequest="1140">
+                            WidthRequest="1460">
 
                 <CollectionView.Header>
-                    <Grid ColumnDefinitions="160,220,160,110,110,110,90,180"
+                    <Grid ColumnDefinitions="160,220,160,110,110,110,90,180,240"
                           ColumnSpacing="8"
                           Padding="8"
                           BackgroundColor="{StaticResource Superficie}">
@@ -69,13 +72,14 @@
                         <Label Grid.Column="5" Text="Fibra detergente neutro" Style="{StaticResource Encabezado}" />
                         <Label Grid.Column="6" Text="Unidad de medida" Style="{StaticResource Encabezado}" />
                         <Label Grid.Column="7" Text="Aditivos" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="8" Text="Acciones" Style="{StaticResource Encabezado}" />
                     </Grid>
                 </CollectionView.Header>
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Ingrediente">
                         <Grid RowDefinitions="*,Auto">
-                            <Grid ColumnDefinitions="160,220,160,110,110,110,90,180"
+                            <Grid ColumnDefinitions="160,220,160,110,110,110,90,180,240"
                                   ColumnSpacing="8"
                                   Padding="8">
                                 <Label Grid.Column="0" Text="{Binding NombreIngrediente}" Style="{StaticResource Celda}" />
@@ -86,6 +90,17 @@
                                 <Label Grid.Column="5" Text="{Binding FibraDetergenteNeutro, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
                                 <Label Grid.Column="6" Text="{Binding UnidadMedida, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
                                 <Label Grid.Column="7" Text="{Binding Aditivos, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                <!-- CU26 y CU27 -->
+                                <HorizontalStackLayout Grid.Column="8" Spacing="8" VerticalOptions="Center">
+                                    <Button Text="Editar"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:IngredientesViewModel}}, Path=EditarCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="Desactivar"
+                                            BackgroundColor="{StaticResource Peligro}"
+                                            TextColor="White"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:IngredientesViewModel}}, Path=DesactivarCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
                             </Grid>
                             <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
                         </Grid>

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NutriTrack.MAUI.Models;
@@ -6,8 +7,8 @@ using NutriTrack.MAUI.Services;
 
 namespace NutriTrack.MAUI.ViewModels
 {
-    // CU24 - Crear ingrediente
-    public partial class NuevoIngredienteViewModel : BaseViewModel
+    // CU24 - Crear ingrediente y CU26 - Editar ingrediente (mismo formulario)
+    public partial class NuevoIngredienteViewModel : BaseViewModel, IQueryAttributable
     {
         // Ruta de Shell del formulario (se registra en AppShell.xaml.cs)
         public const string Ruta = "nuevo-ingrediente";
@@ -17,6 +18,35 @@ namespace NutriTrack.MAUI.ViewModels
         public NuevoIngredienteViewModel(IIngredienteService ingredienteService)
         {
             _ingredienteService = ingredienteService;
+        }
+
+        // CU26: id del ingrediente que se edita (null en el alta)
+        private int? _idEdicion;
+
+        public bool EsEdicion => _idEdicion is not null;
+
+        // Título de la página y de los avisos según el modo
+        [ObservableProperty]
+        public partial string Titulo { get; set; } = "Nuevo ingrediente";
+
+        // CU26: el catálogo pasa la fila completa y el formulario se precarga con ella
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (!query.TryGetValue("ingrediente", out var valor) || valor is not Ingrediente ingrediente)
+                return;
+
+            _idEdicion = ingrediente.Id;
+            Titulo = "Editar ingrediente";
+
+            Nombre = ingrediente.NombreIngrediente;
+            Descripcion = ingrediente.Descripcion;
+            Minerales = ingrediente.Minerales;
+            EnergiaMetabolizable = ingrediente.EnergiaMetabolizable?.ToString(CultureInfo.CurrentCulture);
+            ProteinaBruta = ingrediente.ProteinaBruta?.ToString(CultureInfo.CurrentCulture);
+            FibraDetergenteNeutro = ingrediente.FibraDetergenteNeutro?.ToString(CultureInfo.CurrentCulture);
+            // El back guarda la unidad tal como está en el enum; se busca sin distinguir mayúsculas
+            UnidadMedida = Unidades.FirstOrDefault(u => u.Equals(ingrediente.UnidadMedida, StringComparison.OrdinalIgnoreCase));
+            Aditivos = ingrediente.Aditivos;
         }
 
         // R3: texto exacto del enum UnidadMedida del back, en minúscula
@@ -115,6 +145,12 @@ namespace NutriTrack.MAUI.ViewModels
                 Aditivos = TextoOpcional(Aditivos)
             };
 
+            if (EsEdicion)
+            {
+                await ActualizarAsync(_idEdicion!.Value, pedido);
+                return;
+            }
+
             var creado = false;
 
             await EjecutarAsync(async () =>
@@ -135,9 +171,47 @@ namespace NutriTrack.MAUI.ViewModels
             if (!creado)
                 return;
 
-            await Shell.Current.DisplayAlertAsync("Nuevo ingrediente", "Ingrediente creado con éxito.", "Aceptar");
+            await Shell.Current.DisplayAlertAsync(Titulo, "Ingrediente creado con éxito.", "Aceptar");
 
             // S3: el catálogo se recarga al volver y muestra el ingrediente nuevo
+            await Shell.Current.GoToAsync("..");
+        }
+
+        // CU26 - Editar ingrediente
+        private async Task ActualizarAsync(int id, IngredienteRequest pedido)
+        {
+            var actualizado = false;
+            var noExiste = false;
+
+            await EjecutarAsync(async () =>
+            {
+                var resultado = await _ingredienteService.ActualizarAsync(id, pedido);
+
+                if (resultado.Exito)
+                    actualizado = true;
+                // E1: inexistente o inactivo
+                else if (resultado.CodigoEstado == HttpStatusCode.NotFound)
+                    noExiste = true;
+                // E2: nombre duplicado y demás validaciones: mensaje del back
+                else
+                    MensajeError = resultado.MensajeError;
+            });
+
+            if (noExiste)
+            {
+                await Shell.Current.DisplayAlertAsync(Titulo, "No existe un ingrediente con ese id", "Aceptar");
+
+                // El catálogo se recarga al volver (IngredientesPage.OnAppearing)
+                await Shell.Current.GoToAsync("..");
+                return;
+            }
+
+            if (!actualizado)
+                return;
+
+            await Shell.Current.DisplayAlertAsync(Titulo, "Ingrediente actualizado con éxito.", "Aceptar");
+
+            // El catálogo se recarga al volver y muestra la fila actualizada
             await Shell.Current.GoToAsync("..");
         }
 
