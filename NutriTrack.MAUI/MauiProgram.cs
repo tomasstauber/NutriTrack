@@ -49,6 +49,7 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<IngredientesViewModel>();
             builder.Services.AddTransient<RodeosViewModel>();
             builder.Services.AddTransient<CrearRodeoViewModel>();
+            builder.Services.AddTransient<TransferirAnimalesViewModel>();
             builder.Services.AddTransient<UsuariosViewModel>();
             // Servicios que hablan con la API
             builder.Services.AddTransient<IAuthService, AuthService>();
@@ -78,6 +79,7 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<PerfilAnimalPage>();
             builder.Services.AddTransient<RodeosPage>();
             builder.Services.AddTransient<CrearRodeoPage>();
+            builder.Services.AddTransient<TransferirAnimalesPage>();
             builder.Services.AddTransient<UsuariosPage>();
             builder.Services.AddTransient<RegistrarPesoPage>();
             builder.Services.AddTransient<RegistrarEventoSanitarioPage>();

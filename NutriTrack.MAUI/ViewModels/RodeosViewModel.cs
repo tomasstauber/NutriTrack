@@ -50,11 +50,9 @@ namespace NutriTrack.MAUI.ViewModels
         [RelayCommand]
         private Task CrearRodeo() => Shell.Current.GoToAsync(CrearRodeoViewModel.Ruta);
 
-        // Pendiente: navegar a la transferencia de animales cuando exista
+        // CU7: transferir animales entre rodeos
         [RelayCommand]
-        private void TransferirAnimales()
-        {
-        }
+        private Task TransferirAnimales() => Shell.Current.GoToAsync(TransferirAnimalesViewModel.Ruta);
 
         [RelayCommand]
         private async Task EliminarAsync(Rodeo rodeo)
