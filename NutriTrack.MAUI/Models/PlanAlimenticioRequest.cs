@@ -1,6 +1,7 @@
 namespace NutriTrack.MAUI.Models
 {
-    // Cuerpo de POST api/PlanAlimenticio (NutriTrack.API.DTOs.PlanAlimenticioDTO)
+    // Cuerpo de POST api/PlanAlimenticio y de PUT api/PlanAlimenticio/{id}
+    // (NutriTrack.API.DTOs.PlanAlimenticioDTO)
     public class PlanAlimenticioRequest
     {
         public string NombrePlan { get; set; } = string.Empty;

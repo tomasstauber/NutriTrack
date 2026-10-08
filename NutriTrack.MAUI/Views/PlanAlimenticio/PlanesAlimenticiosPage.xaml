@@ -50,7 +50,7 @@
                         IsVisible="{Binding NoEstaOcupado}">
 
             <CollectionView.Header>
-                <Grid ColumnDefinitions="2*,*,*,*,150"
+                <Grid ColumnDefinitions="2*,*,*,*,250"
                       ColumnSpacing="8"
                       Padding="8"
                       BackgroundColor="{StaticResource Superficie}">
@@ -64,18 +64,22 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:PlanAlimenticio">
                     <Grid RowDefinitions="*,Auto">
-                        <Grid ColumnDefinitions="2*,*,*,*,150"
+                        <Grid ColumnDefinitions="2*,*,*,*,250"
                               ColumnSpacing="8"
                               Padding="8">
                             <Label Grid.Column="0" Text="{Binding NombrePlan}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="1" Text="{Binding Categoria, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="2" Text="{Binding TipoAlimentacion}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="3" Text="{Binding KgMsDiariaPorAnimal, StringFormat='{0:0.##}'}" Style="{StaticResource Celda}" />
-                            <Button Grid.Column="4"
-                                    Text="Asignar a rodeo"
-                                    VerticalOptions="Center"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlanesAlimenticiosViewModel}}, Path=AsignarARodeoCommand}"
-                                    CommandParameter="{Binding .}" />
+                            <HorizontalStackLayout Grid.Column="4" Spacing="8" VerticalOptions="Center">
+                                <!-- CU11: editar el plan de la fila -->
+                                <Button Text="Editar"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlanesAlimenticiosViewModel}}, Path=EditarCommand}"
+                                        CommandParameter="{Binding .}" />
+                                <Button Text="Asignar a rodeo"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlanesAlimenticiosViewModel}}, Path=AsignarARodeoCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </HorizontalStackLayout>
                         </Grid>
                         <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
                     </Grid>
