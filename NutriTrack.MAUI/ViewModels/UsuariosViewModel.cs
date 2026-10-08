@@ -101,6 +101,15 @@ namespace NutriTrack.MAUI.ViewModels
         private Task NuevoUsuario() =>
             Shell.Current.GoToAsync(NuevoUsuarioViewModel.Ruta);
 
+        // CU22: el formulario se precarga con la fila (no hay GET de usuario por id).
+        // La lista se recarga al volver (UsuariosPage.OnAppearing)
+        [RelayCommand]
+        private Task Editar(Usuario usuario) =>
+            Shell.Current.GoToAsync(EditarUsuarioViewModel.Ruta, new Dictionary<string, object>
+            {
+                ["usuario"] = usuario
+            });
+
         // CU23 - Eliminar usuario
         [RelayCommand]
         private async Task EliminarAsync(Usuario usuario)

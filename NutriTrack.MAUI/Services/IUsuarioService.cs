@@ -10,6 +10,8 @@ namespace NutriTrack.MAUI.Services
         // Crea un usuario. Solo para Administrador. Devuelve el usuario creado.
         Task<ResultadoApi<Usuario>> CrearAsync(CrearUsuarioRequest pedido);
 
+        // Edita un usuario. Solo para Administrador. Devuelve el usuario actualizado.
+        Task<ResultadoApi<Usuario>> EditarAsync(int id, EditarUsuarioRequest pedido);
         // Elimina un usuario. Solo para Administrador. La confirmación va en la query.
         Task<ResultadoApi<bool>> EliminarAsync(int id);
     }

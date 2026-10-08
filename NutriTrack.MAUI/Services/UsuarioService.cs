@@ -15,6 +15,8 @@ namespace NutriTrack.MAUI.Services
         public Task<ResultadoApi<Usuario>> CrearAsync(CrearUsuarioRequest pedido) =>
             PostAsync<Usuario>("api/Usuario", pedido);
 
+        public Task<ResultadoApi<Usuario>> EditarAsync(int id, EditarUsuarioRequest pedido) =>
+            PutAsync<Usuario>($"api/Usuario/{id}", pedido);
         public Task<ResultadoApi<bool>> EliminarAsync(int id) =>
             DeleteAsync($"api/Usuario/{id}?confirmar=true");
     }

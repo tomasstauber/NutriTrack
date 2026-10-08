@@ -7,20 +7,27 @@ using NutriTrack.MAUI.Services;
 
 namespace NutriTrack.MAUI.ViewModels
 {
-    // CU21 - Crear usuario
-    // Se llega desde "Nuevo usuario" de la lista de usuarios (solo Administrador)
-    public partial class NuevoUsuarioViewModel : BaseViewModel
+    // CU22 - Editar usuario
+    // Se llega desde "Editar" de la lista de usuarios (solo Administrador).
+    // Recibe por navegación "usuario" (la fila de la lista): no hay GET de usuario por id
+    public partial class EditarUsuarioViewModel : BaseViewModel, IQueryAttributable
     {
         // Ruta de Shell del formulario (se registra en AppShell.xaml.cs)
-        public const string Ruta = "nuevo-usuario";
+        public const string Ruta = "editar-usuario";
 
-        private const string MensajeErrorCreacion = "No se pudo crear el usuario; intente nuevamente.";
+        private const string MensajeErrorEdicion = "No se pudo editar el usuario; intente nuevamente.";
 
         private readonly IUsuarioService _usuarioService;
+        private readonly ISesionService _sesionService;
 
-        public NuevoUsuarioViewModel(IUsuarioService usuarioService)
+        // Datos de la fila recibida; el rol original se usa para R6
+        private int _id;
+        private RolUsuario _rolOriginal;
+
+        public EditarUsuarioViewModel(IUsuarioService usuarioService, ISesionService sesionService)
         {
             _usuarioService = usuarioService;
+            _sesionService = sesionService;
         }
 
         // Los tres roles con su texto legible
@@ -31,7 +38,7 @@ namespace NutriTrack.MAUI.ViewModels
             new() { Texto = "Asesor técnico", Rol = RolUsuario.AsesorTecnico }
         ];
 
-        // Datos del usuario
+        // Datos del usuario (no hay contraseña: el DTO de edición no la tiene)
 
         [ObservableProperty]
         public partial string? Nombre { get; set; }
@@ -43,16 +50,16 @@ namespace NutriTrack.MAUI.ViewModels
         public partial string? NombreUsuario { get; set; }
 
         [ObservableProperty]
-        public partial string? Contrasenia { get; set; }
-
-        // Solo se usa en la app para evitar errores de tipeo: no viaja a la API
-        [ObservableProperty]
-        public partial string? ConfirmacionContrasenia { get; set; }
-
-        [ObservableProperty]
         public partial OpcionRol? RolSeleccionado { get; set; }
 
-        // E1: error de cada campo (null si el campo está bien).
+        // R7: editando al propio usuario no se puede cambiar el rol
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PuedeCambiarRol))]
+        public partial bool EsUsuarioActual { get; set; }
+
+        public bool PuedeCambiarRol => !EsUsuarioActual;
+
+        // Error de cada campo (null si el campo está bien).
         // MensajeError (BaseViewModel) queda para los errores de la API
 
         [ObservableProperty]
@@ -68,23 +75,31 @@ namespace NutriTrack.MAUI.ViewModels
         public partial string? ErrorNombreUsuario { get; set; }
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HayErrorContrasenia))]
-        public partial string? ErrorContrasenia { get; set; }
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HayErrorConfirmacionContrasenia))]
-        public partial string? ErrorConfirmacionContrasenia { get; set; }
-
-        [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HayErrorRol))]
         public partial string? ErrorRol { get; set; }
 
         public bool HayErrorNombre => !string.IsNullOrEmpty(ErrorNombre);
         public bool HayErrorCorreo => !string.IsNullOrEmpty(ErrorCorreo);
         public bool HayErrorNombreUsuario => !string.IsNullOrEmpty(ErrorNombreUsuario);
-        public bool HayErrorContrasenia => !string.IsNullOrEmpty(ErrorContrasenia);
-        public bool HayErrorConfirmacionContrasenia => !string.IsNullOrEmpty(ErrorConfirmacionContrasenia);
         public bool HayErrorRol => !string.IsNullOrEmpty(ErrorRol);
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (!query.TryGetValue("usuario", out var valor) || valor is not Usuario usuario)
+                return;
+
+            // Precarga con los datos de la fila
+            _id = usuario.Id;
+            _rolOriginal = usuario.Rol;
+            Nombre = usuario.Nombre;
+            Correo = usuario.Correo;
+            NombreUsuario = usuario.NombreUsuario;
+            RolSeleccionado = OpcionesRol.FirstOrDefault(o => o.Rol == usuario.Rol);
+
+            // R7: se compara el nombre de usuario de la fila con el de la sesión
+            EsUsuarioActual = string.Equals(usuario.NombreUsuario, _sesionService.SesionActual?.NombreUsuario,
+                StringComparison.OrdinalIgnoreCase);
+        }
 
         [RelayCommand]
         private async Task GuardarAsync()
@@ -94,73 +109,67 @@ namespace NutriTrack.MAUI.ViewModels
             var nombre = Nombre?.Trim() ?? string.Empty;
             var correo = Correo?.Trim() ?? string.Empty;
             var nombreUsuario = NombreUsuario?.Trim() ?? string.Empty;
-            // La contraseña no se recorta: los espacios son parte de ella
-            var contrasenia = Contrasenia ?? string.Empty;
             var rol = RolSeleccionado?.Rol;
 
-            // Se validan todos los campos a la vez, para marcar cada uno con su error
+            // R2 a R5: las mismas validaciones del alta, todas a la vez
             ErrorNombre = UsuarioValidador.ValidarNombre(nombre);
             ErrorCorreo = UsuarioValidador.ValidarCorreo(correo);
             ErrorNombreUsuario = UsuarioValidador.ValidarNombreUsuario(nombreUsuario);
-            ErrorContrasenia = UsuarioValidador.ValidarContrasenia(contrasenia);
-            ErrorConfirmacionContrasenia = UsuarioValidador.ValidarConfirmacionContrasenia(contrasenia, ConfirmacionContrasenia);
             ErrorRol = UsuarioValidador.ValidarRol(rol);
 
-            if (HayErrorNombre || HayErrorCorreo || HayErrorNombreUsuario || HayErrorContrasenia
-                || HayErrorConfirmacionContrasenia || HayErrorRol)
+            if (HayErrorNombre || HayErrorCorreo || HayErrorNombreUsuario || HayErrorRol)
                 return;
 
-            // R6: crear un Administrador pide doble confirmación.
-            // E3: si rechaza cualquiera de las dos, no se envía y queda en el formulario
+            // R6: pasar a Administrador pide doble confirmación.
+            // E2: si rechaza cualquiera de las dos, no se guarda y queda en el formulario
             var confirmar = false;
-            if (rol == RolUsuario.Administrador)
+            if (rol == RolUsuario.Administrador && _rolOriginal != RolUsuario.Administrador)
             {
-                if (!await Shell.Current.DisplayAlertAsync("Crear administrador",
-                        $"¿Desea crear a {nombre} como Administrador?", "Sí", "No"))
+                if (!await Shell.Current.DisplayAlertAsync("Cambiar a administrador",
+                        $"¿Desea asignar a {nombre} el rol de Administrador?", "Sí", "No"))
                     return;
 
                 if (!await Shell.Current.DisplayAlertAsync("Confirmar administrador",
-                        "El Administrador tendrá acceso total al sistema. ¿Confirma la creación?", "Confirmar", "Cancelar"))
+                        "El Administrador tendrá acceso total al sistema. ¿Confirma el cambio?", "Confirmar", "Cancelar"))
                     return;
 
                 confirmar = true;
             }
 
-            var pedido = new CrearUsuarioRequest
+            var pedido = new EditarUsuarioRequest
             {
                 Nombre = nombre,
                 Correo = correo,
                 NombreUsuario = nombreUsuario,
-                Contrasenia = contrasenia,
                 Rol = rol!.Value,
                 Confirmar = confirmar
             };
 
-            var creado = false;
+            var editado = false;
 
             await EjecutarAsync(async () =>
             {
-                var resultado = await _usuarioService.CrearAsync(pedido);
+                var resultado = await _usuarioService.EditarAsync(_id, pedido);
 
                 if (resultado.Exito)
                 {
-                    creado = true;
+                    editado = true;
                     return;
                 }
 
-                // E2: el back avisa correo o nombre de usuario en uso con un 400 y su mensaje.
+                // E1 (correo o nombre de usuario repetidos) y E3 (propio rol): el back responde 400 con su mensaje.
                 // E4: cualquier otro error. En los dos casos el formulario conserva lo cargado
                 MensajeError = resultado.CodigoEstado == HttpStatusCode.BadRequest
                     ? resultado.MensajeError
-                    : MensajeErrorCreacion;
+                    : MensajeErrorEdicion;
             });
 
-            if (!creado)
+            if (!editado)
                 return;
 
-            await Shell.Current.DisplayAlertAsync("Nuevo usuario", "Usuario creado correctamente.", "Aceptar");
+            await Shell.Current.DisplayAlertAsync("Editar usuario", "Usuario editado correctamente.", "Aceptar");
 
-            // S2: la lista se recarga al volver (UsuariosPage.OnAppearing) y muestra la fila nueva
+            // La lista se recarga al volver (UsuariosPage.OnAppearing) y muestra la fila actualizada
             await Shell.Current.GoToAsync("..");
         }
 

@@ -90,6 +90,11 @@
                             <Label Grid.Column="1" Text="{Binding NombreUsuario}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="2" Text="{Binding Correo}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="3" Text="{Binding RolTexto}" Style="{StaticResource Celda}" />
+                            <!-- CU22: editar el usuario de la fila -->
+                            <Button Grid.Column="4"
+                                    Text="Editar"
+                                    VerticalOptions="Center"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UsuariosViewModel}}, Path=EditarCommand}"
                             <!-- CU23: oculto en la fila del usuario logueado (R4) -->
                             <Button Grid.Column="4"
                                     Text="Eliminar"
