@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             x:Class="NutriTrack.MAUI.Views.PlanesAlimenticiosPage"
+             x:DataType="vm:PlanesAlimenticiosViewModel"
+             Title="Plan alimenticio"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Padding="16">
+
+        <!-- Alta -->
+        <Button Grid.Row="0"
+                Text="Nuevo plan"
+                HorizontalOptions="Start"
+                Command="{Binding NuevoPlanCommand}" />
+
+        <!-- Errores de la API -->
+        <Label Grid.Row="1"
+               Text="{Binding MensajeError}"
+               IsVisible="{Binding HayError}"
+               TextColor="{StaticResource Peligro}" />
+
+        <ActivityIndicator Grid.Row="2"
+                           IsRunning="{Binding EstaOcupado}"
+                           IsVisible="{Binding EstaOcupado}"
+                           VerticalOptions="Center" />
+
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Planes}"
+                        EmptyView="{Binding MensajeVacio}"
+                        IsVisible="{Binding NoEstaOcupado}">
+
+            <CollectionView.Header>
+                <Grid ColumnDefinitions="2*,*,*,*,150"
+                      ColumnSpacing="8"
+                      Padding="8"
+                      BackgroundColor="{StaticResource Superficie}">
+                    <Label Grid.Column="0" Text="Nombre" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="1" Text="Categoría" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="2" Text="Tipo de alimentación" Style="{StaticResource Encabezado}" />
+                    <Label Grid.Column="3" Text="Kg MS / animal / día" Style="{StaticResource Encabezado}" />
+                </Grid>
+            </CollectionView.Header>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:PlanAlimenticio">
+                    <Grid RowDefinitions="*,Auto">
+                        <Grid ColumnDefinitions="2*,*,*,*,150"
+                              ColumnSpacing="8"
+                              Padding="8">
+                            <Label Grid.Column="0" Text="{Binding NombrePlan}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="1" Text="{Binding Categoria, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="2" Text="{Binding TipoAlimentacion}" Style="{StaticResource Celda}" />
+                            <Label Grid.Column="3" Text="{Binding KgMsDiariaPorAnimal, StringFormat='{0:0.##}'}" Style="{StaticResource Celda}" />
+                            <Button Grid.Column="4"
+                                    Text="Asignar a rodeo"
+                                    VerticalOptions="Center"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlanesAlimenticiosViewModel}}, Path=AsignarARodeoCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </Grid>
+                        <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
