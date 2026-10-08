@@ -19,6 +19,7 @@ namespace NutriTrack.MAUI
             MenuModulos.RegistrarRuta<MedicamentosPage>(MenuModulos.Medicamentos);
 
             // Pantallas internas de los módulos (no aparecen en el menú)
+            Routing.RegisterRoute(NuevoIngredienteViewModel.Ruta, typeof(NuevoIngredientePage));
             Routing.RegisterRoute(NuevoMedicamentoViewModel.Ruta, typeof(NuevoMedicamentoPage));
             MenuModulos.RegistrarRuta<AnimalesPage>(MenuModulos.Animales);
             Routing.RegisterRoute(AgregarAnimalViewModel.Ruta, typeof(AgregarAnimalPage));
