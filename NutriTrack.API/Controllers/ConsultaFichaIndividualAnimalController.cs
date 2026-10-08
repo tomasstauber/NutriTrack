@@ -29,10 +29,11 @@ namespace NutriTrack.API.Controllers
             if (animal == null)
                 return NotFound("No se encontro un animal con esa caravana");
 
-            var UltimoPeso = await _repository.BuscarPorUltimoPeso(animal.Id);
+            var ultimoPeso = await _repository.BuscarPorUltimoPeso(animal.Id);
 
-            var ficha_individual = new ConsultaFichaIndividualAnimalDTO
+            var fichaIndividual = new ConsultaFichaIndividualAnimalDTO
             {
+                Id = animal.Id,
                 CaravanaCuig = animal.CaravanaCuig,
                 CaravanaNroManejo = animal.CaravanaNroManejo,
                 FechaNacimiento = animal.FechaNacimiento,
@@ -45,17 +46,16 @@ namespace NutriTrack.API.Controllers
                 RodeoActual = animal.Rodeo?.Nombre,
                 Madre = animal.Madre != null ? $"{animal.Madre.CaravanaCuig}-{animal.Madre.CaravanaNroManejo}" : null,
                 Padre = animal.Padre != null ? $"{animal.Padre.CaravanaCuig}-{animal.Padre.CaravanaNroManejo}" : null,
-                UltimoPeso = UltimoPeso != null ? new UltimoPesoDTO
+                UltimoPeso = ultimoPeso != null ? new UltimoPesoDTO
                 {
-                    Id = animal.Id,
-                    FechaPesaje = UltimoPeso.FechaPesaje,
-                    PesoKg = UltimoPeso.PesoKg
-
+                    Id = ultimoPeso.Id,
+                    FechaPesaje = ultimoPeso.FechaPesaje,
+                    PesoKg = ultimoPeso.PesoKg,
+                    Observaciones = ultimoPeso.Observaciones
                 } : null
             };
 
-            return Ok(ficha_individual);
-
+            return Ok(fichaIndividual);
         }
     }
 }
