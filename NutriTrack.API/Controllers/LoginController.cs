@@ -37,7 +37,6 @@ namespace NutriTrack.API.Controllers
             {
                 Token = token,
                 Expiracion = expiracion,
-                Nombre = usuario.Nombre,
                 NombreUsuario = usuario.NombreUsuario,
                 Rol = usuario.Rol
             };
