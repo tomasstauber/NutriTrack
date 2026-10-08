@@ -13,7 +13,7 @@ namespace NutriTrack.MAUI.ViewModels
         private readonly IAnimalService _animalService;
 
         [ObservableProperty]
-        public partial string NombreUsuario { get; set; } = string.Empty;
+        public partial string Nombre { get; set; } = string.Empty;
 
         [ObservableProperty]
         public partial string Rol { get; set; } = string.Empty;
@@ -53,7 +53,9 @@ namespace NutriTrack.MAUI.ViewModels
             if (sesion is null)
                 return;
 
-            NombreUsuario = sesion.NombreUsuario;
+            // Una sesión guardada antes de que la API devolviera el nombre no lo
+            // tiene: hasta volver a iniciar sesión se muestra el nombre de usuario
+            Nombre = string.IsNullOrWhiteSpace(sesion.Nombre) ? sesion.NombreUsuario : sesion.Nombre;
             Rol = TextoRol(sesion.Rol);
 
             // El menú no depende de la API: se arma antes de la tarjeta

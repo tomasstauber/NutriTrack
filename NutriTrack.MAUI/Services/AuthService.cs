@@ -56,6 +56,7 @@ namespace NutriTrack.MAUI.Services
                 Token = respuesta.Token,
                 // Ya llega en UTC; ToUniversalTime asegura que se guarde como tal
                 Expiracion = respuesta.Expiracion.ToUniversalTime(),
+                Nombre = respuesta.Nombre,
                 NombreUsuario = respuesta.NombreUsuario,
                 Rol = rol
             };
