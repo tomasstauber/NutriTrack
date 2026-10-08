@@ -7,7 +7,7 @@ using NutriTrack.MAUI.Services;
 
 namespace NutriTrack.MAUI.ViewModels
 {
-    // CU20 - Consultar usuarios
+    // CU20 - Consultar usuarios y CU22 - Editar usuario
     public partial class UsuariosViewModel : BaseViewModel
     {
         private const string MensajeSinResultados = "No se encontraron usuarios con los filtros seleccionados.";
@@ -92,6 +92,15 @@ namespace NutriTrack.MAUI.ViewModels
         [RelayCommand]
         private Task NuevoUsuario() =>
             Shell.Current.GoToAsync(NuevoUsuarioViewModel.Ruta);
+
+        // CU22: el formulario se precarga con la fila (no hay GET de usuario por id).
+        // La lista se recarga al volver (UsuariosPage.OnAppearing)
+        [RelayCommand]
+        private Task Editar(Usuario usuario) =>
+            Shell.Current.GoToAsync(EditarUsuarioViewModel.Ruta, new Dictionary<string, object>
+            {
+                ["usuario"] = usuario
+            });
 
         // R2 y R3: filtros en memoria sobre la lista ya cargada (el endpoint no tiene parámetros)
         private void Filtrar()

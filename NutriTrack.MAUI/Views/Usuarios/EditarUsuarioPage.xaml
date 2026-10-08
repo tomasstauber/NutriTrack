@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             x:Class="NutriTrack.MAUI.Views.EditarUsuarioPage"
+             x:DataType="vm:EditarUsuarioViewModel"
+             Title="Editar usuario"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <!-- Error de un campo, debajo del campo -->
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+
+        <!-- Mismo marco de campos que el alta (NuevoUsuarioPage) -->
+        <Style x:Key="MarcoCampo" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource Gray300}" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 4" />
+            <Setter Property="BackgroundColor" Value="{StaticResource Superficie}" />
+            <Setter Property="Padding" Value="8,0" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="8" MaximumWidthRequest="600">
+
+            <Label Text="Nombre completo *" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Nombre}"
+                       Placeholder="Ej. Juan Pérez"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+            <Label Text="{Binding ErrorNombre}"
+                   IsVisible="{Binding HayErrorNombre}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Correo electrónico *" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Correo}"
+                       Placeholder="Ej. juan@campo.com"
+                       Keyboard="Email"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+            <Label Text="{Binding ErrorCorreo}"
+                   IsVisible="{Binding HayErrorCorreo}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Nombre de usuario *" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding NombreUsuario}"
+                       Placeholder="Con el que va a iniciar sesión"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
+            <Label Text="{Binding ErrorNombreUsuario}"
+                   IsVisible="{Binding HayErrorNombreUsuario}"
+                   Style="{StaticResource ErrorCampo}" />
+
+            <Label Text="Rol *" Style="{StaticResource Etiqueta}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Picker Title="Seleccione un rol"
+                        ItemsSource="{Binding OpcionesRol}"
+                        ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionRol}"
+                        SelectedItem="{Binding RolSeleccionado}"
+                        IsEnabled="{Binding PuedeCambiarRol}" />
+            </Border>
+            <Label Text="{Binding ErrorRol}"
+                   IsVisible="{Binding HayErrorRol}"
+                   Style="{StaticResource ErrorCampo}" />
+            <!-- R7: el propio usuario no puede cambiar su rol -->
+            <Label Text="No puede modificar su propio rol."
+                   IsVisible="{Binding EsUsuarioActual}"
+                   TextColor="{StaticResource TextoSecundario}" />
+
+            <!-- Errores de la API (correo o nombre de usuario en uso...) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="End">
+                <Button Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Button Text="Guardar"
+                        Command="{Binding GuardarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
