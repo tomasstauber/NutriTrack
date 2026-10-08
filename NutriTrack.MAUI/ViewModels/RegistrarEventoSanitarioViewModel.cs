@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NutriTrack.MAUI.Models;
@@ -5,22 +6,32 @@ using NutriTrack.MAUI.Services;
 
 namespace NutriTrack.MAUI.ViewModels
 {
-    // CU12 - Registrar evento sanitario a múltiples animales (#108: selección y datos).
-    // Medicamentos y envío del POST: issue #109
+    // CU12 - Registrar evento sanitario a múltiples animales
+    // (#108: selección y datos; #109: medicamentos y guardado)
     public partial class RegistrarEventoSanitarioViewModel : BaseViewModel
     {
         private const string MensajeRodeoSinAnimales =
             "No se encontró el rodeo seleccionado o no tiene animales activos.";
 
+        private const string MensajeExito = "Evento sanitario registrado con éxito.";
+
         private readonly IRodeoService _rodeoService;
+        private readonly IMedicamentoService _medicamentoService;
+        private readonly IEventoSanitarioService _eventoSanitarioService;
 
         // true mientras se reemplaza la lista de rodeos: el Picker puede pasar por null
         // y eso no tiene que tocar la selección de animales
         private bool _recargandoRodeos;
 
-        public RegistrarEventoSanitarioViewModel(IRodeoService rodeoService, SelectorAnimalesViewModel selector)
+        public RegistrarEventoSanitarioViewModel(
+            IRodeoService rodeoService,
+            IMedicamentoService medicamentoService,
+            IEventoSanitarioService eventoSanitarioService,
+            SelectorAnimalesViewModel selector)
         {
             _rodeoService = rodeoService;
+            _medicamentoService = medicamentoService;
+            _eventoSanitarioService = eventoSanitarioService;
             Selector = selector;
         }
 
@@ -126,6 +137,14 @@ namespace NutriTrack.MAUI.ViewModels
         // R7: no se puede elegir una fecha del evento posterior a hoy
         public DateTime Hoy => DateTime.Today;
 
+        // ===== Medicamentos =====
+
+        // Catálogo activo (GET api/Medicamento sin incluirInactivos)
+        private IReadOnlyList<Medicamento> _catalogoMedicamentos = [];
+
+        // Cero, uno o varios: sin medicamentos el evento se guarda igual
+        public ObservableCollection<DetalleMedicamentoEditable> Medicamentos { get; } = [];
+
         // ===== Errores de cada campo (MensajeError queda para los de la API) =====
 
         [ObservableProperty]
@@ -212,9 +231,16 @@ namespace NutriTrack.MAUI.ViewModels
 
         // ===== Carga =====
 
-        // Al aparecer. Conserva el rodeo elegido (por id) si sigue en la lista
+        // Al aparecer: rodeos y catálogo de medicamentos
         [RelayCommand]
-        private Task CargarRodeosAsync() => EjecutarAsync(async () =>
+        private Task CargarCatalogosAsync() => EjecutarAsync(async () =>
+        {
+            await CargarRodeosAsync();
+            await CargarMedicamentosAsync();
+        });
+
+        // Conserva el rodeo elegido (por id) si sigue en la lista
+        private async Task CargarRodeosAsync()
         {
             var resultado = await _rodeoService.ListarAsync();
 
@@ -241,7 +267,33 @@ namespace NutriTrack.MAUI.ViewModels
             // El rodeo elegido ya no está (se eliminó): la selección de ese rodeo no vale más
             if (idAnterior is not null && RodeoSeleccionado is null)
                 await ActualizarSelectorAsync();
-        });
+        }
+
+        // Solo los activos. Las filas ya cargadas conservan su medicamento si sigue activo
+        private async Task CargarMedicamentosAsync()
+        {
+            var resultado = await _medicamentoService.ListarAsync();
+
+            if (!resultado.Exito)
+            {
+                // Si ya falló la carga de rodeos, queda ese mensaje
+                MensajeError ??= resultado.MensajeError;
+                return;
+            }
+
+            _catalogoMedicamentos = (resultado.Datos ?? []).Where(m => m.Activo).ToList();
+
+            foreach (var detalle in Medicamentos)
+                detalle.ActualizarMedicamentos(_catalogoMedicamentos);
+        }
+
+        [RelayCommand]
+        private void AgregarMedicamento() =>
+            Medicamentos.Add(new DetalleMedicamentoEditable(_catalogoMedicamentos));
+
+        [RelayCommand]
+        private void QuitarMedicamento(DetalleMedicamentoEditable detalle) =>
+            Medicamentos.Remove(detalle);
 
         // ===== Guardar =====
 
@@ -286,19 +338,56 @@ namespace NutriTrack.MAUI.ViewModels
             ErrorProximaAplicacion = ValidarFechaOpcional(CargarProximaAplicacion, FechaProximaAplicacion, fechaEvento,
                 "La próxima aplicación debe ser igual o posterior a la fecha del evento.");
 
+            // R9 / R10: cada fila marca sus propios errores. Se validan todas (sin cortar en la primera)
+            var medicamentosValidos = true;
+            foreach (var detalle in Medicamentos)
+                medicamentosValidos &= detalle.Validar();
+
             if (HayErrorModo || HayErrorRodeo || HayErrorAnimales || HayErrorTipo ||
-                HayErrorFechaEvento || HayErrorVigencia || HayErrorProximaAplicacion)
+                HayErrorFechaEvento || HayErrorVigencia || HayErrorProximaAplicacion || !medicamentosValidos)
                 return;
 
             var pedido = ArmarPedido(modo!, fechaEvento!.Value);
 
-            // TODO #109: agregar pedido.DetallesMedicamento, validar los medicamentos junto con
-            // lo de arriba y enviar el pedido (POST api/EventoSanitario/multiple)
+            EventoSanitarioRegistrado? registrado = null;
+            var exito = false;
+
+            // EjecutarAsync deja EstaOcupado en true: Guardar queda deshabilitado
+            // (el registro no es atómico y un doble envío duplica eventos)
+            await EjecutarAsync(async () =>
+            {
+                var resultado = await _eventoSanitarioService.RegistrarMultipleAsync(pedido);
+
+                if (resultado.Exito)
+                {
+                    exito = true;
+                    registrado = resultado.Datos;
+                    return;
+                }
+
+                // E2, E3 y E4: el back dice qué falla (rodeo sin animales, caravanas inactivas o
+                // ajenas al rodeo, medicamento desactivado). Se conserva todo lo cargado
+                MensajeError = resultado.MensajeError;
+            });
+
+            if (!exito)
+                return;
+
+            // S2 a S4: lo que devuelve el back (si no llegara la respuesta, lo que se envió)
+            var tipo = registrado?.TipoEvento ?? pedido.TipoEvento;
+            var textoTipo = OpcionesTipo.FirstOrDefault(o => o.Valor == tipo)?.Texto ?? tipo;
+            var fecha = registrado?.FechaEvento ?? fechaEvento.Value;
+            var cantidad = registrado is null
+                ? string.Empty
+                : $"Animales alcanzados: {registrado.CantidadAnimalesAlcanzados}\n";
+
             await Shell.Current.DisplayAlertAsync("Registrar evento sanitario",
-                $"Datos válidos ({pedido.ModoSeleccion}). El envío se completa en el issue #109.", "Aceptar");
+                $"{MensajeExito}\n\n{cantidad}Tipo: {textoTipo}\nFecha: {fecha:dd/MM/yyyy}", "Aceptar");
+
+            LimpiarFormulario();
         }
 
-        // Todo lo que necesita el POST, salvo los medicamentos (#109)
+        // Todo lo que necesita el POST
         private RegistrarEventoSanitarioRequest ArmarPedido(string modo, DateTime fechaEvento)
         {
             var observaciones = Observaciones?.Trim();
@@ -329,8 +418,38 @@ namespace NutriTrack.MAUI.ViewModels
                 FechaProximaAplicacion = CargarProximaAplicacion && FechaProximaAplicacion is { } proxima
                     ? DateOnly.FromDateTime(proxima)
                     : null,
-                Observaciones = string.IsNullOrEmpty(observaciones) ? null : observaciones
+                Observaciones = string.IsNullOrEmpty(observaciones) ? null : observaciones,
+
+                // Sin medicamentos viaja una lista vacía
+                DetallesMedicamento = Medicamentos.Select(d => d.ArmarPedido()).ToList()
             };
+        }
+
+        // Después de registrar: el formulario vuelve a como estaba al entrar
+        private void LimpiarFormulario()
+        {
+            // Quitar el modo y el rodeo también limpia la selección del selector
+            ModoSeleccionado = null;
+            RodeoSeleccionado = null;
+            Selector.LimpiarSeleccionCommand.Execute(null);
+
+            TipoSeleccionado = null;
+            FechaEvento = DateTime.Today;
+            CargarVigencia = false;
+            VigenciaHasta = null;
+            CargarProximaAplicacion = false;
+            FechaProximaAplicacion = null;
+            Observaciones = null;
+            Medicamentos.Clear();
+
+            ErrorModo = null;
+            ErrorRodeo = null;
+            ErrorAnimales = null;
+            ErrorTipo = null;
+            ErrorFechaEvento = null;
+            ErrorVigencia = null;
+            ErrorProximaAplicacion = null;
+            MensajeError = null;
         }
 
         // Sin tildar no se valida (viaja en null). Tildada: obligatoria y no anterior a la fecha del evento
