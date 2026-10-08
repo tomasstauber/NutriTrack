@@ -42,12 +42,9 @@ namespace NutriTrack.MAUI.ViewModels
             MensajeVacio = "No hay planes alimenticios creados";
         });
 
-        // CU9: crear plan
-        // TODO #114: navegar al formulario de alta del plan
+        // CU9: crear plan. La lista se recarga al volver (OnAppearing)
         [RelayCommand]
-        private void NuevoPlan()
-        {
-        }
+        private Task NuevoPlan() => Shell.Current.GoToAsync(NuevoPlanAlimenticioViewModel.Ruta);
 
         // CU11: asignar el plan a un rodeo
         // Se pasa el plan completo: la pantalla lo muestra sin pedirlo de nuevo a la API
