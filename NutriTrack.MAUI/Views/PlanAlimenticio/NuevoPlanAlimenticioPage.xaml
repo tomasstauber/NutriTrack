@@ -6,7 +6,7 @@
              xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
              x:Class="NutriTrack.MAUI.Views.NuevoPlanAlimenticioPage"
              x:DataType="vm:NuevoPlanAlimenticioViewModel"
-             Title="Nuevo plan alimenticio"
+             Title="{Binding Titulo}"
              BackgroundColor="{StaticResource Fondo}">
 
     <ContentPage.Resources>
@@ -213,7 +213,13 @@
                             <Grid ColumnDefinitions="2*,*,2*,90"
                                   ColumnSpacing="8"
                                   Padding="8">
-                                <Label Grid.Column="0" Text="{Binding NombreIngrediente}" Style="{StaticResource Celda}" />
+                                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                                    <Label Text="{Binding NombreIngrediente}" Style="{StaticResource Celda}" />
+                                    <!-- CU27 R5: ingrediente que ya no está en el catálogo activo -->
+                                    <Label Text="Ingrediente inactivo"
+                                           IsVisible="{Binding IngredienteInactivo}"
+                                           Style="{StaticResource ErrorCampo}" />
+                                </VerticalStackLayout>
                                 <Label Grid.Column="1" Text="{Binding PorcentajeInclusionMs, StringFormat='{0:0.##}%'}" Style="{StaticResource Celda}" />
                                 <Label Grid.Column="2" Text="{Binding Observaciones, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
                                 <Button Grid.Column="3"
@@ -236,7 +242,7 @@
                    IsVisible="{Binding SumaSupera100}"
                    Style="{StaticResource ErrorCampo}" />
 
-            <!-- R4: sin componentes -->
+            <!-- R4: sin componentes. CU27 R5: componentes inactivos -->
             <Label Text="{Binding ErrorComponentes}"
                    IsVisible="{Binding HayErrorComponentes}"
                    Style="{StaticResource ErrorCampo}" />

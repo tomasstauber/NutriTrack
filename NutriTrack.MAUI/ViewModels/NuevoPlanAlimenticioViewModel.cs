@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Net;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NutriTrack.MAUI.Models;
@@ -7,8 +8,9 @@ using NutriTrack.MAUI.Services;
 
 namespace NutriTrack.MAUI.ViewModels
 {
-    // CU9 - Crear plan alimenticio, con la grilla de componentes
-    public partial class NuevoPlanAlimenticioViewModel : BaseViewModel
+    // CU9 - Crear plan alimenticio y CU11 - Editar plan alimenticio (mismo formulario),
+    // con la grilla de componentes
+    public partial class NuevoPlanAlimenticioViewModel : BaseViewModel, IQueryAttributable
     {
         // Ruta de Shell del formulario (se registra en AppShell.xaml.cs)
         public const string Ruta = "nuevo-plan-alimenticio";
@@ -20,9 +22,25 @@ namespace NutriTrack.MAUI.ViewModels
         private readonly IPlanAlimenticioService _planAlimenticioService;
         private readonly IIngredienteService _ingredienteService;
 
-        // El catálogo se pide una sola vez: si se recarga al volver a la página,
-        // el Picker pierde lo que se estaba eligiendo
-        private bool _catalogoCargado;
+        // CU27 R5 en el plan: texto del error de la grilla
+        private const string MensajeIngredientesInactivos =
+            "Hay componentes con ingredientes inactivos. Quitalos o reemplazalos por otro ingrediente antes de guardar.";
+
+        // El catálogo (y en la edición, el plan) se pide una sola vez: si se recarga
+        // al volver a la página, el Picker pierde lo que se estaba eligiendo
+        private bool _datosCargados;
+
+        // CU11: id del plan que se edita (null en el alta)
+        private int? _idEdicion;
+
+        // R8: rodeos con el plan asignado y vigente, según el GET por id
+        private int _asignacionesVigentes;
+
+        public bool EsEdicion => _idEdicion is not null;
+
+        // Título de la página y de los avisos según el modo
+        [ObservableProperty]
+        public partial string Titulo { get; set; } = "Nuevo plan alimenticio";
 
         public NuevoPlanAlimenticioViewModel(IPlanAlimenticioService planAlimenticioService,
             IIngredienteService ingredienteService)
@@ -32,6 +50,16 @@ namespace NutriTrack.MAUI.ViewModels
 
             // R6: la suma se recalcula en vivo cada vez que se agrega o quita una fila
             Componentes.CollectionChanged += (_, _) => ActualizarSuma();
+        }
+
+        // CU11: la lista pasa solo el id; el plan con sus componentes se pide al cargar
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (!query.TryGetValue("idPlan", out var valor) || valor is not int idPlan)
+                return;
+
+            _idEdicion = idPlan;
+            Titulo = "Editar plan alimenticio";
         }
 
         // ===== Datos del plan (D1 a D9) =====
@@ -150,8 +178,10 @@ namespace NutriTrack.MAUI.ViewModels
         [RelayCommand]
         private async Task CargarAsync()
         {
-            if (_catalogoCargado)
+            if (_datosCargados)
                 return;
+
+            var noExiste = false;
 
             await EjecutarAsync(async () =>
             {
@@ -164,8 +194,58 @@ namespace NutriTrack.MAUI.ViewModels
                 }
 
                 Ingredientes = resultado.Datos ?? [];
-                _catalogoCargado = true;
+
+                // CU11: el catálogo va primero porque marca los componentes inactivos
+                if (EsEdicion)
+                {
+                    var plan = await _planAlimenticioService.ObtenerAsync(_idEdicion!.Value);
+
+                    if (!plan.Exito || plan.Datos is null)
+                    {
+                        noExiste = plan.CodigoEstado == HttpStatusCode.NotFound;
+                        MensajeError = plan.MensajeError;
+                        return;
+                    }
+
+                    Precargar(plan.Datos);
+                }
+
+                _datosCargados = true;
             });
+
+            if (!noExiste)
+                return;
+
+            await Shell.Current.DisplayAlertAsync(Titulo, "No existe un plan con ese Id.", "Aceptar");
+
+            // La lista se recarga al volver (PlanesAlimenticiosPage.OnAppearing)
+            await Shell.Current.GoToAsync("..");
+        }
+
+        // CU11: formulario del alta precargado con el GET por id
+        private void Precargar(PlanAlimenticioCompleto plan)
+        {
+            _asignacionesVigentes = plan.AsignacionesVigentes;
+
+            Nombre = plan.NombrePlan;
+            Categoria = plan.Categoria;
+            PesoVivoInicialPromedio = plan.PesoVivoInicialPromedio?.ToString(CultureInfo.CurrentCulture);
+            PesoObjetivo = plan.PesoObjetivo?.ToString(CultureInfo.CurrentCulture);
+            GananciaPesoEsperada = plan.GananciaPesoEsperada?.ToString(CultureInfo.CurrentCulture);
+            TipoAlimentacion = plan.TipoAlimentacion;
+            TiempoAlimentacion = plan.TiempoAlimentacion;
+            KgMsDiariaPorAnimal = plan.KgMsDiariaPorAnimal.ToString(CultureInfo.CurrentCulture);
+            Observaciones = plan.Observaciones;
+
+            // CU27 R5: un ingrediente que no está en el catálogo activo se marca como inactivo
+            Componentes.Clear();
+            foreach (var detalle in plan.Detalles)
+            {
+                var inactivo = Ingredientes.All(i => i.Id != detalle.IdIngrediente);
+                Componentes.Add(new ComponentePlanFila(detalle, inactivo));
+            }
+
+            ErrorComponentes = Componentes.Any(c => c.IngredienteInactivo) ? MensajeIngredientesInactivos : null;
         }
 
         [RelayCommand]
@@ -205,6 +285,10 @@ namespace NutriTrack.MAUI.ViewModels
         private void QuitarComponente(ComponentePlanFila fila)
         {
             Componentes.Remove(fila);
+
+            // CU27 R5: al quitar el último componente inactivo se va el aviso
+            if (ErrorComponentes == MensajeIngredientesInactivos && !Componentes.Any(c => c.IngredienteInactivo))
+                ErrorComponentes = null;
         }
 
         [RelayCommand]
@@ -237,8 +321,11 @@ namespace NutriTrack.MAUI.ViewModels
                 : kgMs <= 0 ? "Los kg de MS diaria por animal deben ser mayores a 0."
                 : null;
 
-            // R4: al menos un componente
-            ErrorComponentes = Componentes.Count == 0 ? "Agregá al menos un componente al plan." : null;
+            // R4: al menos un componente. CU27 R5: ninguno con el ingrediente inactivo
+            ErrorComponentes =
+                Componentes.Count == 0 ? "Agregá al menos un componente al plan."
+                : Componentes.Any(c => c.IngredienteInactivo) ? MensajeIngredientesInactivos
+                : null;
 
             // R6 / E4: con la suma por encima de 100 no se guarda (el mensaje ya está a la vista)
             if (HayErrorNombre || HayErrorPesoVivoInicialPromedio || HayErrorPesoObjetivo ||
@@ -260,6 +347,12 @@ namespace NutriTrack.MAUI.ViewModels
                 Detalle = Componentes.Select(c => c.ArmarPedido()).ToList()
             };
 
+            if (EsEdicion)
+            {
+                await ActualizarAsync(_idEdicion!.Value, pedido);
+                return;
+            }
+
             var creado = false;
 
             await EjecutarAsync(async () =>
@@ -280,9 +373,52 @@ namespace NutriTrack.MAUI.ViewModels
             if (!creado)
                 return;
 
-            await Shell.Current.DisplayAlertAsync("Nuevo plan alimenticio", "Plan alimenticio creado con éxito.", "Aceptar");
+            await Shell.Current.DisplayAlertAsync(Titulo, "Plan alimenticio creado con éxito.", "Aceptar");
 
             // La lista se recarga al volver y muestra el plan nuevo
+            await Shell.Current.GoToAsync("..");
+        }
+
+        // CU11 - Editar plan alimenticio
+        private async Task ActualizarAsync(int id, PlanAlimenticioRequest pedido)
+        {
+            // R8: con asignaciones vigentes se advierte antes de guardar
+            if (_asignacionesVigentes > 0)
+            {
+                var confirmado = await Shell.Current.DisplayAlertAsync(
+                    Titulo,
+                    $"Este plan tiene {_asignacionesVigentes} asignación(es) vigente(s). " +
+                    "Los cambios afectan a esos rodeos. ¿Querés guardar igual?",
+                    "Guardar",
+                    "Cancelar");
+
+                if (!confirmado)
+                    return;
+            }
+
+            var actualizado = false;
+
+            await EjecutarAsync(async () =>
+            {
+                var resultado = await _planAlimenticioService.ActualizarAsync(id, pedido);
+
+                if (resultado.Exito)
+                {
+                    actualizado = true;
+                    return;
+                }
+
+                // E1: nombre duplicado (excluye al propio plan) u otro error: mensaje del back.
+                // El formulario conserva lo cargado, incluida la grilla
+                MensajeError = resultado.MensajeError;
+            });
+
+            if (!actualizado)
+                return;
+
+            await Shell.Current.DisplayAlertAsync(Titulo, "Plan alimenticio actualizado con éxito.", "Aceptar");
+
+            // La lista se recarga al volver y muestra los datos nuevos
             await Shell.Current.GoToAsync("..");
         }
 
