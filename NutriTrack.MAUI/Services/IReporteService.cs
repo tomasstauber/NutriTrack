@@ -14,7 +14,14 @@ namespace NutriTrack.MAUI.Services
         // y las mismas validaciones (404 / 400 en texto plano)
         Task<ResultadoApi<ArchivoDescargado>> InventarioAnimalesPdfAsync(FiltroReporte filtro);
 
-        // TODO #117: fechas importantes (GET api/ReporteFechasImportantes)
+        // GET api/ReporteFechasImportantes (CU18). Próximas aplicaciones y vencimientos con fecha en el período.
+        // Con las dos listas vacías o con un rodeo inexistente responde 404 con mensaje
+        Task<ResultadoApi<ReporteFechasImportantes>> FechasImportantesAsync(FiltroReporte filtro);
+
+        // GET api/ReporteFechasImportantes/pdf: el mismo reporte en PDF, con los mismos parámetros
+        // y las mismas validaciones (404 / 400 en texto plano)
+        Task<ResultadoApi<ArchivoDescargado>> FechasImportantesPdfAsync(FiltroReporte filtro);
+
         // TODO #118: evolución de peso (GET api/ReporteEvolucionPeso), con el filtro de caravana
     }
 }

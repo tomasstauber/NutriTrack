@@ -9,9 +9,8 @@ namespace NutriTrack.MAUI.ViewModels
         [RelayCommand]
         private Task Inventario() => Shell.Current.GoToAsync(ReporteInventarioViewModel.Ruta);
 
-        // TODO #117: navegar al reporte de fechas importantes
         [RelayCommand]
-        private Task FechasImportantes() => MostrarEnConstruccion("Fechas importantes");
+        private Task FechasImportantes() => Shell.Current.GoToAsync(ReporteFechasImportantesViewModel.Ruta);
 
         // TODO #118: navegar al reporte de evolución de peso
         [RelayCommand]

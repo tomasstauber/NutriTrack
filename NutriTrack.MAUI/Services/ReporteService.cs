@@ -16,6 +16,12 @@ namespace NutriTrack.MAUI.Services
         public Task<ResultadoApi<ArchivoDescargado>> InventarioAnimalesPdfAsync(FiltroReporte filtro) =>
             GetArchivoAsync($"api/ReporteInventarioAnimales/pdf?{ArmarQuery(filtro)}");
 
+        public Task<ResultadoApi<ReporteFechasImportantes>> FechasImportantesAsync(FiltroReporte filtro) =>
+            GetAsync<ReporteFechasImportantes>($"api/ReporteFechasImportantes?{ArmarQuery(filtro)}");
+
+        public Task<ResultadoApi<ArchivoDescargado>> FechasImportantesPdfAsync(FiltroReporte filtro) =>
+            GetArchivoAsync($"api/ReporteFechasImportantes/pdf?{ArmarQuery(filtro)}");
+
         // Parámetros comunes a los tres reportes. Solo se mandan los que tienen valor:
         // FiltroReporte ya viene con lo que corresponde al tipo elegido
         private static string ArmarQuery(FiltroReporte filtro)
