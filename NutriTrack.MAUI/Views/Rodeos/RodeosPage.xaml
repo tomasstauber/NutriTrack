@@ -3,10 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
              xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
              x:Class="NutriTrack.MAUI.Views.RodeosPage"
              x:DataType="vm:RodeosViewModel"
              Title="Rodeos"
              BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Padding="16">
 
@@ -37,23 +54,33 @@
             </CollectionView.ItemsLayout>
 
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Rodeo">
+                <DataTemplate x:DataType="vm:RodeoFila">
                     <Border BackgroundColor="{StaticResource Superficie}"
                             Stroke="{StaticResource Borde}"
                             StrokeShape="RoundRectangle 12"
                             Padding="16">
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+
+                            <!-- Tocar los datos del rodeo expande o contrae sus animales.
+                                 El gesto está solo en esta columna para no tapar el botón Eliminar -->
                             <VerticalStackLayout Spacing="4" VerticalOptions="Center">
-                                <Label Text="{Binding Nombre}"
+                                <VerticalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RodeosViewModel}}, Path=AlternarAnimalesCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </VerticalStackLayout.GestureRecognizers>
+
+                                <Label Text="{Binding Rodeo.Nombre}"
                                        FontSize="16"
                                        FontAttributes="Bold"
                                        TextColor="{StaticResource TextoPrincipal}" />
-                                <Label Text="{Binding Descripcion}"
-                                       IsVisible="{Binding TieneDescripcion}"
+                                <Label Text="{Binding Rodeo.Descripcion}"
+                                       IsVisible="{Binding Rodeo.TieneDescripcion}"
                                        TextColor="{StaticResource TextoSecundario}"
                                        LineBreakMode="WordWrap" />
-                                <Label Text="{Binding CantidadAnimales, StringFormat='Animales: {0}'}"
+                                <Label Text="{Binding Rodeo.CantidadAnimales, StringFormat='Animales: {0}'}"
                                        TextColor="{StaticResource TextoPrincipal}" />
+                                <Label Text="{Binding TextoExpandir}"
+                                       TextColor="{StaticResource Primary}" />
                             </VerticalStackLayout>
 
                             <Button Grid.Column="1"
@@ -62,7 +89,60 @@
                                     TextColor="White"
                                     VerticalOptions="Center"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RodeosViewModel}}, Path=EliminarCommand}"
-                                    CommandParameter="{Binding .}" />
+                                    CommandParameter="{Binding Rodeo}" />
+
+                            <!-- Animales del rodeo: se cargan al expandir por primera vez -->
+                            <VerticalStackLayout Grid.Row="1"
+                                                 Grid.ColumnSpan="2"
+                                                 Spacing="8"
+                                                 Margin="0,12,0,0"
+                                                 IsVisible="{Binding Expandido}">
+
+                                <ActivityIndicator IsRunning="{Binding Cargando}"
+                                                   IsVisible="{Binding Cargando}"
+                                                   Color="{StaticResource Primary}" />
+                                <Label Text="{Binding MensajeError}"
+                                       IsVisible="{Binding HayError}"
+                                       TextColor="{StaticResource Peligro}" />
+                                <Label Text="{Binding MensajeVacio}"
+                                       IsVisible="{Binding HayMensajeVacio}"
+                                       TextColor="{StaticResource TextoSecundario}" />
+
+                                <!-- Encabezado de columnas. Sin Estado: solo vienen los activos -->
+                                <Grid ColumnDefinitions="2*,*,*"
+                                      ColumnSpacing="8"
+                                      IsVisible="{Binding HayAnimales}">
+                                    <Label Grid.Column="0" Text="Caravana" Style="{StaticResource Encabezado}" />
+                                    <Label Grid.Column="1" Text="Raza" Style="{StaticResource Encabezado}" />
+                                    <Label Grid.Column="2" Text="Sexo" Style="{StaticResource Encabezado}" />
+                                </Grid>
+
+                                <!-- BindableLayout en vez de CollectionView: no se anida una lista con scroll dentro de otra -->
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Animales}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:AnimalListado">
+                                            <Grid RowDefinitions="*,Auto">
+                                                <Grid ColumnDefinitions="2*,*,*"
+                                                      ColumnSpacing="8"
+                                                      Padding="0,6">
+                                                    <Label Grid.Column="0" Text="{Binding Caravana}" Style="{StaticResource Celda}" />
+                                                    <Label Grid.Column="1" Text="{Binding Raza, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                                    <Label Grid.Column="2" Text="{Binding Sexo}" Style="{StaticResource Celda}" />
+                                                </Grid>
+                                                <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+
+                                <!-- Solo si lo cargado es menor que el total -->
+                                <Button Text="Cargar más"
+                                        HorizontalOptions="Start"
+                                        IsVisible="{Binding HayMas}"
+                                        IsEnabled="{Binding NoEstaCargando}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RodeosViewModel}}, Path=CargarMasAnimalesCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </VerticalStackLayout>
                         </Grid>
                     </Border>
                 </DataTemplate>

@@ -7,19 +7,25 @@ using NutriTrack.MAUI.Services;
 
 namespace NutriTrack.MAUI.ViewModels
 {
-    // Lista de rodeos y CU8 - Eliminar un rodeo
+    // Lista de rodeos, CU8 - Eliminar un rodeo y ver los animales de cada rodeo
     public partial class RodeosViewModel : BaseViewModel
     {
         private const string MensajeRodeoNoEncontrado = "No se encontró el rodeo seleccionado";
 
-        private readonly IRodeoService _rodeoService;
+        // Animales por página al expandir un rodeo (la API acepta hasta 100)
+        private const int TamanioPagina = 100;
 
-        public RodeosViewModel(IRodeoService rodeoService)
+        private readonly IRodeoService _rodeoService;
+        private readonly IAnimalService _animalService;
+
+        public RodeosViewModel(IRodeoService rodeoService, IAnimalService animalService)
         {
             _rodeoService = rodeoService;
+            _animalService = animalService;
         }
 
-        public ObservableCollection<Rodeo> Rodeos { get; } = [];
+        // Filas nuevas en cada carga: así se descartan los animales ya traídos
+        public ObservableCollection<RodeoFila> Rodeos { get; } = [];
 
         // Mensaje cuando la lista queda vacía
         [ObservableProperty]
@@ -41,7 +47,7 @@ namespace NutriTrack.MAUI.ViewModels
 
             // Ya llegan ordenados por nombre y solo los activos
             foreach (var rodeo in resultado.Datos ?? [])
-                Rodeos.Add(rodeo);
+                Rodeos.Add(new RodeoFila(rodeo));
 
             MensajeVacio = "No hay rodeos creados";
         });
@@ -119,6 +125,70 @@ namespace NutriTrack.MAUI.ViewModels
 
             await Shell.Current.DisplayAlertAsync("Eliminar rodeo", "Rodeo eliminado con éxito.", "Aceptar");
             await CargarAsync();
+        }
+
+        // Expande o contrae la fila. Los animales se piden solo la primera vez que se expande.
+        // Varias filas pueden cargar a la vez: cada una se cuida con su propio Cargando
+        [RelayCommand(AllowConcurrentExecutions = true)]
+        private async Task AlternarAnimalesAsync(RodeoFila fila)
+        {
+            fila.Expandido = !fila.Expandido;
+
+            if (!fila.Expandido || fila.Cargado || fila.Cargando)
+                return;
+
+            await CargarAnimalesAsync(fila, pagina: 1);
+        }
+
+        // Página siguiente, sumada a lo que ya está cargado
+        [RelayCommand(AllowConcurrentExecutions = true)]
+        private async Task CargarMasAnimalesAsync(RodeoFila fila)
+        {
+            if (fila.Cargando || !fila.HayMas)
+                return;
+
+            await CargarAnimalesAsync(fila, fila.Pagina + 1);
+        }
+
+        private async Task CargarAnimalesAsync(RodeoFila fila, int pagina)
+        {
+            try
+            {
+                fila.Cargando = true;
+                fila.MensajeError = null;
+
+                // Sin incluirInactivos: solo vienen los activos
+                var resultado = await _animalService.ListarAsync(
+                    texto: null, idRodeo: fila.Rodeo.Id, pagina: pagina, tamanioPagina: TamanioPagina);
+
+                // Si falla no se marca como cargada: al volver a expandir se reintenta
+                if (!resultado.Exito)
+                {
+                    fila.MensajeError = resultado.MensajeError;
+                    return;
+                }
+
+                fila.Pagina = pagina;
+                fila.Total = resultado.Datos?.Total ?? 0;
+                foreach (var animal in resultado.Datos?.Items ?? [])
+                    fila.Animales.Add(animal);
+
+                fila.Cargado = true;
+            }
+            finally
+            {
+                fila.Cargando = false;
+                ActualizarEstado(fila);
+            }
+        }
+
+        private static void ActualizarEstado(RodeoFila fila)
+        {
+            fila.HayAnimales = fila.Animales.Count > 0;
+            fila.HayMas = fila.Cargado && fila.Animales.Count < fila.Total;
+            fila.MensajeVacio = fila.Cargado && !fila.HayAnimales && !fila.HayError
+                ? "Este rodeo no tiene animales"
+                : null;
         }
 
         // E2: el rodeo ya no existe (lo eliminó otro usuario): avisar y recargar
