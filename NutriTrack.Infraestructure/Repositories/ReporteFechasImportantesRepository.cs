@@ -34,6 +34,8 @@ namespace NutriTrack.Infraestructure.Repositories
                       && ev.FechaProximaAplicacion.Value.Date >= desde
                       && ev.FechaProximaAplicacion.Value.Date <= hasta
                       && (!idRodeo.HasValue || a.RodeoId == idRodeo.Value)
+                      && a.Estado
+                orderby ev.FechaProximaAplicacion, a.CaravanaCuig, a.CaravanaNroManejo
                 select new ProximaAplicacionRaw
                 {
                     IdEvento = ev.Id,
@@ -59,6 +61,8 @@ namespace NutriTrack.Infraestructure.Repositories
                       && ev.VigenciaHasta.Value.Date >= desde
                       && ev.VigenciaHasta.Value.Date <= hasta
                       && (!idRodeo.HasValue || a.RodeoId == idRodeo.Value)
+                      && a.Estado
+                orderby ev.VigenciaHasta, a.CaravanaCuig, a.CaravanaNroManejo
                 select new VencimientoRaw
                 {
                     IdEvento = ev.Id,
