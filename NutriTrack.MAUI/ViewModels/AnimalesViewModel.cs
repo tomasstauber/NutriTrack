@@ -53,6 +53,15 @@ namespace NutriTrack.MAUI.ViewModels
         [ObservableProperty]
         public partial bool PuedeAgregar { get; set; }
 
+        // #124: "Incluir inactivos" solo lo ve el Administrador (regla de la interfaz:
+        // el back no restringe incluirInactivos por rol)
+        [ObservableProperty]
+        public partial bool EsAdministrador { get; set; }
+
+        // Suma los animales inactivos a la lista
+        [ObservableProperty]
+        public partial bool IncluirInactivos { get; set; }
+
         // Mensaje cuando la lista queda vacía (un 200 sin animales no es un error)
         [ObservableProperty]
         public partial string? MensajeVacio { get; set; }
@@ -61,6 +70,11 @@ namespace NutriTrack.MAUI.ViewModels
         // para no hacer un pedido a la API por cada letra.
         // Si el texto queda vacío, vuelve la lista completa
         partial void OnTextoBusquedaChanged(string? value) => _ = BuscarConEsperaAsync();
+
+        // Mismo camino que la búsqueda: espera a que termine una carga en curso
+        // (EjecutarAsync descarta los pedidos que llegan ocupado) y vuelve a la página 1
+        // con el texto que ya está escrito
+        partial void OnIncluirInactivosChanged(bool value) => _ = BuscarConEsperaAsync();
 
         private async Task BuscarConEsperaAsync()
         {
@@ -93,9 +107,11 @@ namespace NutriTrack.MAUI.ViewModels
 
             var rol = _sesionService.SesionActual?.Rol;
             PuedeAgregar = rol is RolUsuario.EncargadoDeCampo or RolUsuario.Administrador;
+            EsAdministrador = rol == RolUsuario.Administrador;
 
-            // Sin incluirInactivos: por defecto solo vienen los activos
-            var resultado = await _animalService.ListarAsync(TextoBusqueda, tamanioPagina: TamanioPagina);
+            // Sin el interruptor: por defecto solo vienen los activos
+            var resultado = await _animalService.ListarAsync(TextoBusqueda,
+                incluirInactivos: ConInactivos, tamanioPagina: TamanioPagina);
 
             Animales.Clear();
             _pagina = 1;
@@ -120,7 +136,8 @@ namespace NutriTrack.MAUI.ViewModels
         private Task CargarMasAsync() => EjecutarAsync(async () =>
         {
             var resultado = await _animalService.ListarAsync(
-                TextoBusqueda, pagina: _pagina + 1, tamanioPagina: TamanioPagina);
+                TextoBusqueda, incluirInactivos: ConInactivos,
+                pagina: _pagina + 1, tamanioPagina: TamanioPagina);
 
             if (!resultado.Exito)
             {
@@ -149,9 +166,15 @@ namespace NutriTrack.MAUI.ViewModels
         [RelayCommand]
         private Task AgregarAnimalAsync() => Shell.Current.GoToAsync(AgregarAnimalViewModel.Ruta);
 
+        // Los otros roles nunca mandan incluirInactivos
+        private bool ConInactivos => EsAdministrador && IncluirInactivos;
+
         private void ActualizarEstado()
         {
-            Contador = $"{Animales.Count} de {Total}";
+            // El total de la API ya cuenta los inactivos si se pidieron
+            Contador = ConInactivos
+                ? $"{Animales.Count} de {Total} (incluye inactivos)"
+                : $"{Animales.Count} de {Total}";
             HayMas = Animales.Count < Total;
             MensajeVacio = HayError ? null : "No se encontraron animales";
         }

@@ -22,6 +22,23 @@ namespace NutriTrack.MAUI.Services
         public Task<ResultadoApi<ArchivoDescargado>> FechasImportantesPdfAsync(FiltroReporte filtro) =>
             GetArchivoAsync($"api/ReporteFechasImportantes/pdf?{ArmarQuery(filtro)}");
 
+        public Task<ResultadoApi<ReporteEvolucionPeso>> EvolucionPesoAsync(FiltroReporte filtro, string? caravana) =>
+            GetAsync<ReporteEvolucionPeso>($"api/ReporteEvolucionPeso?{ArmarQueryEvolucionPeso(filtro, caravana)}");
+
+        public Task<ResultadoApi<ArchivoDescargado>> EvolucionPesoPdfAsync(FiltroReporte filtro, string? caravana) =>
+            GetArchivoAsync($"api/ReporteEvolucionPeso/pdf?{ArmarQueryEvolucionPeso(filtro, caravana)}");
+
+        // Parámetros comunes más la caravana, que solo tiene este reporte.
+        // Vacía no se manda (el back la ignora igual)
+        private static string ArmarQueryEvolucionPeso(FiltroReporte filtro, string? caravana)
+        {
+            var query = ArmarQuery(filtro);
+
+            return string.IsNullOrWhiteSpace(caravana)
+                ? query
+                : $"{query}&caravana={Uri.EscapeDataString(caravana)}";
+        }
+
         // Parámetros comunes a los tres reportes. Solo se mandan los que tienen valor:
         // FiltroReporte ya viene con lo que corresponde al tipo elegido
         private static string ArmarQuery(FiltroReporte filtro)

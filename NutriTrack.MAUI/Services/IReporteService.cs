@@ -22,6 +22,13 @@ namespace NutriTrack.MAUI.Services
         // y las mismas validaciones (404 / 400 en texto plano)
         Task<ResultadoApi<ArchivoDescargado>> FechasImportantesPdfAsync(FiltroReporte filtro);
 
-        // TODO #118: evolución de peso (GET api/ReporteEvolucionPeso), con el filtro de caravana
+        // GET api/ReporteEvolucionPeso (CU19). Primer y último pesaje de cada animal en el período.
+        // caravana: "CUIG-NRO" o null para todos. Con caravana la respuesta suma detalle.pesajes.
+        // Sin registros, con un rodeo inexistente o con una caravana inexistente responde 404 con mensaje
+        Task<ResultadoApi<ReporteEvolucionPeso>> EvolucionPesoAsync(FiltroReporte filtro, string? caravana);
+
+        // GET api/ReporteEvolucionPeso/pdf: el mismo reporte en PDF, con los mismos parámetros
+        // y las mismas validaciones (404 / 400 en texto plano)
+        Task<ResultadoApi<ArchivoDescargado>> EvolucionPesoPdfAsync(FiltroReporte filtro, string? caravana);
     }
 }
