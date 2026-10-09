@@ -84,5 +84,13 @@ namespace NutriTrack.MAUI.Services
 
             return PatchSinRespuestaAsync(url);
         }
+
+        public Task<ResultadoApi<bool>> ReactivarAsync(string cuig, string nroManejo)
+        {
+            var url = $"api/Animal/reactivar?cuig={Uri.EscapeDataString(cuig)}" +
+                      $"&nroManejo={Uri.EscapeDataString(nroManejo)}";
+
+            return PatchSinRespuestaAsync(url);
+        }
     }
 }

@@ -35,5 +35,9 @@ namespace NutriTrack.MAUI.Services
         // PATCH api/Animal/desactivar: da de baja al animal (CU4). El 200 trae texto plano y no se lee.
         // 400 "El animal ya está inactivo." si ya lo estaba; 404 si no existe.
         Task<ResultadoApi<bool>> DesactivarAsync(string cuig, string nroManejo);
+
+        // PATCH api/Animal/reactivar: vuelve a activar al animal (CU5). Solo Administrador (403 el resto).
+        // El 200 trae texto plano y no se lee. 400 "El animal ya está activo." si ya lo estaba; 404 si no existe.
+        Task<ResultadoApi<bool>> ReactivarAsync(string cuig, string nroManejo);
     }
 }

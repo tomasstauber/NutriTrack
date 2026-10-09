@@ -25,7 +25,7 @@
         </Style>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12" Padding="16">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="12" Padding="16">
 
         <!-- Búsqueda (contra el servidor) y alta -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
@@ -44,14 +44,25 @@
                     Command="{Binding AgregarAnimalCommand}" />
         </Grid>
 
+        <!-- #124: solo Administrador -->
+        <HorizontalStackLayout Grid.Row="1"
+                               Spacing="4"
+                               IsVisible="{Binding EsAdministrador}">
+            <CheckBox IsChecked="{Binding IncluirInactivos}"
+                      VerticalOptions="Center" />
+            <Label Text="Incluir inactivos"
+                   TextColor="{StaticResource TextoPrincipal}"
+                   VerticalOptions="Center" />
+        </HorizontalStackLayout>
+
         <!-- Errores de la API -->
-        <Label Grid.Row="1"
+        <Label Grid.Row="2"
                Text="{Binding MensajeError}"
                IsVisible="{Binding HayError}"
                TextColor="{StaticResource Peligro}" />
 
         <!-- Lista -->
-        <CollectionView Grid.Row="2"
+        <CollectionView Grid.Row="3"
                         ItemsSource="{Binding Animales}"
                         EmptyView="{Binding MensajeVacio}">
 
@@ -78,7 +89,15 @@
                         <Grid ColumnDefinitions="2*,2*,*,2*"
                               ColumnSpacing="8"
                               Padding="8">
-                            <Label Grid.Column="0" Text="{Binding Caravana}" Style="{StaticResource Celda}" />
+                            <!-- Inactivo: la etiqueta de texto lo distingue, no solo el color -->
+                            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                                <Label Text="{Binding Caravana}" Style="{StaticResource Celda}" />
+                                <Label Text="Inactivo"
+                                       FontAttributes="Bold"
+                                       FontSize="12"
+                                       TextColor="{StaticResource Peligro}"
+                                       IsVisible="{Binding Inactivo}" />
+                            </VerticalStackLayout>
                             <Label Grid.Column="1" Text="{Binding Raza, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="2" Text="{Binding Sexo}" Style="{StaticResource Celda}" />
                             <Label Grid.Column="3" Text="{Binding RodeoNombre, TargetNullValue='Sin rodeo'}" Style="{StaticResource Celda}" />
@@ -90,7 +109,7 @@
         </CollectionView>
 
         <!-- Contador y paginado -->
-        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+        <Grid Grid.Row="4" ColumnDefinitions="*,Auto" ColumnSpacing="12">
             <Label Grid.Column="0"
                    Text="{Binding Contador}"
                    TextColor="{StaticResource TextoSecundario}"
