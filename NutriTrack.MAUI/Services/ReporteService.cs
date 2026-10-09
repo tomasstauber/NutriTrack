@@ -16,6 +16,12 @@ namespace NutriTrack.MAUI.Services
         public Task<ResultadoApi<ArchivoDescargado>> InventarioAnimalesPdfAsync(FiltroReporte filtro) =>
             GetArchivoAsync($"api/ReporteInventarioAnimales/pdf?{ArmarQuery(filtro)}");
 
+        public Task<ResultadoApi<ReporteFechasImportantes>> FechasImportantesAsync(FiltroReporte filtro) =>
+            GetAsync<ReporteFechasImportantes>($"api/ReporteFechasImportantes?{ArmarQuery(filtro)}");
+
+        public Task<ResultadoApi<ArchivoDescargado>> FechasImportantesPdfAsync(FiltroReporte filtro) =>
+            GetArchivoAsync($"api/ReporteFechasImportantes/pdf?{ArmarQuery(filtro)}");
+
         public Task<ResultadoApi<ReporteEvolucionPeso>> EvolucionPesoAsync(FiltroReporte filtro, string? caravana) =>
             GetAsync<ReporteEvolucionPeso>($"api/ReporteEvolucionPeso?{ArmarQueryEvolucionPeso(filtro, caravana)}");
 

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             xmlns:views="clr-namespace:NutriTrack.MAUI.Views"
+             x:Class="NutriTrack.MAUI.Views.ReporteFechasImportantesPage"
+             x:DataType="vm:ReporteFechasImportantesViewModel"
+             Title="Fechas importantes"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <helpers:NuloAGuionConverter x:Key="NuloAGuion" />
+
+        <Style x:Key="TituloSeccion" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+
+        <Style x:Key="SinDatos" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoSecundario}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Dos tablas en la misma pantalla: ScrollView vertical y BindableLayout en vez de CollectionView
+         (dos CollectionView dentro de un ScrollView no se desplazan bien) -->
+    <ScrollView>
+        <VerticalStackLayout Spacing="12" Padding="16">
+
+            <!-- Los tipos fijos cuentan hacia atrás (CU17 R3) y este reporte mira hacia adelante -->
+            <Label Text="Muestra las próximas aplicaciones y los vencimientos de vigencia de los eventos sanitarios que caen dentro del período. Abre con los próximos 7 días. Ojo: los tipos Diario a Anual cuentan hacia atrás desde la fecha de referencia, así que muestran fechas ya pasadas. Para mirar hacia adelante, usá Personalizado."
+                   TextColor="{StaticResource TextoSecundario}" />
+
+            <views:FiltroPeriodoReporteView BindingContext="{Binding Filtro}" />
+
+            <HorizontalStackLayout Spacing="12">
+                <Button Text="Generar"
+                        Command="{Binding GenerarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+
+                <!-- Mismos filtros que Generar; abre el PDF con el visor del sistema -->
+                <Button Text="Descargar PDF"
+                        Command="{Binding DescargarPdfCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+
+            <Label Text="Descargando PDF…"
+                   IsVisible="{Binding DescargandoPdf}"
+                   TextColor="{StaticResource TextoSecundario}" />
+
+            <!-- Errores de la API (los 404 van como estado vacío) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <!-- E1: sin fechas en el período (404), con el mensaje del back -->
+            <Label Text="{Binding MensajeVacio}"
+                   IsVisible="{Binding HayMensajeVacio}"
+                   TextColor="{StaticResource TextoSecundario}"
+                   HorizontalOptions="Center" />
+
+            <!-- S1: Próximas aplicaciones -->
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding HayResultado}">
+                <Label Text="{Binding TituloProximas}" Style="{StaticResource TituloSeccion}" />
+
+                <Label Text="No hay próximas aplicaciones en el período."
+                       IsVisible="{Binding SinProximas}"
+                       Style="{StaticResource SinDatos}" />
+
+                <!-- Con scroll horizontal para que entren todas las columnas en pantallas chicas -->
+                <ScrollView Orientation="Horizontal" IsVisible="{Binding HayProximas}">
+                    <VerticalStackLayout WidthRequest="810">
+                        <Grid ColumnDefinitions="150,130,200,110,170"
+                              ColumnSpacing="8"
+                              Padding="8"
+                              BackgroundColor="{StaticResource Superficie}">
+                            <Label Grid.Column="0" Text="Destino" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="1" Text="Tipo de evento" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="2" Text="Producto" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="3" Text="Fecha" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="4" Text="Responsable" Style="{StaticResource Encabezado}" />
+                        </Grid>
+
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding ProximasAplicaciones}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:ProximaAplicacion">
+                                    <Grid RowDefinitions="*,Auto">
+                                        <Grid ColumnDefinitions="150,130,200,110,170"
+                                              ColumnSpacing="8"
+                                              Padding="8">
+                                            <Label Grid.Column="0" Text="{Binding Destino}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="1" Text="{Binding TipoEventoTexto}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="2" Text="{Binding Producto, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="3" Text="{Binding FechaProximaAplicacion, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="4" Text="{Binding Responsable}" Style="{StaticResource Celda}" />
+                                        </Grid>
+                                        <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </VerticalStackLayout>
+
+            <!-- S2: Vencimientos -->
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding HayResultado}">
+                <Label Text="{Binding TituloVencimientos}" Style="{StaticResource TituloSeccion}" />
+
+                <Label Text="No hay vencimientos en el período."
+                       IsVisible="{Binding SinVencimientos}"
+                       Style="{StaticResource SinDatos}" />
+
+                <ScrollView Orientation="Horizontal" IsVisible="{Binding HayVencimientos}">
+                    <VerticalStackLayout WidthRequest="1040">
+                        <Grid ColumnDefinitions="150,130,200,110,170,220"
+                              ColumnSpacing="8"
+                              Padding="8"
+                              BackgroundColor="{StaticResource Superficie}">
+                            <Label Grid.Column="0" Text="Destino" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="1" Text="Tipo de evento" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="2" Text="Producto" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="3" Text="Vigencia hasta" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="4" Text="Responsable" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="5" Text="Observaciones" Style="{StaticResource Encabezado}" />
+                        </Grid>
+
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Vencimientos}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:VencimientoEvento">
+                                    <Grid RowDefinitions="*,Auto">
+                                        <Grid ColumnDefinitions="150,130,200,110,170,220"
+                                              ColumnSpacing="8"
+                                              Padding="8">
+                                            <Label Grid.Column="0" Text="{Binding Destino}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="1" Text="{Binding TipoEventoTexto}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="2" Text="{Binding Producto, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="3" Text="{Binding VigenciaHasta, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="4" Text="{Binding Responsable}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="5" Text="{Binding Observaciones, Converter={StaticResource NuloAGuion}}" Style="{StaticResource Celda}" />
+                                        </Grid>
+                                        <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
