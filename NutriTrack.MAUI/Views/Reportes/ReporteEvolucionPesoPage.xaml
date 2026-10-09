@@ -109,18 +109,19 @@
 
                 <!-- Con scroll horizontal para que entren todas las columnas en pantallas chicas -->
                 <ScrollView Orientation="Horizontal">
-                    <VerticalStackLayout WidthRequest="840">
-                        <Grid ColumnDefinitions="130,110,110,110,110,110,90"
+                    <VerticalStackLayout WidthRequest="940">
+                        <Grid ColumnDefinitions="130,90,110,110,110,110,110,90"
                               ColumnSpacing="8"
                               Padding="8"
                               BackgroundColor="{StaticResource Superficie}">
                             <Label Grid.Column="0" Text="Caravana" Style="{StaticResource Encabezado}" />
-                            <Label Grid.Column="1" Text="Fecha inicial" Style="{StaticResource Encabezado}" />
-                            <Label Grid.Column="2" Text="Peso inicial (kg)" Style="{StaticResource Encabezado}" />
-                            <Label Grid.Column="3" Text="Fecha final" Style="{StaticResource Encabezado}" />
-                            <Label Grid.Column="4" Text="Peso final (kg)" Style="{StaticResource Encabezado}" />
-                            <Label Grid.Column="5" Text="Variación (kg)" Style="{StaticResource Encabezado}" />
-                            <Label Grid.Column="6" Text="Registros" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="1" Text="Estado" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="2" Text="Fecha inicial" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="3" Text="Peso inicial (kg)" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="4" Text="Fecha final" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="5" Text="Peso final (kg)" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="6" Text="Variación (kg)" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="7" Text="Registros" Style="{StaticResource Encabezado}" />
                         </Grid>
 
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Animales}">
@@ -132,16 +133,23 @@
                                                                   CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
 
-                                        <Grid ColumnDefinitions="130,110,110,110,110,110,90"
+                                        <Grid ColumnDefinitions="130,90,110,110,110,110,110,90"
                                               ColumnSpacing="8"
                                               Padding="8">
                                             <Label Grid.Column="0" Text="{Binding Caravana}" Style="{StaticResource Celda}" />
-                                            <Label Grid.Column="1" Text="{Binding FechaInicial, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
-                                            <Label Grid.Column="2" Text="{Binding PesoInicial, StringFormat='{0:0.0}'}" Style="{StaticResource Celda}" />
-                                            <Label Grid.Column="3" Text="{Binding FechaFinal, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
-                                            <Label Grid.Column="4" Text="{Binding PesoFinal, StringFormat='{0:0.0}'}" Style="{StaticResource Celda}" />
-                                            <Label Grid.Column="5" Text="{Binding VariacionTexto}" Style="{StaticResource Celda}" />
-                                            <Label Grid.Column="6" Text="{Binding CantidadRegistros}" Style="{StaticResource Celda}" />
+                                            <!-- Estado: Inactivo en negrita y color Peligro, como la lista de animales y el PDF -->
+                                            <Label Grid.Column="1" Text="{Binding EstadoActual}" Style="{StaticResource Celda}"
+                                                   IsVisible="{Binding NoInactivo}" />
+                                            <Label Grid.Column="1" Text="{Binding EstadoActual}" Style="{StaticResource Celda}"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource Peligro}"
+                                                   IsVisible="{Binding Inactivo}" />
+                                            <Label Grid.Column="2" Text="{Binding FechaInicial, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="3" Text="{Binding PesoInicial, StringFormat='{0:0.0}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="4" Text="{Binding FechaFinal, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="5" Text="{Binding PesoFinal, StringFormat='{0:0.0}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="6" Text="{Binding VariacionTexto}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="7" Text="{Binding CantidadRegistros}" Style="{StaticResource Celda}" />
                                         </Grid>
                                         <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
                                     </Grid>
