@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+             xmlns:views="clr-namespace:NutriTrack.MAUI.Views"
+             x:Class="NutriTrack.MAUI.Views.ReporteEvolucionPesoPage"
+             x:DataType="vm:ReporteEvolucionPesoViewModel"
+             Title="Evolución de peso"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="TituloSeccion" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="Etiqueta" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+        </Style>
+
+        <Style x:Key="ErrorCampo" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource Peligro}" />
+        </Style>
+
+        <Style x:Key="Encabezado" TargetType="Label">
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <Style x:Key="Celda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+
+        <Style x:Key="Ayuda" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoSecundario}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <!-- Dos tablas en la misma pantalla: ScrollView vertical y BindableLayout en vez de CollectionView
+         (dos CollectionView dentro de un ScrollView no se desplazan bien) -->
+    <ScrollView>
+        <VerticalStackLayout Spacing="12" Padding="16">
+
+            <Label Text="Muestra, por animal, el primer y el último pesaje registrados dentro del período y la variación de peso entre los dos. Abre con el último año."
+                   Style="{StaticResource Ayuda}" />
+
+            <views:FiltroPeriodoReporteView BindingContext="{Binding Filtro}" />
+
+            <!-- D4: caravana opcional, las dos partes o ninguna. Solo de este reporte: no es parte del filtro compartido -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Caravana (opcional)" Style="{StaticResource Etiqueta}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Entry Grid.Column="0"
+                           Text="{Binding Cuig}"
+                           Placeholder="CUIG"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                    <Entry Grid.Column="1"
+                           Text="{Binding NroManejo}"
+                           Placeholder="Nro. de manejo"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Grid>
+                <Label Text="{Binding ErrorCaravana}"
+                       IsVisible="{Binding HayErrorCaravana}"
+                       Style="{StaticResource ErrorCampo}" />
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Spacing="12">
+                <Button Text="Generar"
+                        Command="{Binding GenerarCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+
+                <!-- Mismos filtros que Generar; abre el PDF con el visor del sistema -->
+                <Button Text="Descargar PDF"
+                        Command="{Binding DescargarPdfCommand}"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </HorizontalStackLayout>
+
+            <Label Text="Descargando PDF…"
+                   IsVisible="{Binding DescargandoPdf}"
+                   Style="{StaticResource Ayuda}" />
+
+            <!-- Errores de la API (los 404 van como estado vacío) -->
+            <Label Text="{Binding MensajeError}"
+                   IsVisible="{Binding HayError}"
+                   TextColor="{StaticResource Peligro}" />
+
+            <ActivityIndicator IsRunning="{Binding EstaOcupado}"
+                               IsVisible="{Binding EstaOcupado}" />
+
+            <!-- E1: sin registros, rodeo o caravana inexistente (404), con el mensaje del back -->
+            <Label Text="{Binding MensajeVacio}"
+                   IsVisible="{Binding HayMensajeVacio}"
+                   TextColor="{StaticResource TextoSecundario}"
+                   HorizontalOptions="Center" />
+
+            <!-- S1: una fila por animal. Tocar una fila muestra sus pesajes (S2) -->
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding HayResultado}">
+                <Label Text="Tocá una fila para ver los pesajes del animal en el período."
+                       Style="{StaticResource Ayuda}" />
+
+                <!-- Con scroll horizontal para que entren todas las columnas en pantallas chicas -->
+                <ScrollView Orientation="Horizontal">
+                    <VerticalStackLayout WidthRequest="840">
+                        <Grid ColumnDefinitions="130,110,110,110,110,110,90"
+                              ColumnSpacing="8"
+                              Padding="8"
+                              BackgroundColor="{StaticResource Superficie}">
+                            <Label Grid.Column="0" Text="Caravana" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="1" Text="Fecha inicial" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="2" Text="Peso inicial (kg)" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="3" Text="Fecha final" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="4" Text="Peso final (kg)" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="5" Text="Variación (kg)" Style="{StaticResource Encabezado}" />
+                            <Label Grid.Column="6" Text="Registros" Style="{StaticResource Encabezado}" />
+                        </Grid>
+
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Animales}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:AnimalEvolucionPeso">
+                                    <Grid RowDefinitions="*,Auto">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReporteEvolucionPesoViewModel}}, Path=VerDetalleCommand, x:DataType=vm:ReporteEvolucionPesoViewModel}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+
+                                        <Grid ColumnDefinitions="130,110,110,110,110,110,90"
+                                              ColumnSpacing="8"
+                                              Padding="8">
+                                            <Label Grid.Column="0" Text="{Binding Caravana}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="1" Text="{Binding FechaInicial, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="2" Text="{Binding PesoInicial, StringFormat='{0:0.0}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="3" Text="{Binding FechaFinal, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="4" Text="{Binding PesoFinal, StringFormat='{0:0.0}'}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="5" Text="{Binding VariacionTexto}" Style="{StaticResource Celda}" />
+                                            <Label Grid.Column="6" Text="{Binding CantidadRegistros}" Style="{StaticResource Celda}" />
+                                        </Grid>
+                                        <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </VerticalStackLayout>
+
+            <!-- S2: pesajes del animal tocado (o del filtrado por caravana). Debajo de la tabla, sin reemplazarla -->
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding HayDetalle}">
+                <Label Text="{Binding TituloDetalle}" Style="{StaticResource TituloSeccion}" />
+
+                <!-- Falla del pedido del detalle: la tabla de arriba sigue a la vista -->
+                <Label Text="{Binding ErrorDetalle}"
+                       IsVisible="{Binding HayErrorDetalle}"
+                       TextColor="{StaticResource Peligro}" />
+
+                <VerticalStackLayout IsVisible="{Binding HayPesajes}"
+                                     WidthRequest="270"
+                                     HorizontalOptions="Start">
+                    <Grid ColumnDefinitions="120,120"
+                          ColumnSpacing="8"
+                          Padding="8"
+                          BackgroundColor="{StaticResource Superficie}">
+                        <Label Grid.Column="0" Text="Fecha" Style="{StaticResource Encabezado}" />
+                        <Label Grid.Column="1" Text="Peso (kg)" Style="{StaticResource Encabezado}" />
+                    </Grid>
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Pesajes}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:PesajeDetalle">
+                                <Grid RowDefinitions="*,Auto">
+                                    <Grid ColumnDefinitions="120,120"
+                                          ColumnSpacing="8"
+                                          Padding="8">
+                                        <Label Grid.Column="0" Text="{Binding FechaPesaje, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Celda}" />
+                                        <Label Grid.Column="1" Text="{Binding PesoKg, StringFormat='{0:0.0}'}" Style="{StaticResource Celda}" />
+                                    </Grid>
+                                    <BoxView Grid.Row="1" HeightRequest="1" Color="{StaticResource Borde}" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

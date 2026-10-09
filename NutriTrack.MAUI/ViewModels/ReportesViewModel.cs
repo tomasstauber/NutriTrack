@@ -13,9 +13,8 @@ namespace NutriTrack.MAUI.ViewModels
         [RelayCommand]
         private Task FechasImportantes() => MostrarEnConstruccion("Fechas importantes");
 
-        // TODO #118: navegar al reporte de evolución de peso
         [RelayCommand]
-        private Task EvolucionPeso() => MostrarEnConstruccion("Evolución de peso");
+        private Task EvolucionPeso() => Shell.Current.GoToAsync(ReporteEvolucionPesoViewModel.Ruta);
 
         private static Task MostrarEnConstruccion(string reporte) =>
             Shell.Current.DisplayAlertAsync(reporte, "Pantalla en construcción.", "Aceptar");
