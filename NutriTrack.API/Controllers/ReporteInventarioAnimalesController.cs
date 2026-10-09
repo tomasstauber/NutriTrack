@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
 using NutriTrack.API.GeneracionReportesPdf;
+using NutriTrack.Core.Entities;
 using NutriTrack.Core.Reportes;
 using NutriTrack.Infraestructure.Repositories;
 using System;
@@ -57,10 +58,15 @@ namespace NutriTrack.API.Controllers
                 return (BadRequest("El tipo de reporte ingresado no es válido"), null);
 
             var tipo = filtro.TipoReporte.ToLower();
-            DateTime desde;
-            DateTime hasta;
+            List<Animal> animales;
 
-            if (tipo == "personalizado")
+            if (tipo == "actual")
+            {
+                // Inventario completo: todos los activos, sin período.
+                // FechaReferencia, Desde y Hasta se ignoran si llegan
+                animales = await _repository.ObtenerInventario(filtro.IdRodeo);
+            }
+            else if (tipo == "personalizado")
             {
      
                 if (!filtro.Desde.HasValue || !filtro.Hasta.HasValue)
@@ -69,20 +75,18 @@ namespace NutriTrack.API.Controllers
                 if (filtro.Desde.Value.Date > filtro.Hasta.Value.Date)
                     return (BadRequest("El período ingresado no es válido"), null);
 
-                desde = filtro.Desde.Value;
-                hasta = filtro.Hasta.Value;
+                animales = await _repository.ObtenerInventario(
+                    filtro.IdRodeo, filtro.Desde.Value, filtro.Hasta.Value);
             }
             else
             {
                
-                if (tipo != "actual" && !filtro.FechaReferencia.HasValue)
+                if (!filtro.FechaReferencia.HasValue)
                     return (BadRequest("Debe indicar la fecha del período para este tipo de reporte"), null);
 
-                var referencia = filtro.FechaReferencia ?? DateTime.Today;
-                (desde, hasta) = PeriodoReporteCalculator.Calcular(tipo, referencia);
+                var (desde, hasta) = PeriodoReporteCalculator.Calcular(tipo, filtro.FechaReferencia.Value);
+                animales = await _repository.ObtenerInventario(filtro.IdRodeo, desde, hasta);
             }
-
-            var animales = await _repository.ObtenerInventario(filtro.IdRodeo, desde, hasta);
 
             if (!animales.Any())
                 return (NotFound("No se encontraron animales para el alcance y período seleccionados."), null);
