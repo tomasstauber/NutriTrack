@@ -70,6 +70,7 @@ namespace NutriTrack.API.Controllers
                 Animales = filas.Select(f => new AnimalEvolucionPesoItemDTO
                 {
                     Caravana = f.Caravana,
+                    EstadoActual = f.Estado ? "Activo" : "Inactivo",
                     FechaInicial = f.FechaInicial,
                     PesoInicial = f.PesoInicial,
                     FechaFinal = f.FechaFinal,

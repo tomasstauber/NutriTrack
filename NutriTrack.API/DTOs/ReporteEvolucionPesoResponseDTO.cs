@@ -12,6 +12,8 @@ namespace NutriTrack.API.DTOs
     public class AnimalEvolucionPesoItemDTO
     {
         public string Caravana { get; set; }
+        // "Activo" / "Inactivo", igual que el reporte de inventario
+        public string EstadoActual { get; set; }
         public DateTime FechaInicial { get; set; }
         public decimal PesoInicial { get; set; }
         public DateTime FechaFinal { get; set; }
