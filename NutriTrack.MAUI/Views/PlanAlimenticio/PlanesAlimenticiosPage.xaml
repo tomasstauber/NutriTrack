@@ -64,6 +64,12 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:PlanAlimenticio">
                     <Grid RowDefinitions="*,Auto">
+                        <!-- #159: tocar la fila abre la ficha del plan -->
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlanesAlimenticiosViewModel}}, Path=VerFichaCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Grid.GestureRecognizers>
+
                         <Grid ColumnDefinitions="2*,*,*,*,250"
                               ColumnSpacing="8"
                               Padding="8">

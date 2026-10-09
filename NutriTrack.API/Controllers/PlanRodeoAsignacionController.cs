@@ -106,6 +106,31 @@ namespace NutriTrack.API.Controllers
             return Ok(response);
         }
 
+        // Asignaciones activas de un plan, para la ficha del plan (#159).
+        // Lista vacía si el plan no está asignado a ningún rodeo
+        [HttpGet("plan/{idPlanAlimenticio}/activas")]
+        public async Task<IActionResult> ListarAsignacionesActivasPorPlan(int idPlanAlimenticio)
+        {
+            var plan = await _planAlimenticioRepository.BuscarPlanId(idPlanAlimenticio);
+            if (plan is null)
+            {
+                return NotFound("No existe un plan con ese Id.");
+            }
+
+            var asignaciones = await _repository.ListarActivasPorPlan(idPlanAlimenticio);
+
+            return Ok(asignaciones.Select(a => new AsignacionActivaPlanResponseDTO
+            {
+                IdAsignacion = a.IdAsignacion,
+                IdRodeo = a.IdRodeo,
+                NombreRodeo = a.NombreRodeo,
+                DescripcionRodeo = a.DescripcionRodeo,
+                CantidadAnimales = a.CantidadAnimales,
+                VigenciaDesde = a.VigenciaDesde,
+                VigenciaHasta = a.VigenciaHasta
+            }).ToList());
+        }
+
         // Endpoint auxiliar para que el frontend consulte si un rodeo ya tiene plan activo
         // antes de mostrar el formulario de asignación. Permite advertir al usuario que se
         // va a reemplazar un plan existente antes de confirmar la operación. Solo lo pongo a modo de recordatorio.

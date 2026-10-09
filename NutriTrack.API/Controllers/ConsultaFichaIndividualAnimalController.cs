@@ -10,7 +10,7 @@ namespace NutriTrack.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo}")]
+    [Authorize(Roles = $"{RolesUsuario.Administrador},{RolesUsuario.EncargadoDeCampo},{RolesUsuario.AsesorTecnico}")]
     public class ConsultaFichaIndividualAnimalController : ControllerBase
     {
         private readonly ConsultaFichaIndividualAnimalRepository _repository;
