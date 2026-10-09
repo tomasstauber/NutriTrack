@@ -95,7 +95,8 @@
                 </Border>
 
                 <!-- Acciones: Editar para Encargado y Administrador;
-                     Registrar peso y Desactivar además solo con el animal activo -->
+                     Registrar peso y Desactivar además solo con el animal activo;
+                     Activar solo Administrador y con el animal inactivo -->
                 <FlexLayout Wrap="Wrap" JustifyContent="End">
                     <Button Text="Editar"
                             Margin="0,0,12,8"
@@ -114,6 +115,11 @@
                             IsVisible="{Binding PuedeDesactivar}"
                             IsEnabled="{Binding NoEstaOcupado}"
                             Command="{Binding DesactivarCommand}" />
+                    <Button Text="Activar"
+                            Margin="0,0,0,8"
+                            IsVisible="{Binding PuedeReactivar}"
+                            IsEnabled="{Binding NoEstaOcupado}"
+                            Command="{Binding ReactivarCommand}" />
                 </FlexLayout>
             </VerticalStackLayout>
 

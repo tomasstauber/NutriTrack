@@ -17,5 +17,8 @@ namespace NutriTrack.MAUI.Models
 
         // Caravana para mostrar (CUIG-NRO). No viene de la API: se arma acá
         public string Caravana => CaravanaValidador.Formatear(CaravanaCuig, CaravanaNroManejo);
+
+        // Muestra la etiqueta "Inactivo" en la lista. No viene de la API: se arma acá
+        public bool Inactivo => !Estado;
     }
 }

@@ -7,7 +7,7 @@ using NutriTrack.MAUI.Services;
 
 namespace NutriTrack.MAUI.ViewModels
 {
-    // CU2 - Consulta de ficha individual y CU4 - Desactivar ficha de un animal.
+    // CU2 - Consulta de ficha individual, CU4 - Desactivar y CU5 - Reactivar ficha de un animal.
     // El historial sanitario viene del prototipo.
     // Recibe por navegación "id", "caravanaCuig" y "caravanaNroManejo":
     // la ficha se pide por caravana y el historial por id
@@ -43,6 +43,7 @@ namespace NutriTrack.MAUI.ViewModels
         [NotifyPropertyChangedFor(nameof(EstaActivo))]
         [NotifyPropertyChangedFor(nameof(PuedeRegistrarPeso))]
         [NotifyPropertyChangedFor(nameof(PuedeDesactivar))]
+        [NotifyPropertyChangedFor(nameof(PuedeReactivar))]
         public partial FichaAnimal? Ficha { get; set; }
 
         public bool HayFicha => Ficha is not null;
@@ -74,6 +75,14 @@ namespace NutriTrack.MAUI.ViewModels
         public bool PuedeRegistrarPeso => PuedeGestionar && EstaActivo;
 
         public bool PuedeDesactivar => PuedeGestionar && EstaActivo;
+
+        // Activar (CU5): solo Administrador (R5)
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PuedeReactivar))]
+        public partial bool EsAdministrador { get; set; }
+
+        // Solo con el animal inactivo
+        public bool PuedeReactivar => EsAdministrador && HayFicha && !EstaActivo;
 
         // Historial sanitario, del más reciente al más viejo (así llega)
         public ObservableCollection<EventoHistorial> Eventos { get; } = [];
@@ -108,6 +117,7 @@ namespace NutriTrack.MAUI.ViewModels
             // Shell puede reutilizar la página: el permiso se calcula en cada carga
             var rol = _sesionService.SesionActual?.Rol;
             PuedeGestionar = rol is RolUsuario.EncargadoDeCampo or RolUsuario.Administrador;
+            EsAdministrador = rol == RolUsuario.Administrador;
 
             await CargarFichaAsync();
             await CargarHistorialAsync();
@@ -229,6 +239,48 @@ namespace NutriTrack.MAUI.ViewModels
                 "El animal fue desactivado correctamente.", "Aceptar");
 
             // La ficha ahora dice Inactivo y se ocultan Registrar peso y Desactivar
+            await EjecutarAsync(CargarFichaAsync);
+        }
+
+        [RelayCommand]
+        private async Task ReactivarAsync()
+        {
+            if (Ficha is null)
+                return;
+
+            var cuig = Ficha.CaravanaCuig;
+            var nroManejo = Ficha.CaravanaNroManejo;
+
+            var confirmado = await Shell.Current.DisplayAlertAsync(
+                "Activar animal",
+                $"¿Activar el animal {Caravana}? Vuelve a aparecer en la lista de animales activos.",
+                "Activar",
+                "Cancelar");
+
+            // CU5 E4: si cancela, no se llama a la API
+            if (!confirmado)
+                return;
+
+            var reactivado = false;
+
+            await EjecutarAsync(async () =>
+            {
+                var resultado = await _animalService.ReactivarAsync(cuig, nroManejo);
+
+                if (resultado.Exito)
+                    reactivado = true;
+                else
+                    // CU5 E3: "El animal ya está activo." (400); 403 con el mensaje de permisos, u otro del back
+                    MensajeError = resultado.MensajeError;
+            });
+
+            if (!reactivado)
+                return;
+
+            await Shell.Current.DisplayAlertAsync("Activar animal",
+                "El animal fue reactivado correctamente.", "Aceptar");
+
+            // La ficha vuelve a Activo: se oculta Activar y aparecen Registrar peso y Desactivar
             await EjecutarAsync(CargarFichaAsync);
         }
 
