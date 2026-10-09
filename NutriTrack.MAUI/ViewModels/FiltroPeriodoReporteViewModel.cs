@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NutriTrack.MAUI.Models;
@@ -11,6 +12,8 @@ namespace NutriTrack.MAUI.ViewModels
     // Uso desde la pantalla del reporte:
     //   1. Recibir un FiltroPeriodoReporteViewModel por constructor y exponerlo como propiedad (Filtro).
     //   2. Opcional, en el constructor: valores iniciales con Configurar(tipo, fechaReferencia, desde, hasta).
+    //      El tipo "actual" no está en la lista por defecto: el reporte que lo use lo agrega con
+    //      IncluirTipoActual(texto, textoPeriodo) ANTES de Configurar (si no, el tipo queda sin elegir).
     //   3. Al aparecer: await Filtro.CargarRodeosAsync().
     //   4. Al generar: if (!Filtro.Validar()) return;  y pedir el reporte con Filtro.ArmarFiltro().
     // En la vista: <views:FiltroPeriodoReporteView BindingContext="{Binding Filtro}" />
@@ -38,6 +41,9 @@ namespace NutriTrack.MAUI.ViewModels
 
         private readonly IRodeoService _rodeoService;
 
+        // Texto de período del tipo "actual" (lo pasa IncluirTipoActual)
+        private string? _textoPeriodoActual;
+
         public FiltroPeriodoReporteViewModel(IRodeoService rodeoService)
         {
             _rodeoService = rodeoService;
@@ -54,10 +60,12 @@ namespace NutriTrack.MAUI.ViewModels
 
         // ===== Tipo =====
 
-        // D2: los siete tipos que acepta el back
-        public IReadOnlyList<OpcionTipoReporte> Tipos { get; } =
+        // D2: los tipos que acepta el back. "actual" solo si el reporte lo pide (IncluirTipoActual):
+        // en Fechas importantes y Evolución de peso equivale a Diario con la fecha de hoy
+        public IReadOnlyList<OpcionTipoReporte> Tipos => _tipos;
+
+        private readonly ObservableCollection<OpcionTipoReporte> _tipos =
         [
-            new() { Texto = "Actual", Valor = TiposReporte.Actual },
             new() { Texto = "Diario", Valor = TiposReporte.Diario },
             new() { Texto = "Semanal", Valor = TiposReporte.Semanal },
             new() { Texto = "Quincenal", Valor = TiposReporte.Quincenal },
@@ -114,8 +122,9 @@ namespace NutriTrack.MAUI.ViewModels
                 if (tipo is null || !DiasPorTipo.TryGetValue(tipo, out var dias))
                     return null;
 
+                // El texto lo define el reporte que agregó el tipo (IncluirTipoActual)
                 if (tipo == TiposReporte.Actual)
-                    return $"Período: solo hoy ({Formatear(DateTime.Today)}).";
+                    return _textoPeriodoActual;
 
                 if (FechaReferencia is not { } referencia)
                     return null;
@@ -165,6 +174,19 @@ namespace NutriTrack.MAUI.ViewModels
         }
 
         // ===== Interfaz pública para la pantalla del reporte =====
+
+        // Agrega el tipo "actual" al principio de la lista, con el texto que ve el usuario
+        // y el texto de período que lo explica. El valor que viaja sigue siendo "actual".
+        // Llamar antes de Configurar
+        public void IncluirTipoActual(string texto, string textoPeriodo)
+        {
+            _textoPeriodoActual = textoPeriodo;
+
+            if (_tipos.Any(t => t.Valor == TiposReporte.Actual))
+                return;
+
+            _tipos.Insert(0, new OpcionTipoReporte { Texto = texto, Valor = TiposReporte.Actual });
+        }
 
         // Valores iniciales del reporte. Las fechas que no se pasan quedan en hoy
         public void Configurar(string tipo, DateTime? fechaReferencia = null, DateTime? desde = null, DateTime? hasta = null)

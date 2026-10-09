@@ -27,8 +27,10 @@ namespace NutriTrack.MAUI.ViewModels
             _archivoService = archivoService;
             Filtro = filtro;
 
-            // Abre en mensual con la fecha de hoy: altas de los últimos 30 días
-            Filtro.Configurar(TiposReporte.Mensual);
+            // "actual" se muestra como "Inventario completo": todo el stock activo, sin período.
+            // Abre con ese tipo elegido; se genera al tocar Generar
+            Filtro.IncluirTipoActual("Inventario completo", "Todos los animales activos, sin período.");
+            Filtro.Configurar(TiposReporte.Actual);
         }
 
         // Filtro de período compartido con los otros reportes
@@ -36,7 +38,7 @@ namespace NutriTrack.MAUI.ViewModels
 
         // ===== Resultado =====
 
-        // Ordenados por caravana: el back no los ordena
+        // En el orden en que llegan: el back los ordena por caravana, igual que en el PDF
         public ObservableCollection<AnimalInventario> Animales { get; } = [];
 
         // S1: "Total de animales: N" (null hasta que hay resultado)
@@ -93,7 +95,7 @@ namespace NutriTrack.MAUI.ViewModels
 
                 var animales = resultado.Datos?.Animales ?? [];
 
-                foreach (var animal in animales.OrderBy(a => a.Caravana, StringComparer.OrdinalIgnoreCase))
+                foreach (var animal in animales)
                     Animales.Add(animal);
 
                 TextoTotal = $"Total de animales: {resultado.Datos?.TotalAnimales ?? animales.Count}";

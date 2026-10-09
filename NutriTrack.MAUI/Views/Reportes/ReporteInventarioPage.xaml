@@ -26,9 +26,10 @@
     <!-- Sin ScrollView: la tabla va en la fila "*" y tiene su propio scroll -->
     <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="12" Padding="16">
 
-        <!-- El período no es el inventario total: sin esta aclaración, "sin resultados" parece un error -->
+        <!-- Solo Inventario completo es el stock total; el resto filtra por fecha de alta.
+             Sin esta aclaración, "sin resultados" con un período parece un error -->
         <Label Grid.Row="0"
-               Text="Muestra los animales activos dados de alta en el sistema dentro del período elegido. No es el inventario total: con el tipo Actual solo aparecen los dados de alta hoy."
+               Text="Inventario completo muestra todo el stock activo. Los demás tipos muestran los animales activos dados de alta en el sistema dentro del período elegido. Para ver solo las altas de hoy, usá Diario con la fecha de hoy."
                TextColor="{StaticResource TextoSecundario}" />
 
         <views:FiltroPeriodoReporteView Grid.Row="1" BindingContext="{Binding Filtro}" />
