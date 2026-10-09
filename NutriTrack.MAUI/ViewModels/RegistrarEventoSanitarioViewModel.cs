@@ -97,15 +97,8 @@ namespace NutriTrack.MAUI.ViewModels
 
         // ===== Datos del evento =====
 
-        public IReadOnlyList<OpcionTipoEvento> OpcionesTipo { get; } =
-        [
-            new() { Texto = "Vacunación", Valor = "Vacunacion" },
-            new() { Texto = "Desparasitación", Valor = "Desparasitacion" },
-            new() { Texto = "Tratamiento", Valor = "Tratamiento" },
-            new() { Texto = "Refuerzo", Valor = "Refuerzo" },
-            new() { Texto = "Control", Valor = "Control" },
-            new() { Texto = "Otro", Valor = "Otro" }
-        ];
+        // La tabla de textos está en TiposEvento (la comparte con los reportes)
+        public IReadOnlyList<OpcionTipoEvento> OpcionesTipo { get; } = TiposEvento.Opciones;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(EsTipoOtro))]
