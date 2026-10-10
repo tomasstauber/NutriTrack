@@ -40,7 +40,6 @@ var jwtIssuer = builder.Configuration["Jwt:Issuer"]
     ?? throw new InvalidOperationException("Falta Jwt:Issuer en la configuraci�n.");
 var jwtAudience = builder.Configuration["Jwt:Audience"]
     ?? throw new InvalidOperationException("Falta Jwt:Audience en la configuraci�n.");
-builder.Services.AddScoped <ReporteFechasImportantesRepository>();
 builder.Services.AddScoped<ReporteEvolucionPesoRepository>();
 builder.Services.AddScoped<ReporteFechasImportantesRepository>();
 builder.Services.AddScoped<AlertaPlanAlimenticioRepository>();
