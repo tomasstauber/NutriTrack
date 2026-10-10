@@ -8,6 +8,8 @@ namespace NutriTrack.MAUI.Models
         Desconocida,
         ProximaAplicacion,
         VencimientoSanitario,
-        VencimientoPlan
+        VencimientoPlan,
+        // CU14: ganancia de peso real menor que la esperada, por animal
+        DesvioPeso
     }
 }

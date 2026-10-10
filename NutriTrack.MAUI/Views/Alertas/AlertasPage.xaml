@@ -82,7 +82,15 @@
 
                                         <Label Text="{Binding Destino}" FontAttributes="Bold" Style="{StaticResource Dato}" />
                                         <Label Text="{Binding Descripcion}" Style="{StaticResource Dato}" />
+                                        <!-- En el desvío de peso la fecha es la del último pesaje: ya está en el período -->
                                         <Label Text="{Binding TextoFecha, StringFormat='Fecha: {0}'}"
+                                               IsVisible="{Binding MostrarFecha}"
+                                               TextColor="{StaticResource TextoSecundario}" />
+
+                                        <!-- Solo desvío de peso: pesajes entre los que se calculó la ganancia.
+                                             Plan y ganancias ya están en la descripción del back -->
+                                        <Label Text="{Binding TextoPeriodo}"
+                                               IsVisible="{Binding EsDesvioPeso}"
                                                TextColor="{StaticResource TextoSecundario}" />
 
                                         <!-- Solo las de plan: animales del rodeo -->

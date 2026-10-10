@@ -447,6 +447,9 @@
             <DataTrigger x:DataType="models:Alerta" TargetType="BoxView" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.VencimientoPlan}">
                 <Setter Property="Color" Value="{StaticResource AlertaPlan}" />
             </DataTrigger>
+            <DataTrigger x:DataType="models:Alerta" TargetType="BoxView" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.DesvioPeso}">
+                <Setter Property="Color" Value="{StaticResource AlertaDesvioPeso}" />
+            </DataTrigger>
         </Style.Triggers>
     </Style>
 
@@ -462,6 +465,9 @@
             </DataTrigger>
             <DataTrigger x:DataType="models:Alerta" TargetType="Label" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.VencimientoPlan}">
                 <Setter Property="TextColor" Value="{StaticResource AlertaPlan}" />
+            </DataTrigger>
+            <DataTrigger x:DataType="models:Alerta" TargetType="Label" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.DesvioPeso}">
+                <Setter Property="TextColor" Value="{StaticResource AlertaDesvioPeso}" />
             </DataTrigger>
         </Style.Triggers>
     </Style>
