@@ -6,10 +6,10 @@
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
     <!-- este es de como se ve en windows -->
     <!-- Paleta NutriTrack (tomada del prototipo de Figma) -->
-    <Color x:Key="Primary">#00A63E</Color>
-    <Color x:Key="PrimaryDark">#008236</Color>
+    <Color x:Key="Primary">#00873A</Color>
+    <Color x:Key="PrimaryDark">#006B2E</Color>
     <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#F0FDF4</Color>
+    <Color x:Key="Secondary">#E9F7EE</Color>
     <Color x:Key="SecondaryDarkText">#008236</Color>
     <Color x:Key="Tertiary">#016630</Color>
 
@@ -22,6 +22,28 @@
     <Color x:Key="Peligro">#E7000B</Color>
     <Color x:Key="PeligroSuave">#FEF2F2</Color>
 
+    <!-- Verde oscuro de la barra del Shell y del encabezado del panel -->
+    <Color x:Key="VerdeOscuro">#0F3B24</Color>
+    <!-- Textos y fondos sobre el verde oscuro -->
+    <Color x:Key="TextoSobreVerde">#C6E9D3</Color>
+    <Color x:Key="BlancoTranslucido">#26FFFFFF</Color>
+    <Color x:Key="BordeTranslucido">#66FFFFFF</Color>
+
+    <!-- Acentos de cada módulo del panel (color / suave) -->
+    <Color x:Key="AcentoAnimal">#00873A</Color>
+    <Color x:Key="AcentoAnimalSuave">#E9F7EE</Color>
+    <Color x:Key="AcentoSanitario">#1F6FB2</Color>
+    <Color x:Key="AcentoSanitarioSuave">#EAF2FA</Color>
+    <Color x:Key="AcentoAlimenticio">#B26B00</Color>
+    <Color x:Key="AcentoAlimenticioSuave">#FBF2E3</Color>
+    <Color x:Key="AcentoAdministracion">#4B5A66</Color>
+    <Color x:Key="AcentoAdministracionSuave">#EEF1F3</Color>
+
+    <!-- Degradado horizontal del encabezado del panel -->
+    <LinearGradientBrush x:Key="DegradadoEncabezado" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="{StaticResource VerdeOscuro}" Offset="0" />
+        <GradientStop Color="{StaticResource Primary}" Offset="1" />
+    </LinearGradientBrush>
     <!-- Alertas: tarjeta resaltada del panel y un color por categoría en la lista -->
     <Color x:Key="Aviso">#F54900</Color>
     <Color x:Key="AvisoSuave">#FFF7ED</Color>
