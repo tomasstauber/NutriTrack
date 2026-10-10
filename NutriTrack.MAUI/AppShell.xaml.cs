@@ -42,6 +42,8 @@ namespace NutriTrack.MAUI
             Routing.RegisterRoute(NuevoPlanAlimenticioViewModel.Ruta, typeof(NuevoPlanAlimenticioPage));
             Routing.RegisterRoute(FichaPlanAlimenticioViewModel.Ruta, typeof(FichaPlanAlimenticioPage));
             Routing.RegisterRoute(RodeoAsignadoViewModel.Ruta, typeof(RodeoAsignadoPage));
+            // Lista de alertas: se entra solo desde la tarjeta del panel
+            Routing.RegisterRoute(AlertasViewModel.Ruta, typeof(AlertasPage));
 
             _sesionService = sesionService;
             _sesionService.SesionExpirada += OnSesionExpirada;
