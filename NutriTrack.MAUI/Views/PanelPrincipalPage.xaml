@@ -186,7 +186,8 @@
                                                 <FormattedString>
                                                     <Span Text="{Binding Destino}" FontAttributes="Bold" />
                                                     <Span Text=" · " />
-                                                    <Span Text="{Binding Descripcion}" />
+                                                    <!-- La descripción, salvo en el desvío de peso: ahí solo las ganancias -->
+                                                    <Span Text="{Binding TextoResumen}" />
                                                 </FormattedString>
                                             </Label.FormattedText>
                                         </Label>

@@ -28,6 +28,7 @@
     <Color x:Key="AlertaProximaAplicacion">#155DFC</Color>
     <Color x:Key="AlertaVencimiento">#E17100</Color>
     <Color x:Key="AlertaPlan">#7F22FE</Color>
+    <Color x:Key="AlertaDesvioPeso">#E60076</Color>
 
     <!-- Colores base que usa Styles.xaml (NO BORRAR) -->
     <Color x:Key="White">White</Color>
