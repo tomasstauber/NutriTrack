@@ -44,6 +44,13 @@
         <GradientStop Color="{StaticResource VerdeOscuro}" Offset="0" />
         <GradientStop Color="{StaticResource Primary}" Offset="1" />
     </LinearGradientBrush>
+    <!-- Alertas: tarjeta resaltada del panel y un color por categoría en la lista -->
+    <Color x:Key="Aviso">#F54900</Color>
+    <Color x:Key="AvisoSuave">#FFF7ED</Color>
+    <Color x:Key="AlertaProximaAplicacion">#155DFC</Color>
+    <Color x:Key="AlertaVencimiento">#E17100</Color>
+    <Color x:Key="AlertaPlan">#7F22FE</Color>
+    <Color x:Key="AlertaDesvioPeso">#E60076</Color>
 
     <!-- Colores base que usa Styles.xaml (NO BORRAR) -->
     <Color x:Key="White">White</Color>

@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:NutriTrack.MAUI.Models">
 
     <Style TargetType="ActivityIndicator">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
@@ -536,6 +537,44 @@
         <Setter Property="FontSize" Value="12" />
         <Setter Property="CharacterSpacing" Value="1.5" />
         <Setter Property="VerticalOptions" Value="Center" />
+    <!-- Alertas: color según la categoría (CategoriaAlerta). Se usan en la lista y en el pantallazo del panel.
+         Sin trigger que coincida (categoría desconocida) queda el color neutro -->
+    <Style TargetType="BoxView" x:Key="IndicadorAlerta">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="Color" Value="{StaticResource TextoSecundario}" />
+        <Style.Triggers>
+            <DataTrigger x:DataType="models:Alerta" TargetType="BoxView" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.ProximaAplicacion}">
+                <Setter Property="Color" Value="{StaticResource AlertaProximaAplicacion}" />
+            </DataTrigger>
+            <DataTrigger x:DataType="models:Alerta" TargetType="BoxView" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.VencimientoSanitario}">
+                <Setter Property="Color" Value="{StaticResource AlertaVencimiento}" />
+            </DataTrigger>
+            <DataTrigger x:DataType="models:Alerta" TargetType="BoxView" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.VencimientoPlan}">
+                <Setter Property="Color" Value="{StaticResource AlertaPlan}" />
+            </DataTrigger>
+            <DataTrigger x:DataType="models:Alerta" TargetType="BoxView" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.DesvioPeso}">
+                <Setter Property="Color" Value="{StaticResource AlertaDesvioPeso}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="Label" x:Key="TipoAlerta">
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="TextColor" Value="{StaticResource TextoSecundario}" />
+        <Style.Triggers>
+            <DataTrigger x:DataType="models:Alerta" TargetType="Label" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.ProximaAplicacion}">
+                <Setter Property="TextColor" Value="{StaticResource AlertaProximaAplicacion}" />
+            </DataTrigger>
+            <DataTrigger x:DataType="models:Alerta" TargetType="Label" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.VencimientoSanitario}">
+                <Setter Property="TextColor" Value="{StaticResource AlertaVencimiento}" />
+            </DataTrigger>
+            <DataTrigger x:DataType="models:Alerta" TargetType="Label" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.VencimientoPlan}">
+                <Setter Property="TextColor" Value="{StaticResource AlertaPlan}" />
+            </DataTrigger>
+            <DataTrigger x:DataType="models:Alerta" TargetType="Label" Binding="{Binding Categoria}" Value="{x:Static models:CategoriaAlerta.DesvioPeso}">
+                <Setter Property="TextColor" Value="{StaticResource AlertaDesvioPeso}" />
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
 </ResourceDictionary>

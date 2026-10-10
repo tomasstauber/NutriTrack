@@ -43,6 +43,7 @@ var jwtAudience = builder.Configuration["Jwt:Audience"]
 builder.Services.AddScoped<ReporteEvolucionPesoRepository>();
 builder.Services.AddScoped<ReporteFechasImportantesRepository>();
 builder.Services.AddScoped<AlertaPlanAlimenticioRepository>();
+builder.Services.AddScoped<AlertaDesvioPesoRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
