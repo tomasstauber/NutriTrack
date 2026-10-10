@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
+             xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             x:Class="NutriTrack.MAUI.Views.AlertasPage"
+             x:DataType="vm:AlertasViewModel"
+             Title="Alertas"
+             BackgroundColor="{StaticResource Fondo}">
+
+    <ContentPage.Resources>
+        <Style x:Key="Dato" TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextoPrincipal}" />
+            <Setter Property="LineBreakMode" Value="WordWrap" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Padding="16">
+
+        <!-- Deshabilitado si no queda ninguna sin leer (o la lista está vacía) -->
+        <Button Grid.Row="0"
+                Text="Marcar todas como leídas"
+                HorizontalOptions="End"
+                Command="{Binding MarcarTodasCommand}" />
+
+        <!-- Errores de la API -->
+        <Label Grid.Row="1"
+               Text="{Binding MensajeError}"
+               IsVisible="{Binding HayError}"
+               TextColor="{StaticResource Peligro}" />
+
+        <ActivityIndicator Grid.Row="2"
+                           IsRunning="{Binding EstaOcupado}"
+                           IsVisible="{Binding EstaOcupado}"
+                           VerticalOptions="Center" />
+
+        <!-- En el orden que manda el back. Una tarjeta por alerta: entra en pantallas chicas sin scroll horizontal.
+             Las leídas quedan en su lugar, atenuadas -->
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Alertas}"
+                        EmptyView="{Binding MensajeVacio}"
+                        IsVisible="{Binding NoEstaOcupado}">
+
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:AlertaFila">
+                    <Border BackgroundColor="{StaticResource Superficie}"
+                            Stroke="{StaticResource Borde}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="0">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding Leida}" Value="True">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </DataTrigger>
+                        </Border.Triggers>
+
+                        <Grid ColumnDefinitions="6,*">
+
+                            <!-- Franja con el color de la categoría (estilo compartido en Styles.xaml).
+                                 BindingContext = la Alerta: los triggers del estilo leen Alerta.Categoria -->
+                            <BoxView Grid.Column="0"
+                                     BindingContext="{Binding Alerta}"
+                                     Style="{StaticResource IndicadorAlerta}" />
+
+                            <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="8">
+                                <!-- Datos de la alerta: mismo contenido que antes, ahora sobre la Alerta de la fila -->
+                                <ContentView BindingContext="{Binding Alerta}">
+                                    <VerticalStackLayout x:DataType="models:Alerta" Spacing="4">
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                            <!-- Tipo con el mismo color que la franja -->
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding TextoTipo}"
+                                                   Style="{StaticResource TipoAlerta}" />
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding TextoDiasRestantes}"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource TextoPrincipal}" />
+                                        </Grid>
+
+                                        <Label Text="{Binding Destino}" FontAttributes="Bold" Style="{StaticResource Dato}" />
+                                        <Label Text="{Binding Descripcion}" Style="{StaticResource Dato}" />
+                                        <Label Text="{Binding TextoFecha, StringFormat='Fecha: {0}'}"
+                                               TextColor="{StaticResource TextoSecundario}" />
+
+                                        <!-- Solo las de plan: animales del rodeo -->
+                                        <Label Text="{Binding TextoCantidadAnimales}"
+                                               IsVisible="{Binding EsPlan}"
+                                               TextColor="{StaticResource TextoSecundario}" />
+                                    </VerticalStackLayout>
+                                </ContentView>
+
+                                <!-- Marcar como leída / no leída -->
+                                <Button Text="{Binding TextoAccion}"
+                                        HorizontalOptions="End"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlertasViewModel}}, Path=AlternarLeidaCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
