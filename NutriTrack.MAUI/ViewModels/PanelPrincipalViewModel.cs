@@ -22,6 +22,20 @@ namespace NutriTrack.MAUI.ViewModels
         [ObservableProperty]
         public partial IReadOnlyList<EntradaMenu> EntradasMenu { get; set; } = [];
 
+        // Las mismas opciones agrupadas en una tarjeta por módulo
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(GruposIzquierda))]
+        [NotifyPropertyChangedFor(nameof(GruposDerecha))]
+        [NotifyPropertyChangedFor(nameof(SinModulos))]
+        public partial IReadOnlyList<GrupoMenu> GruposMenu { get; set; } = [];
+
+        // Ventana ancha: los grupos se reparten en dos columnas (pares e impares)
+        public IReadOnlyList<GrupoMenu> GruposIzquierda => GruposMenu.Where((_, i) => i % 2 == 0).ToList();
+
+        public IReadOnlyList<GrupoMenu> GruposDerecha => GruposMenu.Where((_, i) => i % 2 == 1).ToList();
+
+        public bool SinModulos => GruposMenu.Count == 0;
+
         // La tarjeta de animales solo navega si el rol tiene Animales en su menú
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(IrAAnimalesCommand))]
@@ -61,6 +75,7 @@ namespace NutriTrack.MAUI.ViewModels
             // El menú no depende de la API: se arma antes de la tarjeta
             // para que quede usable aunque la tarjeta falle
             EntradasMenu = MenuModulos.ObtenerPara(sesion.Rol);
+            GruposMenu = MenuModulos.AgruparPorCategoria(EntradasMenu);
             PuedeVerAnimales = EntradasMenu.Any(e => e.Ruta == MenuModulos.Animales);
 
             await CargarTarjetaAnimalesAsync();

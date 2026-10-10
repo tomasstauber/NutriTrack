@@ -14,5 +14,8 @@ namespace NutriTrack.MAUI.Models
 
         // Posición en el menú (de menor a mayor)
         public int Orden { get; init; }
+
+        // Módulo en el que se agrupa la opción en el panel
+        public GrupoModulo Grupo { get; init; }
     }
 }

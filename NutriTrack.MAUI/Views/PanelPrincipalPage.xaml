@@ -3,67 +3,219 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels"
              xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+             xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
              x:Class="NutriTrack.MAUI.Views.PanelPrincipalPage"
              x:DataType="vm:PanelPrincipalViewModel"
              Title="Panel Principal"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource Fondo}">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="16"
-                             Padding="16"
-                             MaximumWidthRequest="600">
+    <ContentPage.Resources>
+        <!-- Tarjeta de un módulo: la usan la grilla de dos columnas y la de una -->
+        <DataTemplate x:Key="PlantillaModulo" x:DataType="models:GrupoMenu">
+            <Border Style="{StaticResource TarjetaPanel}"
+                    helpers:Animaciones.Aparicion="True"
+                    helpers:Animaciones.ElevarAlPasar="True">
+                <VerticalStackLayout>
+                    <!-- Franja superior con el color del módulo -->
+                    <BoxView HeightRequest="4">
+                        <BoxView.Triggers>
+                            <DataTrigger TargetType="BoxView" Binding="{Binding Clave}" Value="Animal">
+                                <Setter Property="Color" Value="{StaticResource AcentoAnimal}" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="BoxView" Binding="{Binding Clave}" Value="Sanitario">
+                                <Setter Property="Color" Value="{StaticResource AcentoSanitario}" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="BoxView" Binding="{Binding Clave}" Value="Alimenticio">
+                                <Setter Property="Color" Value="{StaticResource AcentoAlimenticio}" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="BoxView" Binding="{Binding Clave}" Value="Administracion">
+                                <Setter Property="Color" Value="{StaticResource AcentoAdministracion}" />
+                            </DataTrigger>
+                        </BoxView.Triggers>
+                    </BoxView>
 
-            <!-- Usuario de la sesión y cerrar sesión -->
-            <Border BackgroundColor="{StaticResource Superficie}"
-                    Stroke="{StaticResource Borde}"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="16">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                    <VerticalStackLayout Spacing="2" VerticalOptions="Center">
-                        <Label Text="{Binding Nombre}"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource TextoPrincipal}" />
-                        <Label Text="{Binding Rol}"
-                               TextColor="{StaticResource TextoSecundario}" />
+                    <VerticalStackLayout Padding="16" Spacing="14">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <!-- Recuadro con la sigla del módulo -->
+                            <Border WidthRequest="44"
+                                    HeightRequest="44"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 12"
+                                    VerticalOptions="Center">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding Clave}" Value="Animal">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource AcentoAnimalSuave}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Border" Binding="{Binding Clave}" Value="Sanitario">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource AcentoSanitarioSuave}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Border" Binding="{Binding Clave}" Value="Alimenticio">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource AcentoAlimenticioSuave}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Border" Binding="{Binding Clave}" Value="Administracion">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource AcentoAdministracionSuave}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+
+                                <Label Text="{Binding Sigla}"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="16"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Clave}" Value="Animal">
+                                            <Setter Property="TextColor" Value="{StaticResource AcentoAnimal}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Clave}" Value="Sanitario">
+                                            <Setter Property="TextColor" Value="{StaticResource AcentoSanitario}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Clave}" Value="Alimenticio">
+                                            <Setter Property="TextColor" Value="{StaticResource AcentoAlimenticio}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Clave}" Value="Administracion">
+                                            <Setter Property="TextColor" Value="{StaticResource AcentoAdministracion}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label Text="{Binding Titulo}"
+                                       FontFamily="OpenSansSemibold"
+                                       FontSize="17"
+                                       TextColor="{StaticResource TextoPrincipal}" />
+                                <Label Text="{Binding Descripcion}"
+                                       FontSize="13"
+                                       TextColor="{StaticResource TextoSecundario}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Una fila por opción del módulo -->
+                        <VerticalStackLayout Spacing="8"
+                                             BindableLayout.ItemsSource="{Binding Entradas}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:EntradaMenu">
+                                    <Border Style="{StaticResource FilaMenu}"
+                                            helpers:Animaciones.Interactivo="True">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PanelPrincipalViewModel}}, Path=NavegarCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                            <Label Text="{Binding Titulo}"
+                                                   FontSize="14"
+                                                   TextColor="{StaticResource TextoPrincipal}"
+                                                   VerticalOptions="Center" />
+                                            <Label Grid.Column="1"
+                                                   Text="›"
+                                                   FontSize="20"
+                                                   TextColor="{StaticResource TextoSecundario}"
+                                                   VerticalOptions="Center"
+                                                   helpers:Animaciones.Desplazable="True" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20"
+                             Padding="16,20"
+                             MaximumWidthRequest="960">
+
+            <!-- Encabezado: saludo, rol y cerrar sesión -->
+            <Border Background="{StaticResource DegradadoEncabezado}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="24"
+                    helpers:Animaciones.Aparicion="True">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                    <VerticalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="NUTRITRACK · PANEL PRINCIPAL"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="11"
+                               CharacterSpacing="2"
+                               TextColor="{StaticResource TextoSobreVerde}" />
+
+                        <Label FontFamily="OpenSansSemibold"
+                               FontSize="26"
+                               TextColor="{StaticResource White}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Hola, " />
+                                    <Span Text="{Binding Nombre}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+
+                        <!-- Pastilla con el rol -->
+                        <Border BackgroundColor="{StaticResource BlancoTranslucido}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 999"
+                                Padding="12,4"
+                                HorizontalOptions="Start">
+                            <Label Text="{Binding Rol}"
+                                   FontSize="12"
+                                   TextColor="{StaticResource White}" />
+                        </Border>
+                    </VerticalStackLayout>
+
                     <Button Grid.Column="1"
+                            Style="{StaticResource BotonFantasma}"
                             Text="Cerrar sesión"
                             Command="{Binding CerrarSesionCommand}"
-                            VerticalOptions="Center" />
+                            VerticalOptions="Center"
+                            helpers:Animaciones.Interactivo="True" />
                 </Grid>
             </Border>
 
             <!-- Tarjeta de animales -->
-            <Border BackgroundColor="{StaticResource Superficie}"
-                    Stroke="{StaticResource Borde}"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="16">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding IrAAnimalesCommand}" />
-                </Border.GestureRecognizers>
+            <Border Style="{StaticResource TarjetaPanel}"
+                    Padding="20"
+                    helpers:Animaciones.Aparicion="True">
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="ANIMALES"
+                               Style="{StaticResource TituloSeccion}" />
+                        <Button Grid.Column="1"
+                                Style="{StaticResource BotonLink}"
+                                Text="Ver listado ›"
+                                Command="{Binding IrAAnimalesCommand}"
+                                IsVisible="{Binding PuedeVerAnimales}"
+                                helpers:Animaciones.Interactivo="True" />
+                    </Grid>
 
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Animales"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="{StaticResource TextoPrincipal}" />
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <!-- Activos | Registrados (la línea solo si se muestran los registrados) -->
+                    <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="24">
                         <VerticalStackLayout>
                             <Label Text="{Binding AnimalesActivos, TargetNullValue='—'}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="30"
                                    TextColor="{StaticResource Primary}" />
                             <Label Text="Activos"
                                    TextColor="{StaticResource TextoSecundario}" />
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Grid.Column="1"
+                        <BoxView Grid.Column="1"
+                                 WidthRequest="1"
+                                 Color="{StaticResource Borde}"
+                                 BackgroundColor="{StaticResource Borde}"
+                                 IsVisible="{Binding MostrarRegistrados}" />
+
+                        <VerticalStackLayout Grid.Column="2"
                                              IsVisible="{Binding MostrarRegistrados}">
                             <Label Text="{Binding AnimalesRegistrados}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="30"
                                    TextColor="{StaticResource TextoPrincipal}" />
                             <Label Text="Registrados"
                                    TextColor="{StaticResource TextoSecundario}" />
@@ -74,31 +226,89 @@
                                        IsVisible="{Binding EstaOcupado}"
                                        Color="{StaticResource Primary}" />
 
-                    <Label Text="{Binding MensajeError}"
-                           IsVisible="{Binding HayError}"
-                           TextColor="{StaticResource Peligro}" />
+                    <Border BackgroundColor="{StaticResource PeligroSuave}"
+                            Stroke="{StaticResource Peligro}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="12,10"
+                            IsVisible="{Binding HayError}">
+                        <Label Text="{Binding MensajeError}"
+                               TextColor="{StaticResource Peligro}" />
+                    </Border>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Menú armado según el rol de la sesión -->
-            <Label Text="Menú"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource TextoPrincipal}" />
+            <!-- Módulos agrupados según el rol de la sesión -->
+            <VerticalStackLayout Spacing="12">
+                <Label Text="MÓDULOS"
+                       Style="{StaticResource TituloSeccion}" />
 
-            <VerticalStackLayout Spacing="8"
-                                 BindableLayout.ItemsSource="{Binding EntradasMenu}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="models:EntradaMenu">
-                        <Button Text="{Binding Titulo}"
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PanelPrincipalViewModel}}, Path=NavegarCommand}"
-                                CommandParameter="{Binding .}" />
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-                <BindableLayout.EmptyView>
-                    <Label Text="Todavía no hay módulos disponibles para tu rol."
-                           TextColor="{StaticResource TextoSecundario}" />
-                </BindableLayout.EmptyView>
+                <!-- Ventana ancha: dos columnas (Grid y no FlexLayout: dentro del
+                     ScrollView el FlexLayout mide mal el alto y deja filas sin clic) -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroupList>
+                            <VisualStateGroup x:Name="AnchoVentana">
+                                <VisualState x:Name="Angosta">
+                                    <VisualState.StateTriggers>
+                                        <AdaptiveTrigger MinWindowWidth="0" />
+                                    </VisualState.StateTriggers>
+                                    <VisualState.Setters>
+                                        <Setter Property="IsVisible" Value="False" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Ancha">
+                                    <VisualState.StateTriggers>
+                                        <AdaptiveTrigger MinWindowWidth="720" />
+                                    </VisualState.StateTriggers>
+                                    <VisualState.Setters>
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateGroupList>
+                    </VisualStateManager.VisualStateGroups>
+
+                    <VerticalStackLayout Spacing="16"
+                                         BindableLayout.ItemsSource="{Binding GruposIzquierda}"
+                                         BindableLayout.ItemTemplate="{StaticResource PlantillaModulo}" />
+                    <VerticalStackLayout Grid.Column="1"
+                                         Spacing="16"
+                                         BindableLayout.ItemsSource="{Binding GruposDerecha}"
+                                         BindableLayout.ItemTemplate="{StaticResource PlantillaModulo}" />
+                </Grid>
+
+                <!-- Ventana angosta: una sola columna con todos los grupos -->
+                <VerticalStackLayout Spacing="16"
+                                     BindableLayout.ItemsSource="{Binding GruposMenu}"
+                                     BindableLayout.ItemTemplate="{StaticResource PlantillaModulo}">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroupList>
+                            <VisualStateGroup x:Name="AnchoVentana">
+                                <VisualState x:Name="Angosta">
+                                    <VisualState.StateTriggers>
+                                        <AdaptiveTrigger MinWindowWidth="0" />
+                                    </VisualState.StateTriggers>
+                                    <VisualState.Setters>
+                                        <Setter Property="IsVisible" Value="True" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Ancha">
+                                    <VisualState.StateTriggers>
+                                        <AdaptiveTrigger MinWindowWidth="720" />
+                                    </VisualState.StateTriggers>
+                                    <VisualState.Setters>
+                                        <Setter Property="IsVisible" Value="False" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateGroupList>
+                    </VisualStateManager.VisualStateGroups>
+                </VerticalStackLayout>
+
+                <Label Text="Todavía no hay módulos disponibles para tu rol."
+                       TextColor="{StaticResource TextoSecundario}"
+                       IsVisible="{Binding SinModulos}" />
             </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
