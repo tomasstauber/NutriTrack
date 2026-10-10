@@ -15,21 +15,28 @@
         </Style>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*" RowSpacing="12" Padding="16">
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Padding="16">
+
+        <!-- Deshabilitado si no queda ninguna sin leer (o la lista está vacía) -->
+        <Button Grid.Row="0"
+                Text="Marcar todas como leídas"
+                HorizontalOptions="End"
+                Command="{Binding MarcarTodasCommand}" />
 
         <!-- Errores de la API -->
-        <Label Grid.Row="0"
+        <Label Grid.Row="1"
                Text="{Binding MensajeError}"
                IsVisible="{Binding HayError}"
                TextColor="{StaticResource Peligro}" />
 
-        <ActivityIndicator Grid.Row="1"
+        <ActivityIndicator Grid.Row="2"
                            IsRunning="{Binding EstaOcupado}"
                            IsVisible="{Binding EstaOcupado}"
                            VerticalOptions="Center" />
 
-        <!-- En el orden que manda el back. Una tarjeta por alerta: entra en pantallas chicas sin scroll horizontal -->
-        <CollectionView Grid.Row="1"
+        <!-- En el orden que manda el back. Una tarjeta por alerta: entra en pantallas chicas sin scroll horizontal.
+             Las leídas quedan en su lugar, atenuadas -->
+        <CollectionView Grid.Row="2"
                         ItemsSource="{Binding Alertas}"
                         EmptyView="{Binding MensajeVacio}"
                         IsVisible="{Binding NoEstaOcupado}">
@@ -39,37 +46,57 @@
             </CollectionView.ItemsLayout>
 
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Alerta">
+                <DataTemplate x:DataType="vm:AlertaFila">
                     <Border BackgroundColor="{StaticResource Superficie}"
                             Stroke="{StaticResource Borde}"
                             StrokeShape="RoundRectangle 12"
                             Padding="0">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding Leida}" Value="True">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </DataTrigger>
+                        </Border.Triggers>
+
                         <Grid ColumnDefinitions="6,*">
 
-                            <!-- Franja con el color de la categoría (estilo compartido en Styles.xaml) -->
-                            <BoxView Grid.Column="0" Style="{StaticResource IndicadorAlerta}" />
+                            <!-- Franja con el color de la categoría (estilo compartido en Styles.xaml).
+                                 BindingContext = la Alerta: los triggers del estilo leen Alerta.Categoria -->
+                            <BoxView Grid.Column="0"
+                                     BindingContext="{Binding Alerta}"
+                                     Style="{StaticResource IndicadorAlerta}" />
 
-                            <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="4">
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                    <!-- Tipo con el mismo color que la franja -->
-                                    <Label Grid.Column="0"
-                                           Text="{Binding TextoTipo}"
-                                           Style="{StaticResource TipoAlerta}" />
-                                    <Label Grid.Column="1"
-                                           Text="{Binding TextoDiasRestantes}"
-                                           FontAttributes="Bold"
-                                           TextColor="{StaticResource TextoPrincipal}" />
-                                </Grid>
+                            <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="8">
+                                <!-- Datos de la alerta: mismo contenido que antes, ahora sobre la Alerta de la fila -->
+                                <ContentView BindingContext="{Binding Alerta}">
+                                    <VerticalStackLayout x:DataType="models:Alerta" Spacing="4">
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                            <!-- Tipo con el mismo color que la franja -->
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding TextoTipo}"
+                                                   Style="{StaticResource TipoAlerta}" />
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding TextoDiasRestantes}"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource TextoPrincipal}" />
+                                        </Grid>
 
-                                <Label Text="{Binding Destino}" FontAttributes="Bold" Style="{StaticResource Dato}" />
-                                <Label Text="{Binding Descripcion}" Style="{StaticResource Dato}" />
-                                <Label Text="{Binding TextoFecha, StringFormat='Fecha: {0}'}"
-                                       TextColor="{StaticResource TextoSecundario}" />
+                                        <Label Text="{Binding Destino}" FontAttributes="Bold" Style="{StaticResource Dato}" />
+                                        <Label Text="{Binding Descripcion}" Style="{StaticResource Dato}" />
+                                        <Label Text="{Binding TextoFecha, StringFormat='Fecha: {0}'}"
+                                               TextColor="{StaticResource TextoSecundario}" />
 
-                                <!-- Solo las de plan: animales del rodeo -->
-                                <Label Text="{Binding TextoCantidadAnimales}"
-                                       IsVisible="{Binding EsPlan}"
-                                       TextColor="{StaticResource TextoSecundario}" />
+                                        <!-- Solo las de plan: animales del rodeo -->
+                                        <Label Text="{Binding TextoCantidadAnimales}"
+                                               IsVisible="{Binding EsPlan}"
+                                               TextColor="{StaticResource TextoSecundario}" />
+                                    </VerticalStackLayout>
+                                </ContentView>
+
+                                <!-- Marcar como leída / no leída -->
+                                <Button Text="{Binding TextoAccion}"
+                                        HorizontalOptions="End"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlertasViewModel}}, Path=AlternarLeidaCommand}"
+                                        CommandParameter="{Binding .}" />
                             </VerticalStackLayout>
                         </Grid>
                     </Border>

@@ -63,6 +63,7 @@ namespace NutriTrack.MAUI
             builder.Services.AddTransient<IReporteService, ReporteService>();
             builder.Services.AddTransient<IArchivoService, ArchivoService>();
             builder.Services.AddTransient<IAlertaService, AlertaService>();
+            builder.Services.AddTransient<IAlertasLeidasService, AlertasLeidasService>();
 
             // ViewModels
             builder.Services.AddTransient<LoginViewModel>();

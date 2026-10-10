@@ -12,6 +12,7 @@ namespace NutriTrack.MAUI.ViewModels
         private readonly ISesionService _sesionService;
         private readonly IAnimalService _animalService;
         private readonly IAlertaService _alertaService;
+        private readonly IAlertasLeidasService _leidasService;
 
         [ObservableProperty]
         public partial string Nombre { get; set; } = string.Empty;
@@ -50,29 +51,36 @@ namespace NutriTrack.MAUI.ViewModels
         // Cuántas alertas se muestran en el pantallazo de la tarjeta (las más próximas, en el orden del back)
         public const int CantidadPantallazo = 3;
 
-        // null mientras no se pudo cargar
+        // Alertas NO leídas (contador, globito, campana y resaltado). null mientras no se pudo cargar
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HayAlertas))]
         [NotifyPropertyChangedFor(nameof(SinAlertas))]
-        [NotifyPropertyChangedFor(nameof(HayMasAlertas))]
-        [NotifyPropertyChangedFor(nameof(TextoVerTodas))]
         public partial int? TotalAlertas { get; set; }
 
-        // Resalta la tarjeta y la campana, y muestra el pantallazo: con 0 se ve normal
+        // Todas las alertas del back, leídas o no: es lo que muestra la lista
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HayMasAlertas))]
+        [NotifyPropertyChangedFor(nameof(TextoVerTodas))]
+        public partial int? TotalVigentes { get; set; }
+
+        // Resalta la tarjeta y la campana, y muestra el pantallazo: con 0 no leídas se ve normal
         public bool HayAlertas => TotalAlertas > 0;
 
-        // Cargó bien y no hay ninguna (null, mientras carga o con error, no cuenta)
+        // Cargó bien y no hay ninguna sin leer (null, mientras carga o con error, no cuenta)
         public bool SinAlertas => TotalAlertas == 0;
 
-        // Pantallazo: primeras alertas de la misma respuesta que el contador (no hay otro pedido)
+        // Pantallazo: primeras alertas no leídas de la misma respuesta que el contador (no hay otro pedido)
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HayMasAlertas))]
         public partial IReadOnlyList<Alerta> PrimerasAlertas { get; set; } = [];
 
-        public bool HayMasAlertas => TotalAlertas > CantidadPantallazo;
+        // La lista tiene más alertas de las que entran en el pantallazo (también si están todas leídas)
+        public bool HayMasAlertas => TotalVigentes > PrimerasAlertas.Count;
 
-        public string TextoVerTodas => $"Ver las {TotalAlertas} alertas";
+        public string TextoVerTodas => $"Ver las {TotalVigentes} alertas";
 
-        // "No hay alertas para los próximos N días", con el rango del back
+        // Sin alertas en el back: "No hay alertas para los próximos N días".
+        // Hay alertas pero todas leídas: "No hay alertas sin leer"
         [ObservableProperty]
         public partial string? MensajeSinAlertas { get; set; }
 
@@ -86,11 +94,12 @@ namespace NutriTrack.MAUI.ViewModels
         public bool HayErrorAlertas => !string.IsNullOrEmpty(ErrorAlertas);
 
         public PanelPrincipalViewModel(ISesionService sesionService, IAnimalService animalService,
-            IAlertaService alertaService)
+            IAlertaService alertaService, IAlertasLeidasService leidasService)
         {
             _sesionService = sesionService;
             _animalService = animalService;
             _alertaService = alertaService;
+            _leidasService = leidasService;
         }
 
         // Se ejecuta cada vez que aparece el panel: Shell reutiliza la página,
@@ -126,6 +135,7 @@ namespace NutriTrack.MAUI.ViewModels
                 return;
 
             TotalAlertas = null;
+            TotalVigentes = null;
             ErrorAlertas = null;
             PrimerasAlertas = [];
             MensajeSinAlertas = null;
@@ -139,15 +149,26 @@ namespace NutriTrack.MAUI.ViewModels
                 CargandoAlertas = true;
 
                 var resultado = await _alertaService.ListarAsync();
+
+                // Sin respuesta no se sabe qué alertas existen: no se lee ni se limpia lo guardado
                 if (!resultado.Exito)
                 {
                     ErrorAlertas = resultado.MensajeError;
                     return;
                 }
 
-                PrimerasAlertas = (resultado.Datos?.Alertas ?? []).Take(CantidadPantallazo).ToList();
-                MensajeSinAlertas = resultado.Datos?.TextoSinAlertas;
-                TotalAlertas = resultado.Datos?.Total ?? 0;
+                // Lo marcado en la lista ya está guardado: al volver al panel se refleja solo
+                var alertas = resultado.Datos?.Alertas ?? [];
+                var leidas = _leidasService.ObtenerLeidas(alertas);
+                var noLeidas = alertas.Where(a => !leidas.Contains(_leidasService.Clave(a))).ToList();
+
+                // Las no leídas más próximas, en el orden del back
+                PrimerasAlertas = noLeidas.Take(CantidadPantallazo).ToList();
+                MensajeSinAlertas = alertas.Count == 0
+                    ? resultado.Datos?.TextoSinAlertas
+                    : "No hay alertas sin leer";
+                TotalVigentes = alertas.Count;
+                TotalAlertas = noLeidas.Count;
             }
             finally
             {

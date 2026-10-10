@@ -155,11 +155,11 @@
                                 </DataTrigger>
                             </Label.Triggers>
                         </Label>
-                        <Label Text="Vigentes"
+                        <Label Text="Sin leer"
                                TextColor="{StaticResource TextoSecundario}" />
                     </VerticalStackLayout>
 
-                    <!-- Pantallazo: las primeras alertas de la misma respuesta, en el orden del back.
+                    <!-- Pantallazo: las primeras alertas NO leídas de la misma respuesta, en el orden del back.
                          BindableLayout y no CollectionView porque está dentro del ScrollView del panel.
                          InputTransparent: tocar una alerta llega al toque de la tarjeta y abre la lista -->
                     <VerticalStackLayout Spacing="6"
@@ -198,18 +198,19 @@
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
-
-                        <!-- Solo si hay más de las que entran en el pantallazo -->
-                        <Label Text="{Binding TextoVerTodas}"
-                               IsVisible="{Binding HayMasAlertas}"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource Aviso}" />
                     </VerticalStackLayout>
 
-                    <!-- Cargó bien y no hay ninguna -->
+                    <!-- Cargó bien y no hay ninguna sin leer: sin alertas en el back o todas leídas -->
                     <Label Text="{Binding MensajeSinAlertas}"
                            IsVisible="{Binding SinAlertas}"
                            TextColor="{StaticResource TextoSecundario}" />
+
+                    <!-- La lista tiene más alertas que el pantallazo (también si están todas leídas).
+                         N = total de la lista, leídas incluidas. Fuera del pantallazo para verse aunque no haya no leídas -->
+                    <Label Text="{Binding TextoVerTodas}"
+                           IsVisible="{Binding HayMasAlertas}"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Aviso}" />
 
                     <ActivityIndicator IsRunning="{Binding CargandoAlertas}"
                                        IsVisible="{Binding CargandoAlertas}"
