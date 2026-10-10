@@ -33,6 +33,7 @@ namespace NutriTrack.API.GeneracionReportesPdf
                         table.ColumnsDefinition(c =>
                         {
                             c.RelativeColumn(2); // Caravana
+                            c.RelativeColumn(1); // Estado
                             c.RelativeColumn(2); // Fecha inicial
                             c.RelativeColumn(1); // Peso inicial
                             c.RelativeColumn(2); // Fecha final
@@ -43,7 +44,7 @@ namespace NutriTrack.API.GeneracionReportesPdf
 
                         table.Header(h =>
                         {
-                            foreach (var titulo in new[] { "Caravana", "Fecha Inicial", "Peso Inicial (kg)", "Fecha Final", "Peso Final (kg)", "Variación (kg)", "Registros" })
+                            foreach (var titulo in new[] { "Caravana", "Estado", "Fecha Inicial", "Peso Inicial (kg)", "Fecha Final", "Peso Final (kg)", "Variación (kg)", "Registros" })
                                 h.Cell().Background(Colors.Blue.Darken2).Padding(4)
                                  .Text(titulo).FontColor(Colors.White).Bold();
                         });
@@ -51,6 +52,12 @@ namespace NutriTrack.API.GeneracionReportesPdf
                         foreach (var a in _reporte.Animales)
                         {
                             table.Cell().Element(Celda).Text(a.Caravana);
+
+                            // Inactivo resaltado (como en la pantalla); la palabra lo distingue aunque se imprima en blanco y negro
+                            var estado = table.Cell().Element(Celda).Text(a.EstadoActual);
+                            if (a.EstadoActual == "Inactivo")
+                                estado.FontColor(Colors.Red.Darken2).Bold();
+
                             table.Cell().Element(Celda).Text(a.FechaInicial.ToString("dd/MM/yyyy"));
                             table.Cell().Element(Celda).Text(a.PesoInicial.ToString("0.0"));
                             table.Cell().Element(Celda).Text(a.FechaFinal.ToString("dd/MM/yyyy"));

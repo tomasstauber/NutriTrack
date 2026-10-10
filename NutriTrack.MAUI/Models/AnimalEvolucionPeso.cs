@@ -6,6 +6,10 @@ namespace NutriTrack.MAUI.Models
     {
         // Ya viene armada como "CUIG-NRO"
         public string Caravana { get; set; } = string.Empty;
+
+        // "Activo" o "Inactivo" (el reporte incluye animales dados de baja)
+        public string EstadoActual { get; set; } = string.Empty;
+
         public DateTime FechaInicial { get; set; }
         public decimal PesoInicial { get; set; }
         public DateTime FechaFinal { get; set; }
@@ -19,5 +23,9 @@ namespace NutriTrack.MAUI.Models
         public string VariacionTexto => VariacionKg is { } variacion
             ? variacion.ToString("0.0")
             : "—";
+
+        // No vienen de la API: muestran "Inactivo" resaltado, como la lista de animales y el PDF
+        public bool Inactivo => EstadoActual == "Inactivo";
+        public bool NoInactivo => !Inactivo;
     }
 }

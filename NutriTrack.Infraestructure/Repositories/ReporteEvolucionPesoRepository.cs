@@ -43,7 +43,7 @@ namespace NutriTrack.Infraestructure.Repositories
                       && rp.FechaPesaje.Date <= hasta
                       && (!idRodeo.HasValue || a.RodeoId == idRodeo.Value)
                       && (!idAnimalFiltro.HasValue || a.Id == idAnimalFiltro.Value)
-                select new { rp.FechaPesaje, rp.PesoKg, a.Id, a.CaravanaCuig, a.CaravanaNroManejo };
+                select new { rp.FechaPesaje, rp.PesoKg, a.Id, a.CaravanaCuig, a.CaravanaNroManejo, a.Estado };
 
             var filas = await query.ToListAsync();
             return filas
@@ -57,6 +57,8 @@ namespace NutriTrack.Infraestructure.Repositories
                     return new AnimalEvolucionPesoRaw
                     {
                         Caravana = $"{primero.CaravanaCuig}-{primero.CaravanaNroManejo}",
+                        // Es del animal, no del pesaje: igual en todas las filas del grupo
+                        Estado = primero.Estado,
                         FechaInicial = primero.FechaPesaje,
                         PesoInicial = primero.PesoKg,
                         FechaFinal = ultimo.FechaPesaje,
@@ -87,6 +89,8 @@ namespace NutriTrack.Infraestructure.Repositories
     public class AnimalEvolucionPesoRaw
     {
         public string Caravana { get; set; } = string.Empty;
+        // Estado actual del animal (true = activo). El reporte incluye inactivos
+        public bool Estado { get; set; }
         public DateTime FechaInicial { get; set; }
         public decimal PesoInicial { get; set; }
         public DateTime FechaFinal { get; set; }
