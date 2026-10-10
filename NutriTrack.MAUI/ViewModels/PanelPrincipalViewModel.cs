@@ -11,6 +11,7 @@ namespace NutriTrack.MAUI.ViewModels
     {
         private readonly ISesionService _sesionService;
         private readonly IAnimalService _animalService;
+        private readonly IAlertaService _alertaService;
 
         [ObservableProperty]
         public partial string Nombre { get; set; } = string.Empty;
@@ -38,10 +39,58 @@ namespace NutriTrack.MAUI.ViewModels
         // Si el rol no puede consultar los inactivos, se muestran solo los activos
         public bool MostrarRegistrados => AnimalesRegistrados.HasValue;
 
-        public PanelPrincipalViewModel(ISesionService sesionService, IAnimalService animalService)
+        // Tarjeta de alertas: solo Administrador. Para los otros roles no se muestra ni se llama a la API
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(IrAAlertasCommand))]
+        public partial bool PuedeVerAlertas { get; set; }
+
+        // Estado propio de la tarjeta de alertas, separado de EstaOcupado y MensajeError
+        // (que usa la tarjeta de animales): un error de una no pisa el de la otra
+
+        // Cuántas alertas se muestran en el pantallazo de la tarjeta (las más próximas, en el orden del back)
+        public const int CantidadPantallazo = 3;
+
+        // null mientras no se pudo cargar
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HayAlertas))]
+        [NotifyPropertyChangedFor(nameof(SinAlertas))]
+        [NotifyPropertyChangedFor(nameof(HayMasAlertas))]
+        [NotifyPropertyChangedFor(nameof(TextoVerTodas))]
+        public partial int? TotalAlertas { get; set; }
+
+        // Resalta la tarjeta y la campana, y muestra el pantallazo: con 0 se ve normal
+        public bool HayAlertas => TotalAlertas > 0;
+
+        // Cargó bien y no hay ninguna (null, mientras carga o con error, no cuenta)
+        public bool SinAlertas => TotalAlertas == 0;
+
+        // Pantallazo: primeras alertas de la misma respuesta que el contador (no hay otro pedido)
+        [ObservableProperty]
+        public partial IReadOnlyList<Alerta> PrimerasAlertas { get; set; } = [];
+
+        public bool HayMasAlertas => TotalAlertas > CantidadPantallazo;
+
+        public string TextoVerTodas => $"Ver las {TotalAlertas} alertas";
+
+        // "No hay alertas para los próximos N días", con el rango del back
+        [ObservableProperty]
+        public partial string? MensajeSinAlertas { get; set; }
+
+        [ObservableProperty]
+        public partial bool CargandoAlertas { get; set; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HayErrorAlertas))]
+        public partial string? ErrorAlertas { get; set; }
+
+        public bool HayErrorAlertas => !string.IsNullOrEmpty(ErrorAlertas);
+
+        public PanelPrincipalViewModel(ISesionService sesionService, IAnimalService animalService,
+            IAlertaService alertaService)
         {
             _sesionService = sesionService;
             _animalService = animalService;
+            _alertaService = alertaService;
         }
 
         // Se ejecuta cada vez que aparece el panel: Shell reutiliza la página,
@@ -62,8 +111,48 @@ namespace NutriTrack.MAUI.ViewModels
             // para que quede usable aunque la tarjeta falle
             EntradasMenu = MenuModulos.ObtenerPara(sesion.Rol);
             PuedeVerAnimales = EntradasMenu.Any(e => e.Ruta == MenuModulos.Animales);
+            PuedeVerAlertas = sesion.Rol == RolUsuario.Administrador;
 
+            // En secuencia y no en paralelo: si el token venció, el primer 401 cierra la sesión
+            // y el segundo pedido ya no vuelve a avisar (en paralelo saldrían dos carteles)
             await CargarTarjetaAnimalesAsync();
+            await CargarTarjetaAlertasAsync();
+        }
+
+        // No usa EjecutarAsync: ese limpia MensajeError y usa EstaOcupado, que son de la tarjeta de animales
+        private async Task CargarTarjetaAlertasAsync()
+        {
+            if (CargandoAlertas)
+                return;
+
+            TotalAlertas = null;
+            ErrorAlertas = null;
+            PrimerasAlertas = [];
+            MensajeSinAlertas = null;
+
+            // Otro rol, o la sesión se cerró por un 401 en la tarjeta de animales: no se llama a la API
+            if (!PuedeVerAlertas || _sesionService.SesionActual is null)
+                return;
+
+            try
+            {
+                CargandoAlertas = true;
+
+                var resultado = await _alertaService.ListarAsync();
+                if (!resultado.Exito)
+                {
+                    ErrorAlertas = resultado.MensajeError;
+                    return;
+                }
+
+                PrimerasAlertas = (resultado.Datos?.Alertas ?? []).Take(CantidadPantallazo).ToList();
+                MensajeSinAlertas = resultado.Datos?.TextoSinAlertas;
+                TotalAlertas = resultado.Datos?.Total ?? 0;
+            }
+            finally
+            {
+                CargandoAlertas = false;
+            }
         }
 
         private Task CargarTarjetaAnimalesAsync() => EjecutarAsync(async () =>
@@ -100,6 +189,11 @@ namespace NutriTrack.MAUI.ViewModels
         [RelayCommand(CanExecute = nameof(PuedeVerAnimales))]
         private Task IrAAnimales() =>
             Shell.Current.GoToAsync(MenuModulos.Animales);
+
+        // La lista de alertas no está en el menú: se entra solo desde la tarjeta
+        [RelayCommand(CanExecute = nameof(PuedeVerAlertas))]
+        private Task IrAAlertas() =>
+            Shell.Current.GoToAsync(AlertasViewModel.Ruta);
 
         [RelayCommand]
         private async Task CerrarSesion()

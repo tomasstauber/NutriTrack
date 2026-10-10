@@ -80,6 +80,147 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Tarjeta de alertas: solo Administrador. Estado propio, separado de la tarjeta de animales -->
+            <Border BackgroundColor="{StaticResource Superficie}"
+                    Stroke="{StaticResource Borde}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16"
+                    IsVisible="{Binding PuedeVerAlertas}">
+                <Border.Triggers>
+                    <!-- Resaltada si hay al menos una alerta; con 0 se ve normal -->
+                    <DataTrigger TargetType="Border" Binding="{Binding HayAlertas}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{StaticResource AvisoSuave}" />
+                        <Setter Property="Stroke" Value="{StaticResource Aviso}" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding IrAAlertasCommand}" />
+                </Border.GestureRecognizers>
+
+                <VerticalStackLayout Spacing="8">
+                    <!-- Título y campana. La campana es un Path (vector): se ve igual en Windows y Android
+                         y se le puede cambiar el color; un emoji no toma TextColor -->
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="Alertas"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource TextoPrincipal}" />
+
+                        <Grid WidthRequest="30" HeightRequest="26" VerticalOptions="Center">
+                            <!-- Ícono "notifications" de Material Icons (Apache 2.0), en una grilla de 24x24 -->
+                            <Path Data="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+                                  Fill="{StaticResource TextoSecundario}"
+                                  Aspect="Uniform"
+                                  WidthRequest="22"
+                                  HeightRequest="22"
+                                  HorizontalOptions="Start"
+                                  VerticalOptions="End">
+                                <Path.Triggers>
+                                    <DataTrigger TargetType="Path" Binding="{Binding HayAlertas}" Value="True">
+                                        <Setter Property="Fill" Value="{StaticResource Aviso}" />
+                                    </DataTrigger>
+                                </Path.Triggers>
+                            </Path>
+
+                            <!-- Globito con la cantidad, encima de la esquina de la campana -->
+                            <Border BackgroundColor="{StaticResource Aviso}"
+                                    Stroke="{StaticResource Superficie}"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="4,0"
+                                    MinimumWidthRequest="16"
+                                    HeightRequest="16"
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Start"
+                                    IsVisible="{Binding HayAlertas}">
+                                <Label Text="{Binding TotalAlertas}"
+                                       FontSize="10"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource White}"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </HorizontalStackLayout>
+
+                    <VerticalStackLayout>
+                        <Label Text="{Binding TotalAlertas, TargetNullValue='—'}"
+                               FontSize="28"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextoPrincipal}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding HayAlertas}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource Aviso}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Text="Vigentes"
+                               TextColor="{StaticResource TextoSecundario}" />
+                    </VerticalStackLayout>
+
+                    <!-- Pantallazo: las primeras alertas de la misma respuesta, en el orden del back.
+                         BindableLayout y no CollectionView porque está dentro del ScrollView del panel.
+                         InputTransparent: tocar una alerta llega al toque de la tarjeta y abre la lista -->
+                    <VerticalStackLayout Spacing="6"
+                                         InputTransparent="True"
+                                         IsVisible="{Binding HayAlertas}">
+                        <VerticalStackLayout Spacing="6"
+                                             BindableLayout.ItemsSource="{Binding PrimerasAlertas}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:Alerta">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                        <!-- Punto con el color de la categoría (mismo estilo que la franja de la lista) -->
+                                        <BoxView Grid.Column="0"
+                                                 Style="{StaticResource IndicadorAlerta}"
+                                                 WidthRequest="10"
+                                                 HeightRequest="10"
+                                                 CornerRadius="5"
+                                                 VerticalOptions="Center" />
+                                        <Label Grid.Column="1"
+                                               LineBreakMode="TailTruncation"
+                                               MaxLines="1"
+                                               VerticalOptions="Center"
+                                               TextColor="{StaticResource TextoPrincipal}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Destino}" FontAttributes="Bold" />
+                                                    <Span Text=" · " />
+                                                    <Span Text="{Binding Descripcion}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label Grid.Column="2"
+                                               Text="{Binding TextoDiasRestantes}"
+                                               VerticalOptions="Center"
+                                               TextColor="{StaticResource TextoSecundario}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+
+                        <!-- Solo si hay más de las que entran en el pantallazo -->
+                        <Label Text="{Binding TextoVerTodas}"
+                               IsVisible="{Binding HayMasAlertas}"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource Aviso}" />
+                    </VerticalStackLayout>
+
+                    <!-- Cargó bien y no hay ninguna -->
+                    <Label Text="{Binding MensajeSinAlertas}"
+                           IsVisible="{Binding SinAlertas}"
+                           TextColor="{StaticResource TextoSecundario}" />
+
+                    <ActivityIndicator IsRunning="{Binding CargandoAlertas}"
+                                       IsVisible="{Binding CargandoAlertas}"
+                                       Color="{StaticResource Primary}" />
+
+                    <Label Text="{Binding ErrorAlertas}"
+                           IsVisible="{Binding HayErrorAlertas}"
+                           TextColor="{StaticResource Peligro}" />
+                </VerticalStackLayout>
+            </Border>
+
             <!-- Menú armado según el rol de la sesión -->
             <Label Text="Menú"
                    FontSize="16"
