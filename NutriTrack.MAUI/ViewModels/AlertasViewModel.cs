@@ -14,37 +14,79 @@ namespace NutriTrack.MAUI.ViewModels
         public const string Ruta = "alertas";
 
         private readonly IAlertaService _alertaService;
+        private readonly IAlertasLeidasService _leidasService;
 
-        public AlertasViewModel(IAlertaService alertaService)
+        public AlertasViewModel(IAlertaService alertaService, IAlertasLeidasService leidasService)
         {
             _alertaService = alertaService;
+            _leidasService = leidasService;
         }
 
-        public ObservableCollection<Alerta> Alertas { get; } = [];
+        // Filas nuevas en cada carga, con el estado leída guardado en el dispositivo
+        public ObservableCollection<AlertaFila> Alertas { get; } = [];
 
         // Mensaje cuando no hay alertas en el rango del back
         [ObservableProperty]
         public partial string? MensajeVacio { get; set; }
 
+        // Habilita "Marcar todas como leídas"
+        public bool HayNoLeidas => Alertas.Any(f => !f.Leida);
+
         [RelayCommand]
-        private Task CargarAsync() => EjecutarAsync(async () =>
+        private async Task CargarAsync()
         {
-            var resultado = await _alertaService.ListarAsync();
-
-            Alertas.Clear();
-
-            if (!resultado.Exito)
+            await EjecutarAsync(async () =>
             {
-                MensajeError = resultado.MensajeError;
-                MensajeVacio = null;
-                return;
-            }
+                var resultado = await _alertaService.ListarAsync();
 
-            // Ya llegan ordenadas por el back
-            foreach (var alerta in resultado.Datos?.Alertas ?? [])
-                Alertas.Add(alerta);
+                Alertas.Clear();
 
-            MensajeVacio = resultado.Datos?.TextoSinAlertas;
-        });
+                // Sin respuesta no se sabe qué alertas existen: no se lee ni se limpia lo guardado
+                if (!resultado.Exito)
+                {
+                    MensajeError = resultado.MensajeError;
+                    MensajeVacio = null;
+                    return;
+                }
+
+                var alertas = resultado.Datos?.Alertas ?? [];
+                var leidas = _leidasService.ObtenerLeidas(alertas);
+
+                // Ya llegan ordenadas por el back
+                foreach (var alerta in alertas)
+                {
+                    var clave = _leidasService.Clave(alerta);
+                    Alertas.Add(new AlertaFila(alerta, clave, leidas.Contains(clave)));
+                }
+
+                MensajeVacio = resultado.Datos?.TextoSinAlertas;
+            });
+
+            MarcarTodasCommand.NotifyCanExecuteChanged();
+        }
+
+        // Marca o desmarca una alerta. Queda en su lugar: no se reordena
+        [RelayCommand]
+        private void AlternarLeida(AlertaFila fila)
+        {
+            fila.Leida = !fila.Leida;
+            GuardarLeidas();
+        }
+
+        [RelayCommand(CanExecute = nameof(HayNoLeidas))]
+        private void MarcarTodas()
+        {
+            foreach (var fila in Alertas)
+                fila.Leida = true;
+
+            GuardarLeidas();
+        }
+
+        // La lista tiene todas las alertas vigentes: se guarda exactamente el conjunto de leídas
+        private void GuardarLeidas()
+        {
+            _leidasService.GuardarLeidas(Alertas.Where(f => f.Leida).Select(f => f.Clave));
+            MarcarTodasCommand.NotifyCanExecuteChanged();
+        }
     }
 }
