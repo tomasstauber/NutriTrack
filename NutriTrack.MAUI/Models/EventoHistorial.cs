@@ -20,5 +20,8 @@ namespace NutriTrack.MAUI.Models
         public string? Responsable { get; set; }
 
         public List<MedicamentoHistorial> Medicamentos { get; set; } = [];
+
+        // No viene de la API: tipo con tilde
+        public string TipoEventoTexto => TiposEvento.Texto(TipoEvento);
     }
 }
