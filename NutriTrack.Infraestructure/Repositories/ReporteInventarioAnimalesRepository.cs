@@ -21,6 +21,15 @@ namespace NutriTrack.Infraestructure.Repositories
             return await _context.Rodeos.AnyAsync(r => r.Id == idRodeo && r.Activo);
         }
 
+        // Nombre del rodeo activo, o null si no existe (misma condición que ExisteRodeo)
+        public async Task<string?> ObtenerNombreRodeo(int idRodeo)
+        {
+            return await _context.Rodeos
+                .Where(r => r.Id == idRodeo && r.Activo)
+                .Select(r => r.Nombre)
+                .FirstOrDefaultAsync();
+        }
+
         // Tipo "actual": todo el stock activo del alcance, sin filtrar por fecha de alta
         public async Task<List<Animal>> ObtenerInventario(int? idRodeo)
         {

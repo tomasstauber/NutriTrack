@@ -29,41 +29,50 @@ namespace NutriTrack.API.Controllers
         [HttpGet]
         public async Task<IActionResult> Generar([FromQuery] ReporteEvolucionPesoDTO filtro)
         {
-            var (error, reporte) = await ArmarReporteAsync(filtro);
+            var (error, reporte, _) = await ArmarReporteAsync(filtro);
             return error ?? Ok(reporte);
         }
 
         [HttpGet("pdf")]
         public async Task<IActionResult> GenerarPdf([FromQuery] ReporteEvolucionPesoDTO filtro)
         {
-            var (error, reporte) = await ArmarReporteAsync(filtro);
+            var (error, reporte, encabezado) = await ArmarReporteAsync(filtro);
             if (error != null)
                 return error;
 
-            var bytes = _pdfService.GenerarEvolucionPeso(reporte!);
-            var nombreArchivo = $"evolucion_peso_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
+            // Una sola fecha para el encabezado y el nombre del archivo
+            var generado = DateTime.Now;
+            encabezado!.Generado = generado;
+
+            var bytes = _pdfService.GenerarEvolucionPeso(reporte!, encabezado);
+            var nombreArchivo = $"evolucion_peso_{generado:yyyyMMdd_HHmm}.pdf";
             return File(bytes, "application/pdf", nombreArchivo);
         }
 
-        private async Task<(IActionResult? Error, ReporteEvolucionPesoResponseDTO? Reporte)> ArmarReporteAsync(
+        // El encabezado solo lo usa el PDF: el JSON no cambia
+        private async Task<(IActionResult? Error, ReporteEvolucionPesoResponseDTO? Reporte, EncabezadoReporte? Encabezado)> ArmarReporteAsync(
             ReporteEvolucionPesoDTO filtro)
         {
-            var (error, desde, hasta) = await ValidarYCalcularPeriodoAsync(filtro);
-            if (error != null) return (error, null);
+            var (error, desde, hasta, nombreRodeo) = await ValidarYCalcularPeriodoAsync(filtro);
+            if (error != null) return (error, null, null);
 
             int? idAnimalFiltro = null;
+            string? caravana = null;
             if (!string.IsNullOrWhiteSpace(filtro.Caravana))
             {
                 var animal = await _repository.BuscarAnimalPorCaravana(filtro.Caravana);
                 if (animal == null)
-                    return (NotFound("No se encontró un animal con esa caravana"), null);
+                    return (NotFound("No se encontró un animal con esa caravana"), null, null);
                 idAnimalFiltro = animal.Id;
+
+                // La del animal encontrado, con el mismo formato que la tabla
+                caravana = $"{animal.CaravanaCuig}-{animal.CaravanaNroManejo}";
             }
 
             var filas = await _repository.ObtenerResumenPorAnimal(filtro.IdRodeo, desde, hasta, idAnimalFiltro);
 
             if (filas.Count == 0)
-                return (NotFound("No se encontraron registros de peso para el período seleccionado."), null);
+                return (NotFound("No se encontraron registros de peso para el período seleccionado."), null, null);
 
             var reporte = new ReporteEvolucionPesoResponseDTO
             {
@@ -93,38 +102,53 @@ namespace NutriTrack.API.Controllers
                 };
             }
 
-            return (null, reporte);
+            var encabezado = new EncabezadoReporte
+            {
+                Desde = desde,
+                Hasta = hasta,
+                NombreRodeo = nombreRodeo,
+                Caravana = caravana
+            };
+
+            return (null, reporte, encabezado);
         }
 
-        private async Task<(IActionResult? Error, DateTime Desde, DateTime Hasta)> ValidarYCalcularPeriodoAsync(
+        // Devuelve también el nombre del rodeo (null sin filtro) para el encabezado del PDF
+        private async Task<(IActionResult? Error, DateTime Desde, DateTime Hasta, string? NombreRodeo)> ValidarYCalcularPeriodoAsync(
             ReporteEvolucionPesoDTO filtro)
         {
-            if (filtro.IdRodeo.HasValue && !await _repository.ExisteRodeo(filtro.IdRodeo.Value))
-                return (NotFound("No se encontró el rodeo seleccionado"), default, default);
+            // Una sola consulta: valida el rodeo y trae el nombre
+            string? nombreRodeo = null;
+            if (filtro.IdRodeo.HasValue)
+            {
+                nombreRodeo = await _repository.ObtenerNombreRodeo(filtro.IdRodeo.Value);
+                if (nombreRodeo == null)
+                    return (NotFound("No se encontró el rodeo seleccionado"), default, default, null);
+            }
 
             if (string.IsNullOrEmpty(filtro.TipoReporte) ||
                 !PeriodoReporteCalculator.TiposValidos.Contains(filtro.TipoReporte.ToLower()))
-                return (BadRequest("El tipo de reporte ingresado no es válido"), default, default);
+                return (BadRequest("El tipo de reporte ingresado no es válido"), default, default, null);
 
             var tipo = filtro.TipoReporte.ToLower();
 
             if (tipo == "personalizado")
             {
                 if (!filtro.Desde.HasValue || !filtro.Hasta.HasValue)
-                    return (BadRequest("Debe indicar desde y hasta para un reporte personalizado"), default, default);
+                    return (BadRequest("Debe indicar desde y hasta para un reporte personalizado"), default, default, null);
 
                 if (filtro.Desde.Value.Date > filtro.Hasta.Value.Date)
-                    return (BadRequest("El período ingresado no es válido"), default, default);
+                    return (BadRequest("El período ingresado no es válido"), default, default, null);
 
-                return (null, filtro.Desde.Value, filtro.Hasta.Value);
+                return (null, filtro.Desde.Value, filtro.Hasta.Value, nombreRodeo);
             }
 
             if (tipo != "actual" && !filtro.FechaReferencia.HasValue)
-                return (BadRequest("Debe indicar la fecha del período para este tipo de reporte"), default, default);
+                return (BadRequest("Debe indicar la fecha del período para este tipo de reporte"), default, default, null);
 
             var referencia = filtro.FechaReferencia ?? DateTime.Today;
             var (desde, hasta) = PeriodoReporteCalculator.Calcular(tipo, referencia);
-            return (null, desde, hasta);
+            return (null, desde, hasta, nombreRodeo);
         }
     }
 }

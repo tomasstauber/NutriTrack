@@ -1,4 +1,5 @@
 ﻿using NutriTrack.API.DTOs;
+using NutriTrack.API.Helpers;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -8,10 +9,12 @@ namespace NutriTrack.API.GeneracionReportesPdf
     public class FechasImportantesPdfDocument : IDocument
     {
         private readonly ReporteFechasImportantesResponseDTO _reporte;
+        private readonly EncabezadoReporte _encabezado;
 
-        public FechasImportantesPdfDocument(ReporteFechasImportantesResponseDTO reporte)
+        public FechasImportantesPdfDocument(ReporteFechasImportantesResponseDTO reporte, EncabezadoReporte encabezado)
         {
             _reporte = reporte;
+            _encabezado = encabezado;
         }
 
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
@@ -23,8 +26,7 @@ namespace NutriTrack.API.GeneracionReportesPdf
                 page.Margin(30);
                 page.Size(PageSizes.A4.Landscape());
 
-                page.Header().Text("Reporte de Fechas Importantes a Recordar")
-                    .FontSize(18).Bold();
+                _encabezado.Componer(page.Header(), "Reporte de Fechas Importantes a Recordar");
 
                 page.Content().PaddingVertical(10).Column(col =>
                 {
@@ -59,7 +61,7 @@ namespace NutriTrack.API.GeneracionReportesPdf
                             foreach (var p in _reporte.ProximasAplicaciones)
                             {
                                 table.Cell().Element(Celda).Text(p.Destino);
-                                table.Cell().Element(Celda).Text(p.TipoEvento);
+                                table.Cell().Element(Celda).Text(TipoEventoHelper.Texto(p.TipoEvento));
                                 table.Cell().Element(Celda).Text(p.Producto);
                                 table.Cell().Element(Celda).Text(p.FechaProximaAplicacion.ToString("dd/MM/yyyy"));
                                 table.Cell().Element(Celda).Text(p.Responsable);
@@ -99,7 +101,7 @@ namespace NutriTrack.API.GeneracionReportesPdf
                             foreach (var v in _reporte.VencimientosEventos)
                             {
                                 table.Cell().Element(Celda).Text(v.Destino);
-                                table.Cell().Element(Celda).Text(v.TipoEvento);
+                                table.Cell().Element(Celda).Text(TipoEventoHelper.Texto(v.TipoEvento));
                                 table.Cell().Element(Celda).Text(v.Producto);
                                 table.Cell().Element(Celda).Text(v.VigenciaHasta.ToString("dd/MM/yyyy"));
                                 table.Cell().Element(Celda).Text(v.Responsable);

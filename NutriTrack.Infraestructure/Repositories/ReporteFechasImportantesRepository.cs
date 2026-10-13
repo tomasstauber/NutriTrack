@@ -23,6 +23,15 @@ namespace NutriTrack.Infraestructure.Repositories
             return await _context.Rodeos.AnyAsync(r => r.Id == idRodeo && r.Activo);
         }
 
+        // Nombre del rodeo activo, o null si no existe (misma condición que ExisteRodeo)
+        public async Task<string?> ObtenerNombreRodeo(int idRodeo)
+        {
+            return await _context.Rodeos
+                .Where(r => r.Id == idRodeo && r.Activo)
+                .Select(r => r.Nombre)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<ProximaAplicacionRaw>> ObtenerProximasAplicaciones(
             int? idRodeo, DateTime desde, DateTime hasta)
         {

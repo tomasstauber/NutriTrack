@@ -8,10 +8,12 @@ namespace NutriTrack.API.GeneracionReportesPdf
     public class EvolucionPesoPdfDocument : IDocument
     {
         private readonly ReporteEvolucionPesoResponseDTO _reporte;
+        private readonly EncabezadoReporte _encabezado;
 
-        public EvolucionPesoPdfDocument(ReporteEvolucionPesoResponseDTO reporte)
+        public EvolucionPesoPdfDocument(ReporteEvolucionPesoResponseDTO reporte, EncabezadoReporte encabezado)
         {
             _reporte = reporte;
+            _encabezado = encabezado;
         }
 
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
@@ -23,8 +25,7 @@ namespace NutriTrack.API.GeneracionReportesPdf
                 page.Margin(30);
                 page.Size(PageSizes.A4.Landscape());
 
-                page.Header().Text("Reporte de Evolución de Peso")
-                    .FontSize(18).Bold();
+                _encabezado.Componer(page.Header(), "Reporte de Evolución de Peso");
 
                 page.Content().PaddingVertical(10).Column(col =>
                 {

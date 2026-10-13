@@ -28,32 +28,43 @@ namespace NutriTrack.API.Controllers
         [HttpGet]
         public async Task<IActionResult> Generar([FromQuery] ReporteFechasImportantesDTO filtro)
         {
-            var (error, reporte) = await ArmarReporteAsync(filtro);
+            var (error, reporte, _) = await ArmarReporteAsync(filtro);
             return error ?? Ok(reporte);
         }
 
         [HttpGet("pdf")]
         public async Task<IActionResult> GenerarPdf([FromQuery] ReporteFechasImportantesDTO filtro)
         {
-            var (error, reporte) = await ArmarReporteAsync(filtro);
+            var (error, reporte, encabezado) = await ArmarReporteAsync(filtro);
             if (error != null)
                 return error;
 
-            var bytes = _pdfService.GenerarFechasImportantes(reporte!);
-            var nombreArchivo = $"fechas_importantes_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
+            // Una sola fecha para el encabezado y el nombre del archivo
+            var generado = DateTime.Now;
+            encabezado!.Generado = generado;
+
+            var bytes = _pdfService.GenerarFechasImportantes(reporte!, encabezado);
+            var nombreArchivo = $"fechas_importantes_{generado:yyyyMMdd_HHmm}.pdf";
             return File(bytes, "application/pdf", nombreArchivo);
         }
 
-        private async Task<(IActionResult? Error, ReporteFechasImportantesResponseDTO? Reporte)> ArmarReporteAsync(
+        // El encabezado solo lo usa el PDF: el JSON no cambia
+        private async Task<(IActionResult? Error, ReporteFechasImportantesResponseDTO? Reporte, EncabezadoReporte? Encabezado)> ArmarReporteAsync(
             ReporteFechasImportantesDTO filtro)
         {
 
-            if (filtro.IdRodeo.HasValue && !await _repository.ExisteRodeo(filtro.IdRodeo.Value))
-                return (NotFound("No se encontró el rodeo seleccionado"), null);
+            // Una sola consulta: valida el rodeo y trae el nombre para el encabezado
+            string? nombreRodeo = null;
+            if (filtro.IdRodeo.HasValue)
+            {
+                nombreRodeo = await _repository.ObtenerNombreRodeo(filtro.IdRodeo.Value);
+                if (nombreRodeo == null)
+                    return (NotFound("No se encontró el rodeo seleccionado"), null, null);
+            }
 
             if (string.IsNullOrEmpty(filtro.TipoReporte) ||
                 !PeriodoReporteCalculator.TiposValidos.Contains(filtro.TipoReporte.ToLower()))
-                return (BadRequest("El tipo de reporte ingresado no es válido"), null);
+                return (BadRequest("El tipo de reporte ingresado no es válido"), null, null);
 
             var tipo = filtro.TipoReporte.ToLower();
             DateTime desde;
@@ -62,10 +73,10 @@ namespace NutriTrack.API.Controllers
             if (tipo == "personalizado")
             {
                 if (!filtro.Desde.HasValue || !filtro.Hasta.HasValue)
-                    return (BadRequest("Debe indicar desde y hasta para un reporte personalizado"), null);
+                    return (BadRequest("Debe indicar desde y hasta para un reporte personalizado"), null, null);
 
                 if (filtro.Desde.Value.Date > filtro.Hasta.Value.Date)
-                    return (BadRequest("El período ingresado no es válido"), null);
+                    return (BadRequest("El período ingresado no es válido"), null, null);
 
                 desde = filtro.Desde.Value;
                 hasta = filtro.Hasta.Value;
@@ -73,7 +84,7 @@ namespace NutriTrack.API.Controllers
             else
             {
                 if (tipo != "actual" && !filtro.FechaReferencia.HasValue)
-                    return (BadRequest("Debe indicar la fecha del período para este tipo de reporte"), null);
+                    return (BadRequest("Debe indicar la fecha del período para este tipo de reporte"), null, null);
 
                 var referencia = filtro.FechaReferencia ?? DateTime.Today;
                 (desde, hasta) = PeriodoReporteCalculator.Calcular(tipo, referencia);
@@ -83,7 +94,7 @@ namespace NutriTrack.API.Controllers
             var vencimientos = await _repository.ObtenerVencimientos(filtro.IdRodeo, desde, hasta);
 
             if (proximas.Count == 0 && vencimientos.Count == 0)
-                return (NotFound("No hay fechas programadas para el período seleccionado."), null);
+                return (NotFound("No hay fechas programadas para el período seleccionado."), null, null);
 
             var reporte = new ReporteFechasImportantesResponseDTO
             {
@@ -107,7 +118,14 @@ namespace NutriTrack.API.Controllers
                 }).ToList()
             };
 
-            return (null, reporte);
+            var encabezado = new EncabezadoReporte
+            {
+                Desde = desde,
+                Hasta = hasta,
+                NombreRodeo = nombreRodeo
+            };
+
+            return (null, reporte, encabezado);
         }
     }
 }
