@@ -10,7 +10,8 @@ services:
       - "5470:5432"
     volumes:
       - nutritrack_pgdata:/var/lib/postgresql/data
-      - ./backupOk.sql:/docker-entrypoint-initdb.d/backupOk.sql
+      - ./db/scripts/NutriTrack-DDL-Ultimate.sql:/docker-entrypoint-initdb.d/01-ddl.sql
+      - ./db/scripts/NutriTrack-DML-Ultimate.sql:/docker-entrypoint-initdb.d/02-dml.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -28,8 +29,12 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=nutritrack_testing;Username=postgres;Password=1234"
+      # Clave solo para el entorno de testing. Localmente se usa user secrets.
+      Jwt__Key: "nutritrack-clave-de-testing-solo-para-docker-2026"
+      Jwt__Issuer: "NutriTrack.API"
+      Jwt__Audience: "NutriTrack.Clientes"
     ports:
-      - "8080:8080"
+      - "5068:8080"
 
 volumes:
   nutritrack_pgdata:

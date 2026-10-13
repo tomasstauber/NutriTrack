@@ -1,16 +1,23 @@
-# NutriTrack — Entorno de testing con Docker
+# NutriTrack
 
-Este entorno levanta el backend completo de NutriTrack (API + base de datos PostgreSQL) para pruebas cruzadas, con los datos de prueba ya cargados.
+Sistema de gestión ganadera. Backend en ASP.NET Core Web API con PostgreSQL y app cliente en .NET MAUI.
+
+Para probarlo hacen falta dos cosas:
+
+1. **El backend** (API + base de datos), que se levanta con Docker.
+2. **La app de Windows**, que se descarga ya compilada desde el Release de GitHub.
 
 ## Requisitos
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y corriendo.
-- No hace falta tener instalado .NET SDK ni PostgreSQL en tu máquina — Docker se encarga de todo.
+- Windows 10 u 11 (64 bits) para la app.
 
-## Cómo levantar el entorno
+No hace falta instalar .NET, Visual Studio ni PostgreSQL.
 
-1. Cloná el repositorio (o asegurate de tener la última versión de la rama correspondiente).
-2. Abrí una terminal en la raíz del proyecto (donde están el `Dockerfile`, el `docker-compose.yml` y `backupOk.sql`).
+## Paso 1: levantar el backend
+
+1. Cloná el repositorio.
+2. Abrí una terminal en la raíz del proyecto (donde están el `Dockerfile` y el `docker-compose.yml`).
 3. Corré:
 
    ```
@@ -21,65 +28,103 @@ Este entorno levanta el backend completo de NutriTrack (API + base de datos Post
 
    ```
    nutritrack-api  | Now listening on: http://[::]:8080
-   nutritrack-db   | database system is ready to accept connections
    ```
 
    La primera vez puede tardar unos minutos porque descarga las imágenes base y compila el proyecto. Las siguientes veces es mucho más rápido.
 
-## Cómo probar los endpoints
+La API queda disponible en `http://localhost:5068`. Dejá la terminal abierta mientras uses la app.
 
-Con el entorno arriba, abrí en el navegador:
+La base arranca con los datos de prueba ya cargados (scripts de `db/scripts/`): usuarios, rodeos, animales, planes alimenticios, ingredientes, medicamentos, eventos sanitarios y pesajes. Las fechas de eventos y pesajes se calculan a partir del día en que se crea la base, así las alertas y los reportes siempre tienen datos.
 
-```
-http://localhost:8080/scalar/
-```
+## Paso 2: abrir la app
 
-Ahí vas a ver la documentación interactiva de la API (Scalar). Elegí el endpoint, presioná **"Test Request"**, pegá el JSON correspondiente de la columna "Datos de Prueba" del documento de casos de prueba, y presioná **Send**.
+1. Entrá a la sección **Releases** del repositorio en GitHub y descargá `NutriTrack-Windows-x64.zip` de la última versión.
+2. Descomprimilo en cualquier carpeta.
+3. Abrí `NutriTrack.MAUI.exe`.
 
-## Datos de prueba ya cargados
+> **Aviso de Windows:** como la app no está firmada, la primera vez puede aparecer un cartel de SmartScreen ("Windows protegió su PC"). Hacé clic en **Más información → Ejecutar de todas formas**.
 
-La base arranca automáticamente con los datos definidos en `backupOk.sql` — no hace falta cargar nada a mano. Incluye animales, rodeos, planes alimenticios, ingredientes, usuarios y eventos sanitarios de ejemplo, con los mismos IDs que se usan en el documento de casos de prueba.
+## Usuarios de prueba
 
-## Cómo apagar el entorno
+| Usuario    | Contraseña  | Rol              |
+|------------|-------------|------------------|
+| `jperez`   | `juana1234` | Administrador    |
+| `mgomez`   | `maria1234` | AsesorTecnico    |
+| `pfuentes` | `pablo1234` | EncargadoDeCampo |
 
-Para detener los contenedores sin perder los datos cargados:
+## Apagar y reiniciar el entorno
+
+Para detener los contenedores sin perder los datos:
 
 ```
 docker compose down
 ```
 
-Para reiniciar completamente desde cero (borra los datos y vuelve a cargar el seed original la próxima vez que levantes):
+Para reiniciar desde cero (borra los datos y vuelve a cargar los datos de prueba la próxima vez que levantes):
 
 ```
 docker compose down -v
 docker compose up --build
 ```
 
-Usá esta última opción si algo quedó en un estado raro después de correr varios casos de prueba y querés volver al punto de partida.
+Usá esta opción si algo quedó en un estado raro después de varias pruebas.
 
 ## Problemas comunes
 
-- **"port is already allocated"**: algún otro proceso o contenedor está usando el puerto 5470 u 8080 en tu máquina. Cerralo o cambiá el puerto en `docker-compose.yml`.
-- **La API no conecta a la base al arrancar**: esperá unos segundos más — Postgres necesita un momento para inicializarse la primera vez. El `docker-compose.yml` ya tiene un healthcheck configurado para que la API espere a que la base esté lista.
+- **"port is already allocated"**: algún otro proceso está usando el puerto 5068 o 5470. Cerralo antes de levantar el entorno. El puerto 5068 no se puede cambiar porque la app lo tiene configurado.
+- **La app no conecta o no deja iniciar sesión**: revisá que el backend esté levantado (Paso 1) y que la terminal muestre `Now listening on`.
 
-## Configuración local: clave JWT
+## Documentación de la API (opcional)
 
-La API necesita la clave `Jwt:Key` para firmar los tokens. No se sube al repo: cada integrante la configura en su máquina con user secrets. El `UserSecretsId` ya está en el `.csproj`, así que **no hace falta correr `dotnet user-secrets init`**.
+Con el backend levantado, la documentación interactiva de la API (Scalar) está en:
+
+```
+http://localhost:5068/scalar/
+```
+
+Los endpoints exigen sesión: primero hacé login con `POST /api/Login/login` y usá el token que devuelve.
+
+---
+
+## Para desarrollo
+
+### Abrir el proyecto en Visual Studio
+
+Alternativa a la app descargada, o para ver el código:
+
+1. Instalá Visual Studio 2026 con .NET 10 y la carga de trabajo **Desarrollo de .NET MAUI**.
+2. Abrí `NutriTrack.slnx`.
+3. Elegí `NutriTrack.MAUI` como proyecto de inicio, el destino **Windows Machine** y presioná F5.
+
+La app usa la API en `http://localhost:5068`, ya sea la de Docker o la que levantás desde Visual Studio.
+
+### Clave JWT para correr la API sin Docker
+
+En Docker, la clave `Jwt:Key` ya viene configurada en `docker-compose.yml` (es solo para testing). Si corrés la API desde Visual Studio o con `dotnet run`, la clave no se sube al repo: cada integrante la configura en su máquina con user secrets. El `UserSecretsId` ya está en el `.csproj`, así que **no hace falta correr `dotnet user-secrets init`**.
 
 Desde la raíz de la solución:
 
 1. Generar una clave aleatoria (PowerShell). Debe tener al menos 32 caracteres; este comando genera 64:
-```
+   ```
    [Convert]::ToBase64String((1..48 | ForEach-Object { Get-Random -Maximum 256 }))
-```
+   ```
 2. Guardarla:
-```
+   ```
    dotnet user-secrets set "Jwt:Key" "<clave generada>" --project NutriTrack.API
-```
+   ```
 3. Verificar:
-```
+   ```
    dotnet user-secrets list --project NutriTrack.API
-```
-4. Levantar la API y probar el login en Scalar.
+   ```
 
 > Los user secrets solo se cargan en el entorno Development (`ASPNETCORE_ENVIRONMENT` en `launchSettings.json`).
+
+### Generar el ejecutable de Windows
+
+Desde la raíz de la solución:
+
+```
+dotnet publish NutriTrack.MAUI -f net10.0-windows10.0.19041.0 -c Release -p:RuntimeIdentifierOverride=win-x64 -p:SelfContained=true -p:WindowsAppSDKSelfContained=true
+```
+
+La app queda en `NutriTrack.MAUI/bin/Release/net10.0-windows10.0.19041.0/win-x64/publish/`. Es autocontenida: no necesita .NET instalado. Comprimí esa carpeta como `NutriTrack-Windows-x64.zip` y adjuntala a un Release de GitHub. El `.zip` no se commitea.
