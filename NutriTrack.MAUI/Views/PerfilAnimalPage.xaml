@@ -147,7 +147,7 @@
                                       ColumnSpacing="12"
                                       RowSpacing="6">
                                     <Label Grid.Row="0" Grid.Column="0" Text="Tipo de evento" Style="{StaticResource Etiqueta}" />
-                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding TipoEvento}" Style="{StaticResource Dato}" />
+                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding TipoEventoTexto}" Style="{StaticResource Dato}" />
 
                                     <Label Grid.Row="1" Grid.Column="0" Text="Fecha" Style="{StaticResource Etiqueta}" />
                                     <Label Grid.Row="1" Grid.Column="1" Text="{Binding FechaEvento, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource Dato}" />
