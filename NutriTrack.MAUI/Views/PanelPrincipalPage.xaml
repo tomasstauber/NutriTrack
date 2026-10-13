@@ -309,6 +309,7 @@
                 <Label Text="Todavía no hay módulos disponibles para tu rol."
                        TextColor="{StaticResource TextoSecundario}"
                        IsVisible="{Binding SinModulos}" />
+            </VerticalStackLayout>
             <!-- Tarjeta de alertas: solo Administrador. Estado propio, separado de la tarjeta de animales -->
             <Border BackgroundColor="{StaticResource Superficie}"
                     Stroke="{StaticResource Borde}"
@@ -451,27 +452,6 @@
                            TextColor="{StaticResource Peligro}" />
                 </VerticalStackLayout>
             </Border>
-
-            <!-- Menú armado según el rol de la sesión -->
-            <Label Text="Menú"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource TextoPrincipal}" />
-
-            <VerticalStackLayout Spacing="8"
-                                 BindableLayout.ItemsSource="{Binding EntradasMenu}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="models:EntradaMenu">
-                        <Button Text="{Binding Titulo}"
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PanelPrincipalViewModel}}, Path=NavegarCommand}"
-                                CommandParameter="{Binding .}" />
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-                <BindableLayout.EmptyView>
-                    <Label Text="Todavía no hay módulos disponibles para tu rol."
-                           TextColor="{StaticResource TextoSecundario}" />
-                </BindableLayout.EmptyView>
-            </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
