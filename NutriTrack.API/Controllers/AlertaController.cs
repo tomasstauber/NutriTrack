@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NutriTrack.API.Constants;
 using NutriTrack.API.DTOs;
+using NutriTrack.API.Helpers;
 using NutriTrack.Infraestructure.Repositories;
 using System;
 using System.Globalization;
@@ -91,7 +92,7 @@ namespace NutriTrack.API.Controllers
             });
         }
 
-        // Descripción: los medicamentos del evento o, si no tiene, el tipo de evento
+        // Descripción: los medicamentos del evento o, si no tiene, el tipo de evento con tilde
         private static AlertaItemDTO ArmarSanitaria(string subtipo, ReporteEventoRawBase evento, DateTime fecha, DateOnly hoy)
         {
             var dia = DateOnly.FromDateTime(fecha);
@@ -100,7 +101,7 @@ namespace NutriTrack.API.Controllers
                 Tipo = "Sanitaria",
                 Subtipo = subtipo,
                 Destino = evento.Destino,
-                Descripcion = string.IsNullOrEmpty(evento.Producto) ? evento.TipoEvento : evento.Producto,
+                Descripcion = string.IsNullOrEmpty(evento.Producto) ? TipoEventoHelper.Texto(evento.TipoEvento) : evento.Producto,
                 Fecha = dia,
                 DiasRestantes = dia.DayNumber - hoy.DayNumber
             };

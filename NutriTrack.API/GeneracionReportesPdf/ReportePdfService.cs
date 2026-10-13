@@ -5,13 +5,13 @@ namespace NutriTrack.API.GeneracionReportesPdf
 {
     public class ReportePdfService : IReportePdfService
     {
-        public byte[] GenerarInventario(ReporteInventarioAnimalesResponseDTO reporte)
-            => new InventarioPdfDocument(reporte).GeneratePdf();
+        public byte[] GenerarInventario(ReporteInventarioAnimalesResponseDTO reporte, EncabezadoReporte encabezado)
+            => new InventarioPdfDocument(reporte, encabezado).GeneratePdf();
 
-        public byte[] GenerarFechasImportantes(ReporteFechasImportantesResponseDTO reporte)
-            => new FechasImportantesPdfDocument(reporte).GeneratePdf();
+        public byte[] GenerarFechasImportantes(ReporteFechasImportantesResponseDTO reporte, EncabezadoReporte encabezado)
+            => new FechasImportantesPdfDocument(reporte, encabezado).GeneratePdf();
 
-        public byte[] GenerarEvolucionPeso(ReporteEvolucionPesoResponseDTO reporte)
-            => new EvolucionPesoPdfDocument(reporte).GeneratePdf();
+        public byte[] GenerarEvolucionPeso(ReporteEvolucionPesoResponseDTO reporte, EncabezadoReporte encabezado)
+            => new EvolucionPesoPdfDocument(reporte, encabezado).GeneratePdf();
     }
 }
