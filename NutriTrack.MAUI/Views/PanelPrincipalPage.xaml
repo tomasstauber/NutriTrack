@@ -8,6 +8,7 @@
              x:DataType="vm:PanelPrincipalViewModel"
              Title="Panel Principal"
              Shell.NavBarIsVisible="False"
+             ControlTemplate="{x:Null}"
              BackgroundColor="{StaticResource Fondo}">
 
     <ContentPage.Resources>

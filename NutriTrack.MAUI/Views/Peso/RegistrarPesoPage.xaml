@@ -36,17 +36,19 @@
             <Label Text="1. Animal" Style="{StaticResource Titulo}" />
 
             <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="12">
-                <Entry Grid.Column="0"
-                       Text="{Binding Cuig}"
-                       Placeholder="CUIG"
-                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                       IsEnabled="{Binding NoEstaOcupado}" />
-                <Entry Grid.Column="1"
-                       Text="{Binding NroManejo}"
-                       Placeholder="Nro. de manejo"
-                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                       IsEnabled="{Binding NoEstaOcupado}"
-                       ReturnCommand="{Binding BuscarCommand}" />
+                <Border Grid.Column="0" Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding Cuig}"
+                           Placeholder="CUIG"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding NroManejo}"
+                           Placeholder="Nro. de manejo"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}"
+                           ReturnCommand="{Binding BuscarCommand}" />
+                </Border>
                 <Button Grid.Column="2"
                         Text="Buscar"
                         Command="{Binding BuscarCommand}"
@@ -87,23 +89,29 @@
                 <Label Text="2. Pesaje" Style="{StaticResource Titulo}" />
 
                 <Label Text="Peso (kg) *" Style="{StaticResource Etiqueta}" />
-                <Entry Text="{Binding Peso}"
-                       Placeholder="Ej. 350,5"
-                       Keyboard="Numeric"
-                       IsEnabled="{Binding NoEstaOcupado}" />
+                <Border Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding Peso}"
+                           Placeholder="Ej. 350,5"
+                           Keyboard="Numeric"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
 
                 <Label Text="Fecha de pesaje *" Style="{StaticResource Etiqueta}" />
-                <DatePicker Date="{Binding FechaPesaje}"
-                            MaximumDate="{Binding Hoy}"
-                            Format="dd/MM/yyyy"
-                            IsEnabled="{Binding NoEstaOcupado}" />
+                <Border Style="{StaticResource MarcoCampo}">
+                    <DatePicker Date="{Binding FechaPesaje}"
+                                MaximumDate="{Binding Hoy}"
+                                Format="dd/MM/yyyy"
+                                IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
 
                 <Label Text="Observaciones" Style="{StaticResource Etiqueta}" />
-                <Editor Text="{Binding Observaciones}"
-                        Placeholder="Opcional"
-                        AutoSize="TextChanges"
-                        MinimumHeightRequest="80"
-                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Border Style="{StaticResource MarcoCampo}">
+                    <Editor Text="{Binding Observaciones}"
+                            Placeholder="Opcional"
+                            AutoSize="TextChanges"
+                            MinimumHeightRequest="80"
+                            IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
             </VerticalStackLayout>
 
             <!-- Validaciones y errores de la API -->

@@ -35,15 +35,6 @@
             <Setter Property="LineBreakMode" Value="WordWrap" />
         </Style>
 
-        <!-- Marco gris de los campos de texto y Picker, para que se distingan del fondo -->
-        <Style x:Key="MarcoCampo" TargetType="Border">
-            <Setter Property="Stroke" Value="{StaticResource Gray200}" />
-            <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="StrokeShape" Value="RoundRectangle 4" />
-            <Setter Property="BackgroundColor" Value="{StaticResource Superficie}" />
-            <Setter Property="Padding" Value="8,0" />
-        </Style>
-
         <!-- Error de un campo, debajo del campo -->
         <Style x:Key="ErrorCampo" TargetType="Label">
             <Setter Property="TextColor" Value="{StaticResource Peligro}" />
