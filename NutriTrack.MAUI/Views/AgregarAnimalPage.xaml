@@ -34,76 +34,90 @@
 
             <Label Text="Caravana *" Style="{StaticResource Etiqueta}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Entry Grid.Column="0"
-                       Text="{Binding Cuig}"
-                       Placeholder="CUIG"
-                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                       IsEnabled="{Binding NoEstaOcupado}" />
-                <Entry Grid.Column="1"
-                       Text="{Binding NroManejo}"
-                       Placeholder="Nro. de manejo"
-                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                       IsEnabled="{Binding NoEstaOcupado}" />
+                <Border Grid.Column="0" Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding Cuig}"
+                           Placeholder="CUIG"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding NroManejo}"
+                           Placeholder="Nro. de manejo"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
             </Grid>
             <Label Text="{Binding ErrorCaravana}"
                    IsVisible="{Binding HayErrorCaravana}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Fecha de nacimiento *" Style="{StaticResource Etiqueta}" />
-            <DatePicker Date="{Binding FechaNacimiento}"
-                        MaximumDate="{Binding Hoy}"
-                        Format="dd/MM/yyyy"
-                        IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <DatePicker Date="{Binding FechaNacimiento}"
+                            MaximumDate="{Binding Hoy}"
+                            Format="dd/MM/yyyy"
+                            IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorFechaNacimiento}"
                    IsVisible="{Binding HayErrorFechaNacimiento}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Peso al nacer (kg) *" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding PesoAlNacer}"
-                   Placeholder="Ej. 35,5"
-                   Keyboard="Numeric"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding PesoAlNacer}"
+                       Placeholder="Ej. 35,5"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorPesoAlNacer}"
                    IsVisible="{Binding HayErrorPesoAlNacer}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Sexo *" Style="{StaticResource Etiqueta}" />
-            <Picker ItemsSource="{Binding Sexos}"
-                    SelectedItem="{Binding Sexo}"
-                    Title="Elegir"
-                    IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Picker ItemsSource="{Binding Sexos}"
+                        SelectedItem="{Binding Sexo}"
+                        Title="Elegir"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorSexo}"
                    IsVisible="{Binding HayErrorSexo}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Raza *" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding Raza}"
-                   Placeholder="Ej. Angus"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Raza}"
+                       Placeholder="Ej. Angus"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorRaza}"
                    IsVisible="{Binding HayErrorRaza}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Color de pelaje" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding ColorPelaje}"
-                   Placeholder="Opcional"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding ColorPelaje}"
+                       Placeholder="Opcional"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
 
             <!-- Madre y padre: las dos partes o ninguna -->
             <Label Text="Progenitores (opcional)" Style="{StaticResource Titulo}" />
 
             <Label Text="Madre" Style="{StaticResource Etiqueta}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Entry Grid.Column="0"
-                       Text="{Binding CuigMadre}"
-                       Placeholder="CUIG"
-                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                       IsEnabled="{Binding NoEstaOcupado}" />
-                <Entry Grid.Column="1"
-                       Text="{Binding NroManejoMadre}"
-                       Placeholder="Nro. de manejo"
-                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                       IsEnabled="{Binding NoEstaOcupado}" />
+                <Border Grid.Column="0" Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding CuigMadre}"
+                           Placeholder="CUIG"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding NroManejoMadre}"
+                           Placeholder="Nro. de manejo"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
             </Grid>
             <Label Text="{Binding ErrorMadre}"
                    IsVisible="{Binding HayErrorMadre}"
@@ -111,16 +125,18 @@
 
             <Label Text="Padre" Style="{StaticResource Etiqueta}" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Entry Grid.Column="0"
-                       Text="{Binding CuigPadre}"
-                       Placeholder="CUIG"
-                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                       IsEnabled="{Binding NoEstaOcupado}" />
-                <Entry Grid.Column="1"
-                       Text="{Binding NroManejoPadre}"
-                       Placeholder="Nro. de manejo"
-                       MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                       IsEnabled="{Binding NoEstaOcupado}" />
+                <Border Grid.Column="0" Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding CuigPadre}"
+                           Placeholder="CUIG"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding NroManejoPadre}"
+                           Placeholder="Nro. de manejo"
+                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                           IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
             </Grid>
             <Label Text="{Binding ErrorPadre}"
                    IsVisible="{Binding HayErrorPadre}"

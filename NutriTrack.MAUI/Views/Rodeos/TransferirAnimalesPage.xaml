@@ -30,22 +30,26 @@
         <!-- Rodeos origen y destino -->
         <VerticalStackLayout Grid.Row="0" Spacing="8">
             <Label Text="Rodeo origen *" Style="{StaticResource Etiqueta}" />
-            <Picker ItemsSource="{Binding Rodeos}"
-                    ItemDisplayBinding="{Binding Nombre, x:DataType=models:Rodeo}"
-                    SelectedItem="{Binding RodeoOrigen}"
-                    Title="Elegí el rodeo origen"
-                    IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Picker ItemsSource="{Binding Rodeos}"
+                        ItemDisplayBinding="{Binding Nombre, x:DataType=models:Rodeo}"
+                        SelectedItem="{Binding RodeoOrigen}"
+                        Title="Elegí el rodeo origen"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorOrigen}"
                    IsVisible="{Binding HayErrorOrigen}"
                    Style="{StaticResource ErrorCampo}" />
 
             <!-- R3: sin el rodeo origen entre las opciones -->
             <Label Text="Rodeo destino *" Style="{StaticResource Etiqueta}" />
-            <Picker ItemsSource="{Binding RodeosDestino}"
-                    ItemDisplayBinding="{Binding Nombre, x:DataType=models:Rodeo}"
-                    SelectedItem="{Binding RodeoDestino}"
-                    Title="Elegí el rodeo destino"
-                    IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Picker ItemsSource="{Binding RodeosDestino}"
+                        ItemDisplayBinding="{Binding Nombre, x:DataType=models:Rodeo}"
+                        SelectedItem="{Binding RodeoDestino}"
+                        Title="Elegí el rodeo destino"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorDestino}"
                    IsVisible="{Binding HayErrorDestino}"
                    Style="{StaticResource ErrorCampo}" />

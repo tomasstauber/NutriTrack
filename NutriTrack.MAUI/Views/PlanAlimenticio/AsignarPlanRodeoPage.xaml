@@ -56,18 +56,22 @@
 
                 <!-- R2: el texto de cada opción ya avisa si el rodeo está vacío -->
                 <Label Text="Rodeo *" Style="{StaticResource Etiqueta}" />
-                <Picker ItemsSource="{Binding Rodeos}"
-                        ItemDisplayBinding="{Binding TextoOpcion, x:DataType=models:Rodeo}"
-                        SelectedItem="{Binding RodeoSeleccionado}"
-                        Title="Elegí el rodeo"
-                        IsEnabled="{Binding NoEstaOcupado}" />
+                <Border Style="{StaticResource MarcoCampo}">
+                    <Picker ItemsSource="{Binding Rodeos}"
+                            ItemDisplayBinding="{Binding TextoOpcion, x:DataType=models:Rodeo}"
+                            SelectedItem="{Binding RodeoSeleccionado}"
+                            Title="Elegí el rodeo"
+                            IsEnabled="{Binding NoEstaOcupado}" />
+                </Border>
                 <Label Text="{Binding ErrorRodeo}"
                        IsVisible="{Binding HayErrorRodeo}"
                        Style="{StaticResource ErrorCampo}" />
 
                 <Label Text="Vigencia desde *" Style="{StaticResource Etiqueta}" />
-                <DatePicker Date="{Binding VigenciaDesde}"
-                            Format="dd/MM/yyyy" />
+                <Border Style="{StaticResource MarcoCampo}">
+                    <DatePicker Date="{Binding VigenciaDesde}"
+                                Format="dd/MM/yyyy" />
+                </Border>
                 <Label Text="{Binding ErrorVigenciaDesde}"
                        IsVisible="{Binding HayErrorVigenciaDesde}"
                        Style="{StaticResource ErrorCampo}" />
@@ -80,9 +84,10 @@
                            TextColor="{StaticResource TextoPrincipal}"
                            VerticalOptions="Center" />
                 </HorizontalStackLayout>
-                <DatePicker Date="{Binding VigenciaHasta}"
-                            IsVisible="{Binding CargarVigenciaHasta}"
-                            Format="dd/MM/yyyy" />
+                <Border IsVisible="{Binding CargarVigenciaHasta}" Style="{StaticResource MarcoCampo}">
+                    <DatePicker Date="{Binding VigenciaHasta}"
+                                Format="dd/MM/yyyy" />
+                </Border>
                 <Label Text="{Binding ErrorVigenciaHasta}"
                        IsVisible="{Binding HayErrorVigenciaHasta}"
                        Style="{StaticResource ErrorCampo}" />

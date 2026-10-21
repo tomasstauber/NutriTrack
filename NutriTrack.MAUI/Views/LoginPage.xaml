@@ -5,6 +5,7 @@
              x:Class="NutriTrack.MAUI.Views.LoginPage"
              x:DataType="vm:LoginViewModel"
              Shell.NavBarIsVisible="False"
+             ControlTemplate="{x:Null}"
              BackgroundColor="{StaticResource Fondo}">
 
     <ScrollView>
@@ -29,17 +30,21 @@
 
                 <Label Text="Usuario"
                        TextColor="{StaticResource TextoPrincipal}" />
-                <Entry Text="{Binding NombreUsuario}"
-                       Placeholder="Nombre de usuario"
-                       Keyboard="Plain"
-                       IsSpellCheckEnabled="False"
-                       IsTextPredictionEnabled="False" />
+                <Border Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding NombreUsuario}"
+                           Placeholder="Nombre de usuario"
+                           Keyboard="Plain"
+                           IsSpellCheckEnabled="False"
+                           IsTextPredictionEnabled="False" />
+                </Border>
 
                 <Label Text="Contraseña"
                        TextColor="{StaticResource TextoPrincipal}" />
-                <Entry Text="{Binding Contrasenia}"
-                       Placeholder="Contraseña"
-                       IsPassword="True" />
+                <Border Style="{StaticResource MarcoCampo}">
+                    <Entry Text="{Binding Contrasenia}"
+                           Placeholder="Contraseña"
+                           IsPassword="True" />
+                </Border>
 
                 <Label Text="{Binding MensajeError}"
                        IsVisible="{Binding HayError}"

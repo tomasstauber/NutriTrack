@@ -26,20 +26,22 @@
 
         <!-- Búsqueda y alta -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
-            <SearchBar Grid.Column="0"
-                       Placeholder="Buscar por nombre, nombre de usuario o correo"
-                       Text="{Binding TextoBusqueda}" />
+            <Border Grid.Column="0" Style="{StaticResource MarcoCampo}">
+                <SearchBar Placeholder="Buscar por nombre, nombre de usuario o correo"
+                           Text="{Binding TextoBusqueda}" />
+            </Border>
             <Button Grid.Column="1"
                     Text="Nuevo usuario"
                     Command="{Binding NuevoUsuarioCommand}" />
         </Grid>
 
         <!-- Filtro por rol -->
-        <Picker Grid.Row="1"
-                Title="Rol"
-                ItemsSource="{Binding OpcionesRol}"
-                ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionRol}"
-                SelectedItem="{Binding RolSeleccionado}" />
+        <Border Grid.Row="1" Style="{StaticResource MarcoCampo}">
+            <Picker Title="Rol"
+                    ItemsSource="{Binding OpcionesRol}"
+                    ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionRol}"
+                    SelectedItem="{Binding RolSeleccionado}" />
+        </Border>
 
         <!-- Errores de la API y reintentar -->
         <Grid Grid.Row="2"

@@ -29,17 +29,21 @@
         <!-- Datos del rodeo -->
         <VerticalStackLayout Grid.Row="0" Spacing="8">
             <Label Text="Nombre *" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding Nombre}"
-                   Placeholder="Ej. Rodeo Norte"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Nombre}"
+                       Placeholder="Ej. Rodeo Norte"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorNombre}"
                    IsVisible="{Binding HayErrorNombre}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Descripción" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding Descripcion}"
-                   Placeholder="Opcional"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Descripcion}"
+                       Placeholder="Opcional"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
         </VerticalStackLayout>
 
         <!-- Animales: solo los activos sin rodeo -->

@@ -29,9 +29,10 @@
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="8">
 
         <!-- Búsqueda contra el servidor: busca sola mientras se escribe -->
-        <SearchBar Grid.Row="0"
-                   Placeholder="Buscar por caravana"
-                   Text="{Binding TextoBusqueda}" />
+        <Border Grid.Row="0" Style="{StaticResource MarcoCampo}">
+            <SearchBar Placeholder="Buscar por caravana"
+                       Text="{Binding TextoBusqueda}" />
+        </Border>
 
         <!-- "N seleccionados" y limpiar -->
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="12">

@@ -2,7 +2,9 @@
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:models="clr-namespace:NutriTrack.MAUI.Models">
+    xmlns:models="clr-namespace:NutriTrack.MAUI.Models"
+    xmlns:helpers="clr-namespace:NutriTrack.MAUI.Helpers"
+    xmlns:vm="clr-namespace:NutriTrack.MAUI.ViewModels">
 
     <Style TargetType="ActivityIndicator">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
@@ -80,7 +82,7 @@
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray500}}" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -93,7 +95,7 @@
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource TextoSecundario}, Dark={StaticResource Gray500}}" />
         <Setter Property="MinimumHeightRequest" Value="44"/>
         <Setter Property="MinimumWidthRequest" Value="44"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
@@ -102,7 +104,7 @@
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray600}}" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -115,7 +117,7 @@
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="FontFamily" Value="OpenSansRegular"/>
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource TextoSecundario}, Dark={StaticResource Gray500}}" />
         <Setter Property="MinimumHeightRequest" Value="44"/>
         <Setter Property="MinimumWidthRequest" Value="44"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
@@ -124,7 +126,7 @@
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray600}}" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -201,8 +203,8 @@
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
-                            <Setter Property="TitleColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray600}}" />
+                            <Setter Property="TitleColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray600}}" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -404,6 +406,94 @@
     <Style TargetType="Page" ApplyToDerivedTypes="True">
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+    </Style>
+
+    <!-- Botón verde "Volver", arriba a la izquierda de cada página (#202) -->
+    <Style TargetType="Button" x:Key="BotonVolver">
+        <Setter Property="Text" Value="‹  Volver" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="14,10" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="MinimumWidthRequest" Value="44" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="Margin" Value="16,12,16,0" />
+        <Setter Property="SemanticProperties.Description" Value="Volver a la pantalla anterior" />
+        <Setter Property="ToolTipProperties.Text" Value="Volver a la pantalla anterior" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource PrimaryDark}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.5" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- Plantilla de todas las páginas: el botón Volver arriba y el contenido
+         de la página abajo. Los botones heredan el BindingContext de la página,
+         por eso se puede usar NoEstaOcupado de BaseViewModel.
+         El panel principal y el login no tienen pantalla anterior: ponen
+         ControlTemplate="{x:Null}" para no mostrar el botón -->
+    <ControlTemplate x:Key="PaginaConVolver">
+        <Grid RowDefinitions="Auto,*">
+            <Button Grid.Row="0"
+                    Style="{StaticResource BotonVolver}"
+                    x:DataType="vm:BaseViewModel"
+                    IsEnabled="{Binding NoEstaOcupado}"
+                    Command="{x:Static helpers:Navegacion.VolverCommand}" />
+            <ContentPresenter Grid.Row="1" />
+        </Grid>
+    </ControlTemplate>
+
+    <!-- Reemplaza al estilo de Page en las ContentPage (MAUI aplica un solo
+         estilo implícito), por eso repite su Padding y su fondo -->
+    <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+        <Setter Property="ControlTemplate" Value="{StaticResource PaginaConVolver}" />
+    </Style>
+
+    <!-- Marco de los campos de formulario (Entry, Editor, Picker, DatePicker y
+         SearchBar). Sin él, el campo no se distingue del fondo porque el estilo
+         del control es transparente y sin borde. Uso:
+         <Border Style="{StaticResource MarcoCampo}"><Entry ... /></Border> -->
+    <Style TargetType="Border" x:Key="MarcoCampo">
+        <Setter Property="Stroke" Value="{StaticResource BordeCampo}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 6" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Superficie}" />
+        <Setter Property="Padding" Value="8,0" />
+        <Style.Triggers>
+            <!-- Campo con foco: borde verde más grueso -->
+            <DataTrigger TargetType="Border"
+                         x:DataType="Border"
+                         Binding="{Binding Source={RelativeSource Self}, Path=Content.IsFocused}"
+                         Value="True">
+                <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                <Setter Property="StrokeThickness" Value="2" />
+            </DataTrigger>
+            <!-- Campo deshabilitado: fondo gris claro -->
+            <DataTrigger TargetType="Border"
+                         x:DataType="Border"
+                         Binding="{Binding Source={RelativeSource Self}, Path=Content.IsEnabled}"
+                         Value="False">
+                <Setter Property="BackgroundColor" Value="{StaticResource FondoCampoDeshabilitado}" />
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <Style TargetType="Shell" ApplyToDerivedTypes="True">

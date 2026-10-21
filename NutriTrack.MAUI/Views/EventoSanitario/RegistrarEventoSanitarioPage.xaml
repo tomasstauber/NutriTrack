@@ -26,15 +26,6 @@
             <Setter Property="TextColor" Value="{StaticResource Peligro}" />
         </Style>
 
-        <!-- Marco de los Picker: con el estilo general (fondo transparente, sin borde)
-             no se notaba que se podían tocar -->
-        <Style x:Key="MarcoPicker" TargetType="Border">
-            <Setter Property="Stroke" Value="{StaticResource Borde}" />
-            <Setter Property="StrokeShape" Value="RoundRectangle 4" />
-            <Setter Property="BackgroundColor" Value="{StaticResource Superficie}" />
-            <Setter Property="Padding" Value="8,0" />
-        </Style>
-
         <Style x:Key="Ayuda" TargetType="Label">
             <Setter Property="TextColor" Value="{StaticResource TextoSecundario}" />
         </Style>
@@ -51,7 +42,7 @@
                 <Label Text="Animales" Style="{StaticResource Titulo}" />
 
                 <Label Text="Modo de selección *" Style="{StaticResource Etiqueta}" />
-                <Border Style="{StaticResource MarcoPicker}">
+                <Border Style="{StaticResource MarcoCampo}">
                     <Picker ItemsSource="{Binding OpcionesModo}"
                             ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionModoSeleccion}"
                             SelectedItem="{Binding ModoSeleccionado}"
@@ -64,7 +55,7 @@
                 <!-- Rodeo completo y Selección manual -->
                 <VerticalStackLayout Spacing="12" IsVisible="{Binding MostrarRodeo}">
                     <Label Text="Rodeo *" Style="{StaticResource Etiqueta}" />
-                    <Border Style="{StaticResource MarcoPicker}">
+                    <Border Style="{StaticResource MarcoCampo}">
                         <Picker ItemsSource="{Binding Rodeos}"
                                 ItemDisplayBinding="{Binding Nombre, x:DataType=models:Rodeo}"
                                 SelectedItem="{Binding RodeoSeleccionado}"
@@ -87,7 +78,7 @@
                 <Label Text="Datos del evento" Style="{StaticResource Titulo}" />
 
                 <Label Text="Tipo de evento *" Style="{StaticResource Etiqueta}" />
-                <Border Style="{StaticResource MarcoPicker}">
+                <Border Style="{StaticResource MarcoCampo}">
                     <Picker ItemsSource="{Binding OpcionesTipo}"
                             ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionTipoEvento}"
                             SelectedItem="{Binding TipoSeleccionado}"
@@ -98,9 +89,11 @@
                        Style="{StaticResource ErrorCampo}" />
 
                 <Label Text="Fecha del evento *" Style="{StaticResource Etiqueta}" />
-                <DatePicker Date="{Binding FechaEvento}"
-                            MaximumDate="{Binding Hoy}"
-                            Format="dd/MM/yyyy" />
+                <Border Style="{StaticResource MarcoCampo}">
+                    <DatePicker Date="{Binding FechaEvento}"
+                                MaximumDate="{Binding Hoy}"
+                                Format="dd/MM/yyyy" />
+                </Border>
                 <Label Text="{Binding ErrorFechaEvento}"
                        IsVisible="{Binding HayErrorFechaEvento}"
                        Style="{StaticResource ErrorCampo}" />
@@ -113,9 +106,10 @@
                            TextColor="{StaticResource TextoPrincipal}"
                            VerticalOptions="Center" />
                 </HorizontalStackLayout>
-                <DatePicker Date="{Binding VigenciaHasta}"
-                            IsVisible="{Binding CargarVigencia}"
-                            Format="dd/MM/yyyy" />
+                <Border IsVisible="{Binding CargarVigencia}" Style="{StaticResource MarcoCampo}">
+                    <DatePicker Date="{Binding VigenciaHasta}"
+                                Format="dd/MM/yyyy" />
+                </Border>
                 <Label Text="{Binding ErrorVigencia}"
                        IsVisible="{Binding HayErrorVigencia}"
                        Style="{StaticResource ErrorCampo}" />
@@ -127,9 +121,10 @@
                            TextColor="{StaticResource TextoPrincipal}"
                            VerticalOptions="Center" />
                 </HorizontalStackLayout>
-                <DatePicker Date="{Binding FechaProximaAplicacion}"
-                            IsVisible="{Binding CargarProximaAplicacion}"
-                            Format="dd/MM/yyyy" />
+                <Border IsVisible="{Binding CargarProximaAplicacion}" Style="{StaticResource MarcoCampo}">
+                    <DatePicker Date="{Binding FechaProximaAplicacion}"
+                                Format="dd/MM/yyyy" />
+                </Border>
                 <Label Text="{Binding ErrorProximaAplicacion}"
                        IsVisible="{Binding HayErrorProximaAplicacion}"
                        Style="{StaticResource ErrorCampo}" />
@@ -138,10 +133,12 @@
                 <Label Text="Con el tipo Otro, detallá el evento en observaciones."
                        IsVisible="{Binding EsTipoOtro}"
                        Style="{StaticResource Ayuda}" />
-                <Editor Text="{Binding Observaciones}"
-                        Placeholder="Opcional"
-                        AutoSize="TextChanges"
-                        MinimumHeightRequest="80" />
+                <Border Style="{StaticResource MarcoCampo}">
+                    <Editor Text="{Binding Observaciones}"
+                            Placeholder="Opcional"
+                            AutoSize="TextChanges"
+                            MinimumHeightRequest="80" />
+                </Border>
 
                 <!-- Medicamentos: cero, uno o varios -->
                 <Grid ColumnDefinitions="*,Auto">
@@ -180,7 +177,7 @@
                                                 CommandParameter="{Binding .}" />
                                     </Grid>
                                     <!-- Solo los medicamentos activos -->
-                                    <Border Style="{StaticResource MarcoPicker}">
+                                    <Border Style="{StaticResource MarcoCampo}">
                                         <Picker ItemsSource="{Binding Medicamentos}"
                                                 ItemDisplayBinding="{Binding Nombre, x:DataType=models:Medicamento}"
                                                 SelectedItem="{Binding MedicamentoSeleccionado}"
@@ -194,7 +191,7 @@
                                     <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                                         <VerticalStackLayout Grid.Column="0" Spacing="4">
                                             <Label Text="Dosis" Style="{StaticResource Etiqueta}" />
-                                            <Border Style="{StaticResource MarcoPicker}">
+                                            <Border Style="{StaticResource MarcoCampo}">
                                                 <Entry Text="{Binding Dosis}"
                                                        Placeholder="Opcional"
                                                        Keyboard="Numeric" />
@@ -206,7 +203,7 @@
 
                                         <VerticalStackLayout Grid.Column="1" Spacing="4">
                                             <Label Text="Unidad" Style="{StaticResource Etiqueta}" />
-                                            <Border Style="{StaticResource MarcoPicker}">
+                                            <Border Style="{StaticResource MarcoCampo}">
                                                 <Picker ItemsSource="{x:Static vm:DetalleMedicamentoEditable.Unidades}"
                                                         SelectedItem="{Binding Unidad}"
                                                         Title="Unidad" />
@@ -218,7 +215,7 @@
                                     </Grid>
 
                                     <Label Text="Observaciones" Style="{StaticResource Etiqueta}" />
-                                    <Border Style="{StaticResource MarcoPicker}">
+                                    <Border Style="{StaticResource MarcoCampo}">
                                         <Entry Text="{Binding Observaciones}"
                                                Placeholder="Opcional" />
                                     </Border>

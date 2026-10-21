@@ -29,9 +29,10 @@
 
         <!-- Búsqueda y alta -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
-            <SearchBar Grid.Column="0"
-                       Placeholder="Buscar por nombre"
-                       Text="{Binding TextoBusqueda}" />
+            <Border Grid.Column="0" Style="{StaticResource MarcoCampo}">
+                <SearchBar Placeholder="Buscar por nombre"
+                           Text="{Binding TextoBusqueda}" />
+            </Border>
             <Button Grid.Column="1"
                     Text="Nuevo medicamento"
                     IsVisible="{Binding PuedeCrear}"

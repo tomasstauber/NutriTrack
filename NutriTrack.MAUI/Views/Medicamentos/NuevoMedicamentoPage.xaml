@@ -13,18 +13,22 @@
             <Label Text="Nombre *"
                    FontAttributes="Bold"
                    TextColor="{StaticResource TextoPrincipal}" />
-            <Entry Text="{Binding Nombre}"
-                   Placeholder="Nombre del medicamento"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Nombre}"
+                       Placeholder="Nombre del medicamento"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
 
             <Label Text="Descripción"
                    FontAttributes="Bold"
                    TextColor="{StaticResource TextoPrincipal}" />
-            <Editor Text="{Binding Descripcion}"
-                    Placeholder="Opcional"
-                    AutoSize="TextChanges"
-                    MinimumHeightRequest="80"
-                    IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Editor Text="{Binding Descripcion}"
+                        Placeholder="Opcional"
+                        AutoSize="TextChanges"
+                        MinimumHeightRequest="80"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
 
             <!-- Validación y errores de la API -->
             <Label Text="{Binding MensajeError}"

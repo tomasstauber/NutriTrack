@@ -30,69 +30,85 @@
 
             <!-- D1 a D3 -->
             <Label Text="Nombre *" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding Nombre}"
-                   Placeholder="Nombre del ingrediente"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Nombre}"
+                       Placeholder="Nombre del ingrediente"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorNombre}"
                    IsVisible="{Binding HayErrorNombre}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Descripción" Style="{StaticResource Etiqueta}" />
-            <Editor Text="{Binding Descripcion}"
-                    Placeholder="Opcional"
-                    AutoSize="TextChanges"
-                    MinimumHeightRequest="80"
-                    IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Editor Text="{Binding Descripcion}"
+                        Placeholder="Opcional"
+                        AutoSize="TextChanges"
+                        MinimumHeightRequest="80"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
 
             <Label Text="Minerales" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding Minerales}"
-                   Placeholder="Opcional"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Minerales}"
+                       Placeholder="Opcional"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
 
             <!-- D4 a D6: opcionales, mayores o iguales a 0 -->
             <Label Text="Valores nutricionales (opcionales)" Style="{StaticResource Titulo}" />
 
             <Label Text="Energía metabolizable" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding EnergiaMetabolizable}"
-                   Placeholder="Ej. 2,8"
-                   Keyboard="Numeric"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding EnergiaMetabolizable}"
+                       Placeholder="Ej. 2,8"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorEnergiaMetabolizable}"
                    IsVisible="{Binding HayErrorEnergiaMetabolizable}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Proteína bruta" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding ProteinaBruta}"
-                   Placeholder="Ej. 12,5"
-                   Keyboard="Numeric"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding ProteinaBruta}"
+                       Placeholder="Ej. 12,5"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorProteinaBruta}"
                    IsVisible="{Binding HayErrorProteinaBruta}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Fibra detergente neutro" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding FibraDetergenteNeutro}"
-                   Placeholder="Ej. 45"
-                   Keyboard="Numeric"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding FibraDetergenteNeutro}"
+                       Placeholder="Ej. 45"
+                       Keyboard="Numeric"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorFibraDetergenteNeutro}"
                    IsVisible="{Binding HayErrorFibraDetergenteNeutro}"
                    Style="{StaticResource ErrorCampo}" />
 
             <!-- D7 y D8 -->
             <Label Text="Unidad de medida *" Style="{StaticResource Etiqueta}" />
-            <Picker ItemsSource="{Binding Unidades}"
-                    SelectedItem="{Binding UnidadMedida}"
-                    Title="Elegir"
-                    IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Picker ItemsSource="{Binding Unidades}"
+                        SelectedItem="{Binding UnidadMedida}"
+                        Title="Elegir"
+                        IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
             <Label Text="{Binding ErrorUnidadMedida}"
                    IsVisible="{Binding HayErrorUnidadMedida}"
                    Style="{StaticResource ErrorCampo}" />
 
             <Label Text="Aditivos" Style="{StaticResource Etiqueta}" />
-            <Entry Text="{Binding Aditivos}"
-                   Placeholder="Opcional"
-                   IsEnabled="{Binding NoEstaOcupado}" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <Entry Text="{Binding Aditivos}"
+                       Placeholder="Opcional"
+                       IsEnabled="{Binding NoEstaOcupado}" />
+            </Border>
 
             <!-- Errores de la API (nombre duplicado...) -->
             <Label Text="{Binding MensajeError}"

@@ -57,16 +57,18 @@
             <VerticalStackLayout Spacing="4">
                 <Label Text="Caravana (opcional)" Style="{StaticResource Etiqueta}" />
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                    <Entry Grid.Column="0"
-                           Text="{Binding Cuig}"
-                           Placeholder="CUIG"
-                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                           IsEnabled="{Binding NoEstaOcupado}" />
-                    <Entry Grid.Column="1"
-                           Text="{Binding NroManejo}"
-                           Placeholder="Nro. de manejo"
-                           MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
-                           IsEnabled="{Binding NoEstaOcupado}" />
+                    <Border Grid.Column="0" Style="{StaticResource MarcoCampo}">
+                        <Entry Text="{Binding Cuig}"
+                               Placeholder="CUIG"
+                               MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                               IsEnabled="{Binding NoEstaOcupado}" />
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource MarcoCampo}">
+                        <Entry Text="{Binding NroManejo}"
+                               Placeholder="Nro. de manejo"
+                               MaxLength="{x:Static helpers:CaravanaValidador.LargoMaximoParte}"
+                               IsEnabled="{Binding NoEstaOcupado}" />
+                    </Border>
                 </Grid>
                 <Label Text="{Binding ErrorCaravana}"
                        IsVisible="{Binding HayErrorCaravana}"

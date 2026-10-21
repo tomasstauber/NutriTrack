@@ -22,15 +22,6 @@
             <Setter Property="TextColor" Value="{StaticResource Peligro}" />
         </Style>
 
-        <!-- Marco de los Picker: con el estilo general (fondo transparente, sin borde)
-             no se notaba que se podían tocar -->
-        <Style x:Key="MarcoPicker" TargetType="Border">
-            <Setter Property="Stroke" Value="{StaticResource Borde}" />
-            <Setter Property="StrokeShape" Value="RoundRectangle 4" />
-            <Setter Property="BackgroundColor" Value="{StaticResource Superficie}" />
-            <Setter Property="Padding" Value="8,0" />
-        </Style>
-
         <Style x:Key="Ayuda" TargetType="Label">
             <Setter Property="TextColor" Value="{StaticResource TextoSecundario}" />
         </Style>
@@ -46,7 +37,7 @@
         <!-- "Todos" no manda IdRodeo -->
         <VerticalStackLayout Style="{StaticResource Campo}">
             <Label Text="Rodeo" Style="{StaticResource Etiqueta}" />
-            <Border Style="{StaticResource MarcoPicker}">
+            <Border Style="{StaticResource MarcoCampo}">
                 <Picker ItemsSource="{Binding Rodeos}"
                         ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionRodeoReporte}"
                         SelectedItem="{Binding RodeoSeleccionado}"
@@ -56,7 +47,7 @@
 
         <VerticalStackLayout Style="{StaticResource Campo}">
             <Label Text="Tipo de reporte *" Style="{StaticResource Etiqueta}" />
-            <Border Style="{StaticResource MarcoPicker}">
+            <Border Style="{StaticResource MarcoCampo}">
                 <Picker ItemsSource="{Binding Tipos}"
                         ItemDisplayBinding="{Binding Texto, x:DataType=models:OpcionTipoReporte}"
                         SelectedItem="{Binding TipoSeleccionado}"
@@ -71,8 +62,10 @@
         <VerticalStackLayout Style="{StaticResource Campo}"
                              IsVisible="{Binding MostrarFechaReferencia}">
             <Label Text="Fecha de referencia *" Style="{StaticResource Etiqueta}" />
-            <DatePicker Date="{Binding FechaReferencia}"
-                        Format="dd/MM/yyyy" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <DatePicker Date="{Binding FechaReferencia}"
+                            Format="dd/MM/yyyy" />
+            </Border>
             <Label Text="{Binding ErrorFechaReferencia}"
                    IsVisible="{Binding HayErrorFechaReferencia}"
                    Style="{StaticResource ErrorCampo}" />
@@ -82,8 +75,10 @@
         <VerticalStackLayout Style="{StaticResource Campo}"
                              IsVisible="{Binding MostrarRango}">
             <Label Text="Desde *" Style="{StaticResource Etiqueta}" />
-            <DatePicker Date="{Binding Desde}"
-                        Format="dd/MM/yyyy" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <DatePicker Date="{Binding Desde}"
+                            Format="dd/MM/yyyy" />
+            </Border>
             <Label Text="{Binding ErrorDesde}"
                    IsVisible="{Binding HayErrorDesde}"
                    Style="{StaticResource ErrorCampo}" />
@@ -92,8 +87,10 @@
         <VerticalStackLayout Style="{StaticResource Campo}"
                              IsVisible="{Binding MostrarRango}">
             <Label Text="Hasta *" Style="{StaticResource Etiqueta}" />
-            <DatePicker Date="{Binding Hasta}"
-                        Format="dd/MM/yyyy" />
+            <Border Style="{StaticResource MarcoCampo}">
+                <DatePicker Date="{Binding Hasta}"
+                            Format="dd/MM/yyyy" />
+            </Border>
             <Label Text="{Binding ErrorHasta}"
                    IsVisible="{Binding HayErrorHasta}"
                    Style="{StaticResource ErrorCampo}" />

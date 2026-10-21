@@ -22,6 +22,11 @@
     <Color x:Key="Peligro">#E7000B</Color>
     <Color x:Key="PeligroSuave">#FEF2F2</Color>
 
+    <!-- Campos de formulario (MarcoCampo en Styles.xaml).
+         BordeCampo contrasta 3:1 con el blanco, para que el campo se vea sin tocarlo -->
+    <Color x:Key="BordeCampo">#8A9099</Color>
+    <Color x:Key="FondoCampoDeshabilitado">#F3F4F6</Color>
+
     <!-- Verde oscuro de la barra del Shell y del encabezado del panel -->
     <Color x:Key="VerdeOscuro">#0F3B24</Color>
     <!-- Textos y fondos sobre el verde oscuro -->
